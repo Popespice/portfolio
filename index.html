@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connor — Portfolio</title>
+<meta name="description" content="A portfolio of app design and projects." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg:        #1e2327;       /* dark gray base — matches Bento theme color */
+    --bg-2:      #262b30;       /* card surface, one shade lighter */
+    --bg-screen: #14181b;       /* embedded panels (screenshots), darkest */
+    --ink:       #e0ddd6;       /* warm off-white, primary text */
+    --ink-soft:  #a8a6a0;       /* secondary text */
+    --muted:     #6a6e72;       /* tertiary text, labels, dim borders */
+    --accent:    #f5f3ee;       /* near-white — LED-bright on hover */
+    --dot:       rgba(255, 255, 255, 0.08);
+    --dot-fine:  rgba(255, 255, 255, 0.035);
+
+    --font-display: 'Space Mono', ui-monospace, monospace;
+    --font-ui:      'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle, var(--dot) 1px, transparent 1.2px),
+      radial-gradient(circle, var(--dot-fine) 0.5px, transparent 0.8px);
+    background-size: 14px 14px, 7px 7px;
+    background-position: 0 0, 7px 7px;
+    min-height: 100vh;
+    padding: 3rem 1.5rem 5rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* ---------- RIPPLE CANVAS ---------- */
+  #ripple-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ---------- HEADER ---------- */
+  .meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+  .meta-bar .rule {
+    flex: 1;
+    border-top: 1px dotted var(--muted);
+    height: 1px;
+  }
+
+  header {
+    padding-bottom: 2.5rem;
+    margin-bottom: 3rem;
+    border-bottom: 2px dotted var(--ink);
+    position: relative;
+  }
+  header::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-bottom: 1px dotted var(--ink);
+    opacity: 0.5;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.75rem, 8vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+  .title .dot { color: var(--accent); }
+
+  .tagline {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    max-width: 36rem;
+  }
+
+  .links {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .links a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink);
+    padding-bottom: 2px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .links a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    border-bottom-style: solid;
+  }
+
+  /* ---------- SECTION LABEL ---------- */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1.5rem;
+  }
+  .section-label .count {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .section-label .rule {
+    flex: 1;
+    border-top: 1px dotted var(--ink-soft);
+    height: 1px;
+  }
+
+  /* ---------- PROJECT GRID ---------- */
+  .projects {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .project {
+    background: var(--bg-2);
+    border: 1px dotted var(--ink);
+    padding: 1.5rem;
+    transition: transform 0.2s ease, border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project:hover {
+    border-style: solid;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dotted var(--ink);
+  }
+  .project-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.875rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+
+    /* Dot-matrix rendering: paints a tight dot grid through the letterforms */
+    background-image: radial-gradient(circle, currentColor 38%, transparent 40%);
+    background-size: 3px 3px;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+            text-fill-color: transparent;
+
+    transition: color 0.2s;
+  }
+  .project:hover .project-name {
+    color: var(--accent);
+  }
+  /* Fallback for browsers without background-clip:text — letters still render solid */
+  @supports not (-webkit-background-clip: text) {
+    .project-name {
+      background-image: none;
+      -webkit-text-fill-color: currentColor;
+              text-fill-color: currentColor;
+    }
+  }
+  .project-meta {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .project-description {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0.75rem 0 1rem;
+    color: var(--ink-soft);
+  }
+
+  .project-tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .tag {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border: 1px dotted var(--muted);
+    color: var(--muted);
+  }
+
+  .project-screenshot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: var(--bg-screen);
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.10) 1px, transparent 1.5px);
+    background-size: 9px 9px;
+    color: var(--ink-soft);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    border: 1px solid var(--muted);
+  }
+  .project-screenshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .project-screenshot .placeholder {
+    opacity: 0.5;
+  }
+
+  .project-actions {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-bottom: 1px dotted var(--accent);
+    padding-bottom: 2px;
+    transition: all 0.15s;
+  }
+  .project-link:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-bottom-color: var(--accent);
+    border-bottom-style: solid;
+    padding: 2px 6px 2px;
+    margin: -2px -6px;
+  }
+  .project-link.secondary {
+    color: var(--ink-soft);
+    border-bottom-color: var(--ink-soft);
+  }
+  .project-link.secondary:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-bottom-color: var(--ink);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px dotted var(--ink);
+    text-align: center;
+    color: var(--muted);
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  footer .end {
+    display: inline-block;
+    padding: 0 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  footer a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink);
+  }
+  footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ---------- ENTRANCE ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  header.reveal { animation-delay: 0.05s; }
+  .section-label.reveal { animation-delay: 0.2s; }
+  .project:nth-child(1)  { animation-delay: 0.25s; }
+  .project:nth-child(2)  { animation-delay: 0.32s; }
+  .project:nth-child(3)  { animation-delay: 0.39s; }
+  .project:nth-child(4)  { animation-delay: 0.46s; }
+  .project:nth-child(5)  { animation-delay: 0.53s; }
+  .project:nth-child(6)  { animation-delay: 0.60s; }
+
+  @media (max-width: 540px) {
+    body { padding: 2rem 1rem 3rem; }
+    .project-header { flex-direction: column; gap: 0.25rem; }
+    .meta-bar { font-size: 0.65rem; }
+  }
+</style>
+</head>
+<body>
+<canvas id="ripple-canvas" aria-hidden="true"></canvas>
+<div class="container">
+
+  <!-- ===== HEADER ===== -->
+  <header class="reveal">
+    <div class="meta-bar">
+      <span>// PORTFOLIO.V01</span>
+      <span class="rule"></span>
+      <span>2026</span>
+    </div>
+    <h1 class="title">CONNOR<span class="dot">.</span></h1>
+    <p class="tagline">App design &amp; software experiments — printed in the open.</p>
+    <nav class="links">
+      <a href="https://github.com/Popespice" target="_blank" rel="noopener">github</a>
+      <a href="mailto:you@example.com">email</a>
+      <a href="#projects">projects ↓</a>
+    </nav>
+  </header>
+
+  <!-- ===== PROJECTS ===== -->
+  <section id="projects">
+    <div class="section-label reveal">
+      <span>&gt;&gt; selected work</span>
+      <span class="count">[ 03 ]</span>
+      <span class="rule"></span>
+    </div>
+
+    <div class="projects">
+
+      <!-- ===== PROJECT TEMPLATE: copy this block for each project ===== -->
+      <article class="project reveal">
+        <div class="project-header">
+          <h2 class="project-name">bento</h2>
+          <span class="project-meta">2026 · shipped</span>
+        </div>
+        <p class="project-description">
+          A dot-matrix developer dashboard built in Electron and React. Surfaces live system stats, Spotify now-playing, GitHub activity, and calendar countdowns in a single resizable window. The design system that became the foundation for this portfolio.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Electron</span>
+          <span class="tag">React</span>
+          <span class="tag">Design System</span>
+        </div>
+        <div class="project-screenshot">
+          <img src="screenshots/bento.png" alt="Bento — dot-matrix developer dashboard showing system stats, Spotify now playing, GitHub activity, and focus timer" />
+        </div>
+        <div class="project-actions">
+          <a class="project-link" href="https://github.com/Popespice/glitch-bento-box" target="_blank" rel="noopener">
+            view on github →
+          </a>
+        </div>
+      </article>
+
+      <article class="project reveal">
+        <div class="project-header">
+          <h2 class="project-name">grackle</h2>
+          <span class="project-meta">2025 · active</span>
+        </div>
+        <p class="project-description">
+          A polyglot codebase analysis tool that maps program structure and dependency graphs across multiple languages in real time. Built on Python asyncio and Tree-sitter with a React and TypeScript frontend over WebSockets. Enforces mypy strict throughout and ships with 17 Architecture Decision Records.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Python</span>
+          <span class="tag">asyncio</span>
+          <span class="tag">Tree-sitter</span>
+          <span class="tag">React</span>
+          <span class="tag">TypeScript</span>
+        </div>
+        <div class="project-screenshot">
+          <img src="screenshots/grackle.png" alt="Grackle codebase analysis tool — Go fixture showing node graph, source viewer, and stats panel" />
+        </div>
+        <div class="project-actions">
+          <a class="project-link" href="https://github.com/Popespice/grackle" target="_blank" rel="noopener">
+            view on github →
+          </a>
+        </div>
+      </article>
+
+      <article class="project reveal">
+        <div class="project-header">
+          <h2 class="project-name">lightshow sequencer</h2>
+          <span class="project-meta">2025 · active</span>
+        </div>
+        <p class="project-description">
+          A native macOS app that drives music-reactive LED light shows through dual-transport ESP32 hardware. Audio analysis runs on Apple's Accelerate vDSP framework for low-latency FFT processing. Includes a Three.js WebGL 3D visualizer and a GitHub Actions CI pipeline.
+        </p>
+        <div class="project-tags">
+          <span class="tag">Swift</span>
+          <span class="tag">SwiftUI</span>
+          <span class="tag">ESP32</span>
+          <span class="tag">Three.js</span>
+          <span class="tag">vDSP</span>
+        </div>
+        <div class="project-screenshot">
+          <img src="screenshots/lightshow.png" alt="Lightshow Sequencer — SwiftUI timeline editor with Three.js particle visualizer and multi-channel audio analysis" />
+        </div>
+        <div class="project-actions">
+          <a class="project-link" href="https://github.com/Popespice" target="_blank" rel="noopener">
+            view on github →
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <span class="end">// END OF FEED</span>
+    <div>
+      <a href="https://github.com/Popespice" target="_blank" rel="noopener">github</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:you@example.com">email</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   Ripple field — slow-moving wide rings of brightened dots
+   that pass across the existing static dot grid.
+   ============================================================ */
+(() => {
+  const canvas = document.getElementById('ripple-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d', { alpha: true });
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- tuning ----
+  const SPACING       = 14;     // px between dots — must match CSS background-size
+  const DOT_R         = 1;      // px dot radius
+  const BAND          = 168;    // px — width of the ripple band (large = wide ripples)
+  const PEAK_ADD      = 0.55;   // peak alpha contribution from a ripple
+  const MAX_R_FACTOR  = 1.45;   // ripple grows to 1.45x viewport diagonal
+  const MIN_DURATION  = 16000;  // shortest ripple lifespan (ms)
+  const MAX_DURATION  = 22000;  // longest ripple lifespan (ms)
+  const SPAWN_EVERY   = 5500;   // ms between new ripple spawns
+  const MAX_RIPPLES   = 4;      // hard cap on simultaneous ripples
+
+  let dpr = 1, w = 0, h = 0, cols = 0, rows = 0;
+  const ripples = [];
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    cols = Math.ceil(w / SPACING) + 1;
+    rows = Math.ceil(h / SPACING) + 1;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function spawn() {
+    ripples.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      start: performance.now(),
+      duration: MIN_DURATION + Math.random() * (MAX_DURATION - MIN_DURATION),
+    });
+    while (ripples.length > MAX_RIPPLES) ripples.shift();
+  }
+
+  // Stagger initial ripples so the field starts "alive" rather than empty
+  spawn();
+  setTimeout(spawn, 4000);
+  setTimeout(spawn, 9000);
+  setInterval(spawn, SPAWN_EVERY);
+
+  let running = true;
+  document.addEventListener('visibilitychange', () => {
+    running = document.visibilityState === 'visible';
+    if (running) requestAnimationFrame(draw);
+  });
+
+  function draw(now) {
+    if (!running) return;
+
+    ctx.clearRect(0, 0, w, h);
+
+    if (reduced) {
+      // Reduced motion: skip the animation entirely; CSS static dots remain.
+      return;
+    }
+
+    const diag = Math.sqrt(w * w + h * h);
+    const maxR = diag * MAX_R_FACTOR;
+
+    // Snapshot active ripples for this frame
+    const live = [];
+    for (let i = 0; i < ripples.length; i++) {
+      const r = ripples[i];
+      const phase = (now - r.start) / r.duration;
+      if (phase < 0 || phase >= 1) continue;
+      live.push({
+        x: r.x,
+        y: r.y,
+        radius: phase * maxR,
+        ageFade: 1 - phase,              // ripples fade as they age
+        riseFade: Math.min(1, phase * 8) // and gently rise in at birth
+      });
+    }
+
+    if (live.length === 0) {
+      requestAnimationFrame(draw);
+      return;
+    }
+
+    // Walk every dot position; brighten only those touched by a ripple band.
+    // Offsetting by SPACING/2 aligns canvas dots with the CSS radial-gradient centers.
+    const half = SPACING / 2;
+    for (let i = 0; i < cols; i++) {
+      const x = i * SPACING + half;
+      for (let j = 0; j < rows; j++) {
+        const y = j * SPACING + half;
+        let extra = 0;
+
+        for (let k = 0; k < live.length; k++) {
+          const r = live[k];
+          const dx = x - r.x;
+          const dy = y - r.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const offset = dist - r.radius;
+          if (offset > BAND || offset < -BAND) continue;
+          // Bell-curve falloff: brightest at the wave crest, smooth edges
+          const t = offset / BAND;             // -1..1
+          const bell = Math.cos(t * Math.PI * 0.5);
+          extra += bell * bell * r.ageFade * r.riseFade;
+        }
+
+        if (extra <= 0.01) continue;
+        const alpha = Math.min(0.5, extra * PEAK_ADD);
+        ctx.fillStyle = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
+        ctx.fillRect(x - DOT_R, y - DOT_R, DOT_R * 2, DOT_R * 2);
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>
