@@ -1,0 +1,2216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Painted Leaves">
+<meta property="og:description" content="An illustrated, interactive field guide to how, why and when the Northeast's leaves change color, painted in code.">
+<meta property="og:url" content="https://popespice.github.io/portfolio/painted-leaves/">
+<meta property="og:image" content="https://popespice.github.io/portfolio/painted-leaves/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Connor Allen">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l3 7 6-3-2 7 7 1-6 5 3 4-7-1v8h-2v-8l-7 1 3-4-6-5 7-1-2-7 6 3z' fill='%23d5562b'/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}
+.crumb{max-width:72rem;margin:0 auto;padding-top:1.1rem;font-family:"Alegreya Sans","Gill Sans",system-ui,sans-serif;font-size:.85rem;color:var(--ink-soft)}
+.crumb a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}.crumb a:hover{border-color:var(--accent)}
+.crumb span{margin:0 .45rem;color:var(--ink-faint)}</style>
+<title>Painted Leaves</title>
+<meta name="description" content="An illustrated field guide to how, why and when the Northeast's leaves change color.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
+<style>
+/* Layout: a naturalist's folio. A single reading column (~38rem) with a margin rail for field notes on wide
+   screens; painted plates sit on light paper sheets that run wider than the text, in both themes. */
+:root {
+  --paper: #f4f4ef;
+  --sheet: #fbfaf5;
+  --ink: #242c35;          /* Payne's grey */
+  --ink-soft: #59626b;
+  --ink-faint: #8a9198;
+  --rule: #d8d7cd;
+  --sheet-ink: #242c35;    /* text printed on paper sheets: same in both themes */
+  --sheet-soft: #5d646b;
+  --sheet-rule: #dcdad0;
+  --chl: #4e7a33;          /* chlorophyll */
+  --car: #c98a12;          /* carotenoids */
+  --ant: #b0263c;          /* anthocyanins */
+  --tan: #8a5a36;          /* tannins */
+  --accent: #b5512c;       /* replaced live with the season's color */
+  --accent-ink: #9a3f20;
+  --focus: #2f6db5;
+  --shadow: 0 1px 1px rgba(36, 44, 53, .06), 0 10px 30px -14px rgba(36, 44, 53, .32);
+  --f-display: "IM Fell English", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-display-sc: "IM Fell English SC", "IM Fell English", Georgia, serif;
+  --f-body: "Alegreya", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --f-ui: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+  --f-label: "Alegreya Sans SC", "Alegreya Sans", "Gill Sans", system-ui, sans-serif;
+  --col: 38rem;
+  --wide: 72rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #151918; --sheet: #f2f0e9; --ink: #e8e5dc; --ink-soft: #aeb0a8; --ink-faint: #80847e; --rule: #2e3532;
+    --chl: #8fb86b; --car: #e7b444; --ant: #ea6b7d; --tan: #c8946a; --accent: #e08a5c; --accent-ink: #f0a47a; --focus: #86b4ef;
+    --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 14px 40px -16px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #151918; --sheet: #f2f0e9; --ink: #e8e5dc; --ink-soft: #aeb0a8; --ink-faint: #80847e; --rule: #2e3532;
+  --chl: #8fb86b; --car: #e7b444; --ant: #ea6b7d; --tan: #c8946a; --accent: #e08a5c; --accent-ink: #f0a47a; --focus: #86b4ef;
+  --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 14px 40px -16px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper) url("assets/paper.png");
+  background-blend-mode: multiply;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 1.125rem;
+  line-height: 1.58;
+  margin: 0;
+  padding-inline: 16px;
+  padding-block: 0 6rem;
+  font-variant-numeric: oldstyle-nums;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration-color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+p { margin: 0 0 1em; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; }
+em, i { font-style: italic; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.label {
+  font-family: var(--f-label); font-weight: 500; font-size: .8rem; letter-spacing: .07em; color: var(--ink-soft);
+  text-transform: lowercase;
+}
+.col { max-width: var(--col); margin-inline: auto; }
+.wide { max-width: var(--wide); margin-inline: auto; }
+
+/* ------------------------------------------------ masthead */
+.masthead { position: relative; overflow-x: clip; max-width: var(--wide); margin: 0 auto; padding-block: clamp(2.5rem, 7vw, 5rem) 1.5rem; display: grid; gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr); }
+.masthead .label { color: var(--ink-soft); }
+.masthead h1 { font-style: italic; font-size: clamp(3.9rem, 11vw, 8.4rem); line-height: .86; letter-spacing: -.01em; }
+.masthead h1 span { display: inline-block; }
+.masthead h1 .l2 { padding-left: clamp(1.5rem, 9vw, 9rem); color: var(--accent-ink); transition: color .6s ease; }
+.mast-grid { display: grid; gap: 1.5rem 3rem; grid-template-columns: minmax(0, 1fr); align-items: end; }
+@media (min-width: 860px) { .mast-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+.dek { font-size: clamp(1.15rem, 1.8vw, 1.32rem); line-height: 1.45; max-width: 34rem; margin: 0; color: var(--ink); }
+.epigraph { margin: 0; padding-left: 1rem; border-left: 1px solid var(--rule); max-width: 26rem; }
+.epigraph p { font-family: var(--f-display); font-style: italic; font-size: 1.22rem; line-height: 1.35; margin: 0 0 .4rem; }
+.epigraph cite { font-style: normal; font-family: var(--f-ui); font-size: .85rem; color: var(--ink-soft); }
+
+.masthead > *:not(.mast-leaves) { position: relative; z-index: 1; }
+.mast-leaves { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.mast-leaves img { position: absolute; height: auto; }
+.ml-maple { width: clamp(150px, 27vw, 390px); right: clamp(-10px, 3vw, 60px); top: -1rem; transform: rotate(6deg); }
+.ml-oak { width: clamp(70px, 13vw, 190px); right: clamp(120px, 30vw, 430px); top: clamp(6rem, 13vw, 12rem); transform: rotate(-20deg); opacity: .95; }
+@media (max-width: 860px) { .ml-oak { display: none; } .ml-maple { top: 3.4rem; right: 0; width: clamp(110px, 32vw, 250px); opacity: .92; } }
+
+/* ------------------------------------------------ sheets: paper that carries paintings */
+.sheet {
+  --accent-ink: var(--sheet-accent, #9a3f20);
+  position: relative; isolation: isolate;
+  background: var(--sheet) url("assets/paper.png"); background-blend-mode: multiply;
+  color: var(--sheet-ink); box-shadow: var(--shadow); border-radius: 2px;
+}
+.wash { mix-blend-mode: multiply; isolation: isolate; position: relative; }
+
+/* ------------------------------------------------ hero plate */
+.plate { max-width: 84rem; margin: 0 auto; }
+.plate .sheet { padding: clamp(.5rem, 1.6vw, 1.25rem); }
+.hero-frames { position: relative; aspect-ratio: 2000 / 860; width: 100%; }
+.hero-frames img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 38% 50%; opacity: 0; transition: opacity .25s linear; }
+@media (max-width: 600px) { .hero-frames { aspect-ratio: 1.55; } }
+.hero-frames img.on { opacity: 1; }
+.hero-stage { position: relative; }
+.hero-gl { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+.hero-frames.gl .hero-gl { display: block; }
+.hero-frames.gl img { visibility: hidden; }
+.hero-leaves { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.plate-foot { display: grid; gap: .75rem 2rem; grid-template-columns: minmax(0, 1fr); padding: .9rem .4rem .3rem; }
+@media (min-width: 860px) { .plate-foot { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; } }
+.plate-cap { font-family: var(--f-ui); font-size: .88rem; color: var(--sheet-soft); line-height: 1.45; margin: 0; }
+.plate-cap b { font-weight: 500; color: var(--sheet-ink); }
+
+/* ------------------------------------------------ the season dial */
+.dial { display: grid; gap: .6rem; padding: 1rem .4rem .4rem; }
+.dial-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1.2rem; }
+.dial-date { font-family: var(--f-display); font-style: italic; font-size: clamp(1.7rem, 3.4vw, 2.3rem); line-height: 1; min-width: 7.5ch; }
+.dial-stage { font-family: var(--f-ui); font-size: .95rem; color: var(--sheet-soft); }
+.dial-stage strong { color: var(--accent-ink); font-weight: 700; }
+.dial-row { display: flex; align-items: flex-start; gap: .8rem; }
+.dial-row > .btn { margin-top: .1rem; }
+.mini .dial-row { align-items: center; }
+.mini .dial-row > .btn { margin-top: 0; }
+.btn {
+  font-family: var(--f-ui); font-size: .9rem; font-weight: 500; color: inherit; background: transparent;
+  border: 1px solid currentColor; border-radius: 999px; padding: .35rem .85rem; cursor: pointer; line-height: 1.2;
+  display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap;
+}
+.btn:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+.btn svg { width: .9em; height: .9em; }
+.play { width: 2.4rem; height: 2.4rem; padding: 0; justify-content: center; flex: none; }
+.range { -webkit-appearance: none; appearance: none; width: 100%; height: 2.4rem; background: transparent; cursor: pointer; margin: 0; }
+.range:focus-visible { outline-offset: 0; }
+.range::-webkit-slider-runnable-track { height: 14px; border-radius: 7px; background: var(--track, #ccc); box-shadow: inset 0 0 0 1px rgba(36, 44, 53, .18); }
+.range::-moz-range-track { height: 14px; border-radius: 7px; background: var(--track, #ccc); box-shadow: inset 0 0 0 1px rgba(36, 44, 53, .18); }
+.range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 30px; margin-top: -8px; border-radius: 11px;
+  background: #fbfaf5; border: 2px solid #242c35; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+.range::-moz-range-thumb { width: 18px; height: 26px; border-radius: 10px; background: #fbfaf5; border: 2px solid #242c35; }
+.ticks { position: relative; font-family: var(--f-ui); font-size: .76rem; color: var(--sheet-soft); }
+.ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ticks span.pk { color: var(--accent-ink); font-weight: 700; }
+.place-row { display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: center; font-family: var(--f-ui); font-size: .92rem; }
+.select {
+  font: inherit; color: inherit; background: transparent; border: 0; border-bottom: 1px dashed currentColor; padding: .15rem 1.4rem .15rem .1rem;
+  -webkit-appearance: none; appearance: none; cursor: pointer; max-width: 100%;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 9px) 55%, calc(100% - 4px) 55%; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.select option { color: #242c35; background: #fbfaf5; }
+
+/* sticky copy of the dial */
+.mini {
+  position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%); width: min(46rem, calc(100% - 16px));
+  padding: .55rem .9rem calc(.55rem + env(safe-area-inset-bottom, 0px)); z-index: 20;
+  transition: transform .35s ease; border-radius: 10px 10px 0 0;
+}
+.mini.show { transform: translate(-50%, 0); }
+.mini .dial-row { gap: .7rem; }
+.mini .mini-date { font-family: var(--f-display); font-style: italic; font-size: 1.25rem; min-width: 6ch; line-height: 1; white-space: nowrap; }
+.mini .mini-place { font-family: var(--f-ui); font-size: .8rem; color: var(--sheet-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 9rem; }
+@media (max-width: 520px) { .mini .mini-place { display: none; } }
+
+/* ------------------------------------------------ chapters */
+.chapter { padding-block: clamp(3.5rem, 8vw, 6.5rem) 0; }
+.ch-head { max-width: var(--col); margin: 0 auto 1.6rem; }
+.ch-num { font-family: var(--f-display-sc); font-size: 1rem; letter-spacing: .12em; color: var(--accent-ink); transition: color .6s; display: block; margin-bottom: .5rem; }
+.ch-head h2 { font-size: clamp(2.2rem, 5.2vw, 3.4rem); line-height: 1.02; }
+.ch-head .kick { font-family: var(--f-ui); font-size: .95rem; color: var(--ink-soft); margin-top: .7rem; }
+.prose { max-width: var(--col); margin-inline: auto; }
+.prose p { hyphens: auto; }
+.prose h3 { font-size: 1.6rem; margin: 2.2rem 0 .6rem; font-style: italic; }
+.with-notes { display: grid; grid-template-columns: minmax(0, 1fr); max-width: var(--col); margin-inline: auto; gap: 0 2.5rem; }
+.note {
+  font-family: var(--f-ui); font-size: .9rem; line-height: 1.45; color: var(--ink-soft);
+  border-top: 1px solid var(--rule); padding-top: .55rem; margin: .4rem 0 1.4rem;
+}
+.note .label { display: block; margin-bottom: .2rem; }
+@media (min-width: 1180px) {
+  .with-notes { max-width: calc(var(--col) + 2 * 15rem + 5rem); grid-template-columns: 15rem minmax(0, var(--col)) 15rem; }
+  .with-notes > * { grid-column: 2; }
+  .with-notes > .note { grid-column: 1; text-align: right; margin-top: .35rem; }
+  .with-notes > .note.r { grid-column: 3; text-align: left; }
+}
+.pull { font-family: var(--f-display); font-style: italic; font-size: 1.5rem; line-height: 1.3; margin: 1.6rem 0; padding-left: 1rem; border-left: 2px solid var(--accent); }
+.pull cite { display: block; font-family: var(--f-ui); font-style: normal; font-size: .85rem; color: var(--ink-soft); margin-top: .4rem; }
+
+/* ------------------------------------------------ day length */
+.daylen { max-width: 46rem; margin: 2rem auto 0; }
+.daylen svg { width: 100%; height: auto; overflow: visible; }
+.daylen .read { font-family: var(--f-ui); font-size: .95rem; margin-top: .3rem; color: var(--ink-soft); }
+.daylen .read b { color: var(--ink); font-weight: 500; }
+
+/* ------------------------------------------------ pigments */
+.pigments { display: grid; gap: 1px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); max-width: 62rem; margin: 2rem auto 0;
+  background: var(--rule); border: 1px solid var(--rule); }
+.pig { background: var(--paper); padding: 1.1rem 1.1rem 1.2rem; display: grid; gap: .45rem; align-content: start; }
+.pig .swatch { height: 2.4rem; border-radius: 2px; position: relative; overflow: hidden; }
+.pig h3 { font-size: 1.45rem; }
+.pig .what { font-family: var(--f-label); font-weight: 700; font-size: .78rem; letter-spacing: .07em; }
+.pig p { font-size: 1rem; line-height: 1.45; margin: 0; }
+
+/* ------------------------------------------------ leaf lab */
+.lab { max-width: var(--wide); margin: 2.6rem auto 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.lab .sheet { padding: clamp(1rem, 2.4vw, 2rem); display: grid; gap: 1.5rem 2.5rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .lab .sheet { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); } }
+.lab-title { font-family: var(--f-display); font-style: italic; font-size: 1.9rem; line-height: 1.1; margin: 0 0 .3rem; }
+.lab-intro { font-family: var(--f-ui); font-size: .95rem; color: var(--sheet-soft); margin: 0; }
+.leafbox { position: relative; aspect-ratio: 1; width: 100%; max-width: 34rem; margin-inline: auto; }
+.leafbox canvas { width: 100%; height: 100%; display: block; mix-blend-mode: multiply; transition: transform 1.6s cubic-bezier(.45, .05, .35, 1), opacity 1.2s ease; transform-origin: 46% 82%; }
+.leafbox.fallen canvas { transform: translate(14%, 62%) rotate(38deg) scale(.82); opacity: .55; }
+.leafbox .tag { position: absolute; left: 0; top: 0; font-family: var(--f-display); font-style: italic; font-size: 1.05rem; color: var(--sheet-soft); }
+.leafbox .tag small { display: block; font-family: var(--f-ui); font-style: normal; font-size: .78rem; }
+.ctrl { display: grid; gap: .5rem; }
+.ctrl + .ctrl { margin-top: 1.1rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip {
+  font-family: var(--f-ui); font-size: .88rem; color: var(--sheet-ink); background: transparent; cursor: pointer;
+  border: 1px solid var(--sheet-rule); border-radius: 999px; padding: .32rem .8rem; line-height: 1.2;
+}
+.chip:hover { border-color: var(--sheet-soft); }
+.chip[aria-pressed="true"] { border-color: var(--sheet-ink); background: #242c35; color: #fbfaf5; }
+.chip .dot { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; margin-right: .35rem; vertical-align: .02em; }
+.readouts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem 1.2rem; margin-top: .3rem; }
+.ro { border-top: 1px solid var(--sheet-rule); padding-top: .45rem; }
+.ro .label { color: var(--sheet-soft); display: block; }
+.ro .v { font-family: var(--f-ui); font-size: 1.45rem; font-weight: 500; font-variant-numeric: lining-nums tabular-nums; line-height: 1.15; }
+.ro .v small { font-size: .78rem; font-weight: 400; color: var(--sheet-soft); margin-left: .15rem; }
+.ro .bar { height: 4px; border-radius: 2px; background: var(--sheet-rule); margin-top: .35rem; overflow: hidden; }
+.ro .bar i { display: block; height: 100%; width: 0; transition: width .2s; }
+.lab-now { font-family: var(--f-display); font-style: italic; font-size: 1.2rem; line-height: 1.35; margin: 0; min-height: 3.3em; }
+.lab-chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.lab-small { font-family: var(--f-ui); font-size: .82rem; color: var(--sheet-soft); line-height: 1.45; margin: 0; }
+.lab-date { display: flex; align-items: center; gap: .6rem; }
+
+/* ------------------------------------------------ abscission diagram */
+.fig { max-width: 50rem; margin: 2.2rem auto 0; }
+.fig svg { width: 100%; height: auto; display: block; }
+.fig figcaption { font-family: var(--f-ui); font-size: .88rem; color: var(--ink-soft); margin-top: .5rem; max-width: var(--col); }
+
+/* ------------------------------------------------ map */
+.mapwrap { max-width: 80rem; margin: 2.4rem auto 0; display: grid; gap: 1.5rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1080px) { .mapwrap { grid-template-columns: minmax(0, 1fr) 19rem; align-items: start; } }
+.mapwrap .sheet { padding: clamp(.5rem, 1.5vw, 1rem); }
+.map { position: relative; width: 100%; aspect-ratio: 1000 / 877; }
+.map canvas, .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map canvas { cursor: crosshair; }
+.map svg { pointer-events: none; overflow: visible; }
+.map svg .hit { pointer-events: auto; cursor: pointer; }
+.map-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; padding: .7rem .3rem .2rem; font-family: var(--f-ui); font-size: .82rem; color: var(--sheet-soft); }
+.legend-key { flex: 1 1 18rem; max-width: 26rem; }
+.ramp { height: 10px; width: 100%; border-radius: 5px; }
+.ramp-labels { display: flex; justify-content: space-between; width: 100%; font-size: .74rem; margin-top: .2rem; }
+.map-tools { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .3rem .3rem 0; }
+.side { display: grid; gap: 1.2rem; align-content: start; }
+.card { border-top: 2px solid var(--ink); padding-top: .7rem; }
+.card h3 { font-size: 1.35rem; margin-bottom: .35rem; }
+.card p, .card li { font-family: var(--f-ui); font-size: .92rem; line-height: 1.45; }
+.here-name { font-family: var(--f-display); font-style: italic; font-size: 1.6rem; line-height: 1.1; margin: 0 0 .2rem; }
+.here-meta { font-family: var(--f-ui); font-size: .88rem; color: var(--ink-soft); }
+.here-peak { font-family: var(--f-ui); font-size: 1.05rem; margin: .5rem 0 .3rem; }
+.here-peak b { font-weight: 700; color: var(--accent-ink); }
+.report-tip { position: absolute; z-index: 3; max-width: 16rem; pointer-events: none; padding: .55rem .7rem; border-radius: 4px;
+  background: #242c35; color: #f4f2ea; font-family: var(--f-ui); font-size: .82rem; line-height: 1.35; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); }
+.report-tip b { display: block; font-size: .9rem; }
+.report-tip span { color: #c9ccc6; }
+.windows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; max-width: 62rem; margin: 2.4rem auto 0; }
+@media (min-width: 760px) { .windows { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 3rem; } }
+.win { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem 1rem; padding: .55rem 0; border-bottom: 1px solid var(--rule);
+  font-family: var(--f-ui); font-size: .95rem; align-items: baseline; }
+.win .w { font-variant-numeric: lining-nums tabular-nums; color: var(--ink); white-space: nowrap; }
+.win .s { grid-column: 1 / -1; font-size: .78rem; color: var(--ink-faint); }
+.win .r b { font-weight: 500; }
+.rules { max-width: var(--col); margin: 2rem auto 0; display: grid; gap: .8rem; padding: 0; list-style: none; }
+.rules li { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: .8rem; align-items: baseline; }
+.rules .n { font-family: var(--f-display); font-style: italic; font-size: 1.7rem; color: var(--accent-ink); line-height: 1; text-align: right; }
+
+/* ------------------------------------------------ species calendar */
+.cal { max-width: var(--wide); margin: 2.4rem auto 0; }
+.cal .sheet { padding: clamp(.8rem, 2vw, 1.6rem); }
+.cal-head, .sp-row { display: grid; grid-template-columns: 3.6rem minmax(0, 12rem) minmax(0, 1fr); gap: .3rem 1rem; align-items: center; }
+.cal-head { font-family: var(--f-label); font-weight: 500; font-size: .78rem; letter-spacing: .07em; color: var(--sheet-soft); padding-bottom: .3rem; }
+.months { position: relative; height: 1.2rem; }
+.months span { position: absolute; transform: translateX(0); padding-left: .25rem; border-left: 1px solid var(--sheet-rule); height: 1.2rem; line-height: 1.2rem; }
+.rows { position: relative; }
+.sp-row { padding: .3rem 0; border-top: 1px solid var(--sheet-rule); cursor: pointer; background: transparent; width: 100%; text-align: left;
+  font: inherit; color: inherit; border-left: 0; border-right: 0; border-bottom: 0; }
+.sp-row:hover { background: rgba(36, 44, 53, .035); }
+.sp-row[aria-expanded="true"] { background: rgba(36, 44, 53, .05); }
+.thumb { position: relative; width: 3.4rem; height: 3.4rem; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .3s, filter .4s; }
+.sp-name { font-family: var(--f-body); font-size: 1.02rem; line-height: 1.2; }
+.sp-name i { display: block; font-size: .85rem; color: var(--sheet-soft); }
+.track { position: relative; height: 1.6rem; }
+.track .gridl { position: absolute; top: -.35rem; bottom: -.35rem; width: 1px; background: var(--sheet-rule); }
+.track .bar { position: absolute; top: .35rem; height: .9rem; border-radius: .45rem; }
+.track .keep { position: absolute; top: .55rem; height: .5rem; border-radius: .25rem;
+  background: repeating-linear-gradient(90deg, rgba(138, 90, 54, .55) 0 3px, transparent 3px 7px); }
+.track .pk { position: absolute; top: .35rem; width: 2px; height: .9rem; margin-left: -1px; background: #fbfaf5; border-radius: 1px; opacity: .9; }
+.track .now { position: absolute; top: -.42rem; bottom: -.42rem; width: 2px; margin-left: -1px; background: #242c35; z-index: 2; border-radius: 1px; }
+.months .nowlab { position: absolute; top: -.05rem; transform: translateX(-50%); font-family: var(--f-ui); font-size: .75rem; font-weight: 700;
+  letter-spacing: 0; color: #fbfaf5; background: #242c35; padding: .05rem .4rem; border-radius: 3px; line-height: 1.15rem; white-space: nowrap; z-index: 3; }
+.sp-detail { position: relative; z-index: 3; background: #f7f6f1; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 2rem; padding: 1rem .2rem 1.4rem; border-top: 1px solid var(--sheet-rule); }
+@media (min-width: 720px) { .sp-detail { grid-template-columns: 13rem minmax(0, 1fr); } }
+.sp-detail .big { position: relative; width: 13rem; height: 13rem; margin-inline: auto; }
+.sp-detail .big img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sp-detail h4 { font-family: var(--f-display); font-weight: 400; font-style: italic; font-size: 1.6rem; margin: 0 0 .2rem; }
+.sp-detail dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .25rem 1rem; margin: .7rem 0; font-family: var(--f-ui); font-size: .92rem; }
+.sp-detail dt { color: var(--sheet-soft); }
+.sp-detail dd { margin: 0; font-variant-numeric: lining-nums; }
+.pigtags { display: inline-flex; gap: .3rem; flex-wrap: wrap; }
+.pigtags span { font-family: var(--f-label); font-weight: 700; font-size: .72rem; letter-spacing: .06em; padding: .08rem .45rem; border-radius: 3px; color: #fbfaf5; }
+@media (max-width: 640px) {
+  .cal-head, .sp-row { grid-template-columns: 2.8rem minmax(0, 1fr); }
+  .cal-head .months, .sp-row .track { grid-column: 1 / -1; }
+  .cal-head > span:nth-child(2) { display: none; }
+  .thumb { width: 2.8rem; height: 2.8rem; }
+}
+
+/* ------------------------------------------------ weather + season notes */
+.conds { max-width: var(--col); margin: 1.8rem auto 0; padding: 0; list-style: none; display: grid; gap: 0; }
+.conds li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; padding: .8rem 0; border-top: 1px solid var(--rule); }
+.conds li:last-child { border-bottom: 1px solid var(--rule); }
+.conds .k { font-family: var(--f-label); font-weight: 700; font-size: .8rem; letter-spacing: .06em; padding-top: .2rem; }
+.conds p { margin: 0; font-size: 1.02rem; }
+@media (max-width: 520px) { .conds li { grid-template-columns: minmax(0, 1fr); gap: .2rem; } }
+.dispatch { max-width: 62rem; margin: 2.2rem auto 0; display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+.disp { border-top: 2px solid var(--ink); padding-top: .6rem; }
+.disp .when { font-family: var(--f-ui); font-size: .8rem; color: var(--ink-soft); font-variant-numeric: lining-nums; }
+.disp h3 { font-size: 1.3rem; margin: .1rem 0 .35rem; }
+.disp p { font-family: var(--f-ui); font-size: .93rem; line-height: 1.45; margin: 0 0 .4rem; }
+.disp .src { font-size: .78rem; color: var(--ink-faint); }
+.trend { max-width: var(--col); margin: 2.4rem auto 0; }
+
+/* ------------------------------------------------ gallery */
+.gallery { max-width: 84rem; margin: 2.6rem auto 0; columns: 3 19rem; column-gap: 1.6rem; }
+.art { break-inside: avoid; margin: 0 0 1.8rem; }
+.art button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.art .frame { padding: .45rem; background: #2a221c; box-shadow: var(--shadow); }
+.art.wc .frame { background: #fbfaf5; padding: 1rem; }
+.art img { width: 100%; height: auto; }
+.art figcaption { font-family: var(--f-ui); font-size: .86rem; line-height: 1.4; color: var(--ink-soft); padding-top: .55rem; }
+.art figcaption b { display: block; font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: 1.12rem; color: var(--ink); line-height: 1.2; }
+dialog.lightbox { border: 0; padding: 0; background: transparent; max-width: min(96vw, 1400px); max-height: 94vh; color: #f2f0e9; }
+dialog.lightbox::backdrop { background: rgba(14, 16, 16, .88); }
+.lb-inner { display: grid; gap: .8rem; }
+.lb-inner img { max-height: 78vh; width: auto; margin: 0 auto; }
+.lb-cap { font-family: var(--f-ui); font-size: .92rem; line-height: 1.45; max-width: 52rem; margin: 0 auto; }
+.lb-cap b { font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: 1.3rem; display: block; }
+.lb-close { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; color: #f2f0e9; border-color: #f2f0e9; }
+
+/* ------------------------------------------------ coda */
+.coda { position: relative; max-width: 62rem; margin: 0 auto; padding-block: clamp(4rem, 9vw, 7rem) 2rem; }
+.coda canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.poem { position: relative; max-width: 26rem; margin: 0 auto; font-family: var(--f-display); font-size: 1.32rem; line-height: 1.55; }
+.poem .t { font-style: italic; font-size: 2.6rem; line-height: 1; margin-bottom: 1.4rem; }
+.poem p { margin: 0; }
+.poem .ind { padding-left: 1.6rem; }
+.poem cite { display: block; font-family: var(--f-ui); font-style: normal; font-size: .85rem; color: var(--ink-soft); margin-top: 1.4rem; }
+.release { position: relative; display: flex; justify-content: center; margin-top: 1.4rem; }
+
+/* ------------------------------------------------ sources */
+.sources { max-width: 62rem; margin: 5rem auto 0; padding-top: 1.4rem; border-top: 1px solid var(--rule); font-family: var(--f-ui); font-size: .86rem; line-height: 1.5; color: var(--ink-soft); }
+.sources h2 { font-size: 1.8rem; color: var(--ink); margin-bottom: 1rem; }
+.sources h3 { font-family: var(--f-label); font-weight: 700; font-size: .8rem; letter-spacing: .07em; color: var(--ink); margin: 1.4rem 0 .4rem; }
+.sources ul { margin: 0; padding-left: 1.1rem; columns: 2 22rem; column-gap: 2.5rem; }
+.sources li { margin-bottom: .35rem; break-inside: avoid; }
+.sources p { max-width: 46rem; }
+
+
+/* svg text and strokes, styled from tokens */
+.daylen text { font-family: var(--f-ui); font-size: 12px; fill: var(--ink-soft); }
+.daylen .t-label { font-family: var(--f-label); font-weight: 500; letter-spacing: .06em; fill: var(--accent-ink); }
+.daylen .grid { stroke: var(--rule); stroke-width: 1; }
+.daylen .tick { stroke: var(--ink-faint); }
+.daylen .curve { fill: none; stroke: var(--ink); stroke-width: 2; }
+.daylen .band { fill: var(--accent); opacity: .14; }
+.daylen .dot { fill: var(--ink); }
+.daylen .now-line { stroke: var(--accent-ink); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.daylen .now-dot { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+.lab-chart text { font-family: var(--f-ui); font-size: 12px; }
+.lab-chart .lg { font-family: var(--f-label); font-weight: 500; font-size: 11.5px; letter-spacing: .05em; }
+.fig .ab-t { font-family: var(--f-ui); font-size: 14px; fill: var(--ink); }
+.fig .ab-h { font-family: var(--f-display); font-style: italic; font-size: 20px; fill: var(--ink); }
+.fig .ab-lead { stroke: var(--ink-soft); stroke-width: 1; fill: none; }
+.map .m-state { font-family: var(--f-display-sc); font-size: 17px; letter-spacing: 3px; fill: #242c35; opacity: .62; }
+.map .m-range { font-family: var(--f-display); font-style: italic; font-size: 13.5px; fill: #242c35; opacity: .72;
+  paint-order: stroke; stroke: #fbfaf5; stroke-width: 2.4px; stroke-opacity: .55; }
+.map .m-city { font-family: var(--f-ui); font-size: 12px; fill: #242c35; paint-order: stroke; stroke: #fbfaf5; stroke-width: 3px; stroke-opacity: .7; }
+.map .m-region { font-family: var(--f-display); font-style: italic; font-size: 15px; fill: #5d646b; opacity: .85; }
+.map .m-pin { font-family: var(--f-display); font-style: italic; font-size: 19px; fill: #242c35; paint-order: stroke; stroke: #fbfaf5; stroke-width: 4px; stroke-opacity: .85; }
+.rangebox { flex: 1; min-width: 0; }
+.rangebox .ticks { margin: -.15rem 11px 0; height: 2.1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
+
+</head>
+<body>
+<nav class="crumb" aria-label="Breadcrumb"><a href="../">Connor Allen</a><span>/</span>Painted Leaves</nav>
+<header class="masthead">
+  <div class="mast-leaves" aria-hidden="true">
+    <img class="ml-maple" src="assets/mast_maple.webp" alt="">
+    <img class="ml-oak" src="assets/mast_oak.webp" alt="">
+  </div>
+  <span class="label">a field guide to fall in the northeastern united states &middot; season of 2026</span>
+  <h1><span>Painted</span><br><span class="l2">Leaves</span></h1>
+  <div class="mast-grid">
+    <p class="dek">How the forests from Maine to Pennsylvania change color each autumn: what happens inside a single leaf, when the color reaches the place you live, and how painters have tried to hold on to it.</p>
+    <blockquote class="epigraph">
+      <p>&ldquo;October is the month for painted leaves. Their rich glow now flashes round the world.&rdquo;</p>
+      <cite>Henry David Thoreau, &ldquo;Autumnal Tints,&rdquo; 1862</cite>
+    </blockquote>
+  </div>
+</header>
+
+<section class="plate" aria-label="The season dial">
+  <div class="sheet">
+    <div class="hero-stage" id="heroStage">
+      <div class="wash">
+        <div class="hero-frames" id="heroFrames" role="img" aria-label="Watercolor of a valley farm below a long ridge cut by a water gap, shown at the chosen point in the season">
+        <img src="assets/hero_m45.webp" alt="" data-s="-45" class="on">
+        <img src="assets/hero_m24.webp" alt="" data-s="-24">
+        <img src="assets/hero_m14.webp" alt="" data-s="-14">
+        <img src="assets/hero_m07.webp" alt="" data-s="-7">
+        <img src="assets/hero_p00.webp" alt="" data-s="0">
+        <img src="assets/hero_p07.webp" alt="" data-s="7">
+        <img src="assets/hero_p14.webp" alt="" data-s="14">
+        <img src="assets/hero_p28.webp" alt="" data-s="28">
+          <canvas class="hero-gl" id="heroGl" aria-hidden="true"></canvas>
+        </div>
+      </div>
+      <canvas class="hero-leaves" id="heroLeaves" aria-hidden="true"></canvas>
+    </div>
+    <div class="dial" id="dial">
+      <div class="dial-top">
+        <span class="dial-date" id="dialDate">Oct 8</span>
+        <span class="dial-stage" id="dialStage"></span>
+      </div>
+      <div class="dial-row">
+        <button class="btn play" id="playBtn" type="button" aria-label="Play the season">
+          <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1 L9 5 L2 9 Z" fill="currentColor"/></svg>
+        </button>
+        <div class="rangebox">
+          <label class="sr" for="dateRange">Date in the 2026 season</label>
+          <input class="range" id="dateRange" type="range" min="0" max="107" step="1" value="54">
+          <div class="ticks" id="ticks" aria-hidden="true"></div>
+        </div>
+        <button class="btn" id="todayBtn" type="button">Today</button>
+      </div>
+      <div class="plate-foot">
+        <p class="plate-cap" id="stateLine"></p>
+        <div class="place-row">
+          <label for="placeSel" class="label">watching from</label>
+          <select id="placeSel" class="select"></select>
+        </div>
+      </div>
+      <p class="plate-cap" style="padding:0 .4rem .2rem;max-width:52rem">A ridge-and-valley view in the manner of the Kittatinny Ridge at the Delaware Water Gap, painted for this page at eight points in the season. The dial follows the typical timing for the place you choose; the map below can set any spot.</p>
+    </div>
+  </div>
+</section>
+
+<div class="mini sheet" id="mini" aria-hidden="true">
+  <div class="dial-row">
+    <button class="btn play" id="miniPlay" type="button" aria-label="Play the season" tabindex="-1">
+      <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1 L9 5 L2 9 Z" fill="currentColor"/></svg>
+    </button>
+    <span class="mini-date" id="miniDate">Oct 8</span>
+    <label class="sr" for="miniRange">Date in the 2026 season</label>
+    <input class="range" id="miniRange" type="range" min="0" max="107" step="1" value="54" tabindex="-1">
+    <span class="mini-place" id="miniPlace"></span>
+  </div>
+</div>
+
+<main>
+<!-- ============================================================ I -->
+<section class="chapter" id="signal">
+  <header class="ch-head">
+    <span class="ch-num">I &middot; Late June to September</span>
+    <h2>It starts with the length of the night</h2>
+  </header>
+  <div class="with-notes">
+    <p>The turning begins months before anyone notices it. After the June solstice the nights grow longer, and by late summer the trees of the Northeast are already getting ready to shut their leaves down.</p>
+    <aside class="note"><span class="label">field note</span>Weather changes from year to year. The sun&rsquo;s schedule does not, which makes night length the steadiest signal a tree can read.</aside>
+    <p>Day length appears to set the start. In a long study of a European aspen, the breakdown of chlorophyll began within the same four-day window in September in seven of eight years, warm or cold. Temperature set the pace: the green faded by 2 to 6 percent a day, about 4 percent on average, and two to three times faster in cold autumns.</p>
+    <p>The trigger is still argued over. Later work from the same Swedish lab concluded that day length alone does not start the process, and some researchers now think trees simply stop rebuilding chlorophyll as days shorten and nights cool. Either way, the calendar and the thermometer work together.</p>
+  </div>
+  <figure class="daylen" id="daylen">
+    <svg id="daylenSvg" viewBox="0 0 640 210" role="img" aria-label="Hours of daylight from June to December at the chosen place"></svg>
+    <figcaption class="read" id="daylenRead"></figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ II -->
+<section class="chapter" id="pigments">
+  <header class="ch-head">
+    <span class="ch-num">II &middot; Inside the leaf</span>
+    <h2>A leaf holds three paints</h2>
+    <p class="kick">Two are there all summer. The third is mixed fresh in the fall.</p>
+  </header>
+  <div class="pigments">
+    <div class="pig">
+      <div class="swatch" style="background:var(--chl)"></div>
+      <span class="what" style="color:var(--chl)">green &middot; chlorophyll</span>
+      <h3>The worker</h3>
+      <p>Captures light for photosynthesis. Trees build and break it down all summer. In fall the building stops.</p>
+    </div>
+    <div class="pig">
+      <div class="swatch" style="background:var(--car)"></div>
+      <span class="what" style="color:var(--car)">yellow &amp; orange &middot; carotenoids</span>
+      <h3>The hidden one</h3>
+      <p>Present since spring, masked by chlorophyll. When the green goes, the yellow is simply revealed.</p>
+    </div>
+    <div class="pig">
+      <div class="swatch" style="background:var(--ant)"></div>
+      <span class="what" style="color:var(--ant)">red &amp; purple &middot; anthocyanins</span>
+      <h3>The new one</h3>
+      <p>Absent from summer leaves. Made in autumn from sugar trapped in the leaf as it shuts down.</p>
+    </div>
+    <div class="pig">
+      <div class="swatch" style="background:var(--tan)"></div>
+      <span class="what" style="color:var(--tan)">brown &middot; tannins</span>
+      <h3>The last word</h3>
+      <p>Always in the leaf. They show at the very end, giving oaks and beech their bronze and tan.</p>
+    </div>
+  </div>
+
+  <div class="lab" id="lab">
+    <div class="sheet">
+      <div>
+        <div class="leafbox" id="leafbox">
+          <canvas id="leafCanvas" width="640" height="640" aria-label="Sugar maple leaf painted from the pigment model" role="img"></canvas>
+          <span class="tag">Acer saccharum<small id="leafTagDate"></small></span>
+        </div>
+      </div>
+      <div>
+        <h3 class="lab-title">The leaf lab</h3>
+        <p class="lab-intro">This sugar maple leaf is painted from a pigment model. The color you see is the light left over after each pigment absorbs its share, the same way layers of watercolor mix on paper. Move through the season, change the weather, or look at one pigment at a time.</p>
+        <div class="ctrl" style="margin-top:1.1rem">
+          <span class="label">date &middot; follows the season dial</span>
+          <div class="lab-date">
+            <label class="sr" for="labRange">Leaf lab date</label>
+            <input class="range" id="labRange" type="range" min="0" max="107" step="1" value="54">
+          </div>
+        </div>
+        <div class="ctrl">
+          <span class="label" id="wxLabel">weather this fall</span>
+          <div class="chips" role="group" aria-labelledby="wxLabel" id="wxChips">
+            <button class="chip" type="button" data-wx="bright" aria-pressed="true">Sunny days, cool nights</button>
+            <button class="chip" type="button" data-wx="cloudy" aria-pressed="false">Warm and cloudy</button>
+            <button class="chip" type="button" data-wx="drought" aria-pressed="false">Dry late summer</button>
+            <button class="chip" type="button" data-wx="frost" aria-pressed="false">Hard freeze at peak</button>
+          </div>
+        </div>
+        <div class="ctrl">
+          <span class="label" id="viewLabel">show</span>
+          <div class="chips" role="group" aria-labelledby="viewLabel" id="viewChips">
+            <button class="chip" type="button" data-view="all" aria-pressed="true">All pigments</button>
+            <button class="chip" type="button" data-view="chl" aria-pressed="false"><span class="dot" style="background:#4e7a33"></span>Chlorophyll</button>
+            <button class="chip" type="button" data-view="car" aria-pressed="false"><span class="dot" style="background:#c98a12"></span>Carotenoids</button>
+            <button class="chip" type="button" data-view="ant" aria-pressed="false"><span class="dot" style="background:#b0263c"></span>Anthocyanins</button>
+          </div>
+        </div>
+        <div class="readouts" style="margin-top:1.2rem">
+          <div class="ro"><span class="label">chlorophyll</span><div class="v" id="roChl">29<small>&micro;g/cm&sup2;</small></div><div class="bar"><i id="barChl" style="background:#4e7a33"></i></div></div>
+          <div class="ro"><span class="label">carotenoids</span><div class="v" id="roCar">2.6<small>&micro;g/cm&sup2;</small></div><div class="bar"><i id="barCar" style="background:#c98a12"></i></div></div>
+          <div class="ro"><span class="label">anthocyanins</span><div class="v" id="roAnt">0<small>% of max</small></div><div class="bar"><i id="barAnt" style="background:#b0263c"></i></div></div>
+          <div class="ro"><span class="label">nitrogen reclaimed</span><div class="v" id="roN">0<small>%</small></div><div class="bar"><i id="barN" style="background:#5d646b"></i></div></div>
+        </div>
+        <p class="lab-now" id="labNow" style="margin-top:1.1rem"></p>
+        <div class="lab-chart"><svg id="labChart" viewBox="0 0 520 146" role="img" aria-label="Pigment levels through the season"></svg></div>
+        <p class="lab-small">Amounts follow measurements at Harvard Forest in Massachusetts, where chlorophyll in senescing leaves fell from about 29 to 2 &micro;g/cm&sup2; and carotenoids from about 2.6 to 1.2 (Lee et&nbsp;al. 2003). Anthocyanin is shown against its own maximum. The weather settings are illustrations of reported effects, not forecasts.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="with-notes" style="margin-top:3rem">
+    <h3 class="sr">The green retreats</h3>
+    <p><b>The green retreats.</b> Chlorophyll is worth taking apart. Up to three quarters of the nitrogen in a leaf cell sits in its chloroplasts, much of it in the proteins that hold chlorophyll in place. Before a tree drops a leaf, it dismantles that machinery and moves the nutrients back into its twigs and roots for next spring. In a global analysis of leaf nutrients, deciduous trees reclaimed close to 60 percent of their leaf nitrogen and phosphorus. Aspen recovers about 90 percent of its nitrogen.</p>
+    <aside class="note"><span class="label">by the numbers</span>Plants worldwide take apart roughly a billion tons of chlorophyll every year.</aside>
+    <p>Loose chlorophyll is dangerous in sunlight, so the breakdown runs in a strict order. One enzyme pulls the magnesium atom from the center of the molecule, another clips off its long tail, and a third, pheophorbide <i>a</i> oxygenase, splits the ring open. The pieces end up colorless and are parked in the cell&rsquo;s vacuole.</p>
+    <p><b>Yellow was there all along.</b> Carotenoids help harvest light and shield the leaf from too much of it. A summer leaf holds roughly four to six times more chlorophyll than carotenoid, so the green wins. In autumn the balance flips. At Harvard Forest, chlorophyll fell about 93 percent while carotenoids fell only about 54 percent. The gold of a birch, hickory or aspen is pigment that was in the leaf in July.</p>
+    <aside class="note r"><span class="label">try it</span>In the leaf lab, choose <em>Carotenoids</em> and drag the date back to August. The yellow is already there.</aside>
+    <p><b>Red is made new.</b> Anthocyanins are built in autumn, in the vacuoles of the leaf&rsquo;s upper cell layer, from sugars that stay in the leaf as it shuts down. They appear once chlorophyll has dropped below about 20&nbsp;&micro;g/cm&sup2;, around the midpoint of the change.</p>
+    <p>Because sugar is the raw material, anything that traps sugar in the leaf makes it redder. When researchers cut a ring of bark around sugar maple branches, the share of red leaves on normally yellow trees rose from about 12 to 54 percent. Chilling branches without wounding them raised leaf sugars two- to tenfold and anthocyanins by about as much. Sugar maples short on nitrogen turn red earlier and more completely.</p>
+    <p>Why make a new pigment in a leaf that is about to fall? The leading idea is sunscreen: the red layer shades the leaf&rsquo;s machinery while nutrients are still being pulled out. Plants that cannot make anthocyanin recovered less nitrogen under stress, and red dogwood leaves recovered from bright-light stress that left yellow leaves damaged. Other explanations, including antioxidant protection and a warning signal to aphids, have both supporters and critics. The question is open.</p>
+    <blockquote class="pull">&ldquo;How beautiful, when a whole tree is like one great scarlet fruit full of ripe juices&hellip;&rdquo;<cite>Thoreau on the red maple, &ldquo;Autumnal Tints&rdquo;</cite></blockquote>
+    <p>Red is also a regional habit. About 70 percent of the woody species at Harvard Forest make anthocyanin in the fall, while only about one in ten temperate tree species worldwide turns red. When Jasper Cropsey showed his <i>Autumn on the Hudson River</i> in London in 1860, British viewers doubted the colors were real, so he mounted American leaves beside the canvas.</p>
+    <p><b>Brown comes last.</b> Tannins sit in the leaf all year. They show as everything else fades, which is why oaks and beech finish the season in russet, bronze and tan.</p>
+  </div>
+</section>
+
+<!-- ============================================================ III -->
+<section class="chapter" id="letgo">
+  <header class="ch-head">
+    <span class="ch-num">III &middot; The last weeks on the branch</span>
+    <h2>How a tree lets go</h2>
+  </header>
+  <div class="with-notes">
+    <p>While the pigments change, a narrow band of small cells forms across the base of each leaf stalk. As the leaf ages it sends less of the hormone auxin down the stalk, and the cells in that band become sensitive to ethylene. Enzymes then loosen the cell walls until the leaf hangs by little more than its veins, and a breeze finishes the job.</p>
+    <p>On the tree&rsquo;s side, a layer of corky cells seals the wound before the leaf falls, leaving a leaf scar just below a bud. That bud, with next spring&rsquo;s leaves folded inside, formed back in summer.</p>
+    <aside class="note"><span class="label">marcescence</span>Dead leaves that stay on through winter. Beech was the last species to drop at Harvard Forest, with half its leaves down by about November&nbsp;2.</aside>
+    <p>Some trees never finish. In many oaks and young beeches the separation layer does not complete, and the dry leaves rattle on the branches until spring pushes them off.</p>
+  </div>
+  <figure class="fig">
+    <svg id="abscission" viewBox="0 0 760 360" role="img" aria-label="Diagram of a leaf stalk joining a twig, showing the separation layer, the protective layer, the bud and the leaf scar"></svg>
+    <figcaption>Where the leaf stalk meets the twig. Left, early autumn: the abscission zone is forming. Right, after the leaf drops: a sealed scar and a waiting bud.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ IV -->
+<section class="chapter" id="wave">
+  <header class="ch-head">
+    <span class="ch-num">IV &middot; Late September to mid November</span>
+    <h2>The color moves south and downhill</h2>
+  </header>
+  <div class="with-notes">
+    <p>Color starts in the far north and on the high ridges and works toward the coast. Forecasters put the pace at roughly 50 to 100 miles a week, and trees above 3,000 feet peak 10 to 14 days ahead of the valleys below them. From the first scarlet in Aroostook County to the last oaks near Cape May, the wave takes about six weeks to cross the region.</p>
+    <aside class="note r"><span class="label">read the map</span>Drag the season dial to move the wave. Tap any spot to set it as your place; the hero painting, the calendar and the leaf lab follow it.</aside>
+  </div>
+  <div class="mapwrap">
+    <div class="sheet">
+      <div class="map" id="map">
+        <div class="wash" style="position:absolute;inset:0"><canvas id="mapCanvas" width="1000" height="877" aria-label="Painted relief map of the Northeast colored by foliage stage on the chosen date" role="img"></canvas></div>
+        <svg id="mapSvg" viewBox="0 0 1000 877" aria-hidden="true"></svg>
+        <div class="report-tip" id="reportTip" hidden></div>
+      </div>
+      <div class="map-legend">
+        <div class="legend-key">
+          <div class="ramp" id="rampBar"></div>
+          <div class="ramp-labels"><span>summer green</span><span>first color</span><span>peak</span><span>past</span><span>bare</span></div>
+        </div>
+        <span id="mapDate" style="font-family:var(--f-display);font-style:italic;font-size:1.25rem;color:var(--sheet-ink)"></span>
+      </div>
+      <div class="map-tools">
+        <button class="chip" type="button" id="reportsBtn" aria-pressed="false">Show this week&rsquo;s reports, Oct 7 to 13, 2026</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <span class="label">your place</span>
+        <p class="here-name" id="hereName"></p>
+        <div class="here-meta" id="hereMeta"></div>
+        <p class="here-peak" id="herePeak"></p>
+        <p id="hereStage" style="margin:0"></p>
+      </div>
+      <div class="card">
+        <h3>How the map is drawn</h3>
+        <p>Typical peak dates come from a simple model tuned to state foliage reports: peak arrives about 3.5 days earlier per degree of latitude north, about 5.5 days earlier per 1,000 feet of elevation, up to about two weeks later beside the ocean, and a little later near the Great Lakes. Spruce and fir in the north woods and on the high peaks, and pitch pine in the Pine Barrens, stay green.</p>
+        <p style="color:var(--ink-soft)">Real seasons run early or late by a week or more, and a single hillside can differ from the next.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="prose" style="margin-top:3rem"><h3>Typical peak, region by region</h3><p style="font-family:var(--f-ui);font-size:.95rem;color:var(--ink-soft)">Windows for an average year, from state foliage programs and tourism offices.</p></div>
+  <div class="windows" id="windows"></div>
+
+  <ol class="rules">
+    <li><span class="n">1</span><p>A single spot holds its best color for about a week. Sources range from three or four days of true peak (I LOVE NY) to seven to ten days (Visit Massachusetts).</p></li>
+    <li><span class="n">2</span><p>Yellow, orange and red each take 7 to 16 days to pass through a forest, and the best show comes when the three overlap (New Jersey Forest Service).</p></li>
+    <li><span class="n">3</span><p>In Pennsylvania&rsquo;s ridge country, ridgetops peak about a week before the valleys, and sometimes up to two (PA DCNR).</p></li>
+  </ol>
+</section>
+
+<!-- ============================================================ V -->
+<section class="chapter" id="trees">
+  <header class="ch-head">
+    <span class="ch-num">V &middot; Who turns when</span>
+    <h2>The trees take turns</h2>
+  </header>
+  <div class="with-notes">
+    <p>Inside any one forest, species keep their own schedules. Black gum, sumac and swamp maples go first, sugar maples carry the peak, and oaks, beech and tamarack close the season. The calendar below is set to <b id="calPlace">your place</b>. Change the place and the whole calendar slides. Tap a tree for its details.</p>
+  </div>
+  <div class="cal">
+    <div class="sheet">
+      <div class="cal-head"><span></span><span>tree</span><div class="months" id="months"></div></div>
+      <div class="rows" id="rows"></div>
+      <p class="lab-small" style="margin-top:1rem">Bars run from first color to the date about half the leaves are down; the pale tick marks each species&rsquo; best color, and the dark line is the date on the dial. Hatching shows dry leaves held into winter. Order and spacing follow leaf-fall records at Harvard Forest (Lee et&nbsp;al. 2003) and state forestry reports. Single trees vary by a week or more.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ VI -->
+<section class="chapter" id="weather">
+  <header class="ch-head">
+    <span class="ch-num">VI &middot; Good years and dull ones</span>
+    <h2>Weather writes the details</h2>
+  </header>
+  <div class="prose"><p>The order of the trees barely changes from year to year. How bright they get, and how long they last, depends on the weather of the late summer and fall.</p></div>
+  <ul class="conds">
+    <li><span class="k" style="color:var(--ant)">best</span><p>Warm, sunny days with cool nights that stay above freezing. Sun makes sugar, and cool nights slow its export, so more of it becomes red pigment.</p></li>
+    <li><span class="k" style="color:var(--car)">dry, not parched</span><p>&ldquo;Dry but not drought&rdquo; is the ideal, in the words of Penn State&rsquo;s Marc Abrams. Severe drought brings early, muted color and early leaf drop, as in Pennsylvania in 2019.</p></li>
+    <li><span class="k" style="color:var(--ink-soft)">warm and gray</span><p>A warm, cloudy autumn delays the peak and dulls the reds.</p></li>
+    <li><span class="k" style="color:var(--focus)">hard freeze</span><p>An early hard freeze can stop red pigment cold. Researchers disagree on how much a light frost helps.</p></li>
+    <li><span class="k" style="color:var(--chl)">wet summer</span><p>Long periods of wet leaves invite leaf-spot fungi. Anthracnose spotted sugar maples across northern New England in the wet summer of 2023, and the leaves were dull and fell early.</p></li>
+    <li><span class="k" style="color:var(--tan)">storms</span><p>Wind and heavy rain at peak strip the trees and cut the season short.</p></li>
+  </ul>
+
+  <div class="prose" style="margin-top:3rem"><h3>The 2026 season so far</h3></div>
+  <div class="dispatch">
+    <div class="disp"><span class="when">Forecast &middot; Aug 19</span><h3>A slow start, a long season</h3><p>Forests have recovered from the 2025 drought after a cold winter, a cool wet spring and timely summer rain. Expect a slow start and a long season, with southern New England later than normal. Beech color will be scarce because of beech leaf disease.</p><p class="src">Jim Salge, Yankee Magazine</p></div>
+    <div class="disp"><span class="when">Maine &middot; Sept 3 to Oct 7</span><h3>Dry summer, bright leaves</h3><p>Portland had its second-warmest summer on record, and southern, coastal and eastern Maine ran 9 to 17 inches short of rain over twelve months. By Oct 7 the north and west were past peak with heavy leaf drop, and the state reported the colors as phenomenal.</p><p class="src">Maine Drought Task Force; Maine DACF foliage report</p></div>
+    <div class="disp"><span class="when">New Jersey &middot; Aug 20 to Sept 25</span><h3>A drought warning</h3><p>A statewide Drought Warning is in effect. Extreme drought in part of south Jersey in August eased to moderate drought by late September, with temperatures above normal.</p><p class="src">National Weather Service, Mount Holly</p></div>
+    <div class="disp"><span class="when">Pennsylvania &middot; Oct 1</span><h3>Rain ended the stress</h3><p>Midsummer and September rain ended drought stress. A leaf-spot fungus is dropping some black cherry leaves early. Ten northern counties were approaching peak in the first week of October.</p><p class="src">PA DCNR fall foliage report</p></div>
+    <div class="disp"><span class="when">New York &middot; Oct 7 to 13</span><h3>The Adirondacks at peak</h3><p>Saranac Lake and Wilmington at 95 percent and peak; upper Windham in the Catskills at peak to past; New Paltz near peak; New York City at 15 to 30 percent.</p><p class="src">I LOVE NY fall foliage report</p></div>
+    <div class="disp"><span class="when">Poconos &middot; Oct 8 to 14</span><h3>Peak in the north</h3><p>Northern Wayne County is at peak with about 90 percent color. The central Poconos should peak Oct 10 to 17 and the southern zone Oct 20 to 28.</p><p class="src">Pocono Mountains Visitors Bureau</p></div>
+  </div>
+
+  <div class="trend with-notes">
+    <h3 style="font-size:1.6rem;font-style:italic;margin:0 0 .6rem">A later fall</h3>
+    <p>Peak color in New England now arrives as much as a week later than it did in the 1950s, according to Colby College ecologist Amanda Gallinat. In Vermont, the University of Vermont&rsquo;s Alexandra Kosiba puts the shift at about a week over thirty years, with fall nights in Burlington roughly 4.5&nbsp;&deg;F warmer than in 1970.</p>
+    <p>A study of eight species at Harvard Forest found that warm Septembers delay the color, and projected later color and leaf fall for most species through 2100. In that projection the color season of sugar maple and black gum grows by about a day per decade, while white ash loses about three (Archetti et&nbsp;al. 2013).</p>
+    <aside class="note"><span class="label">why later</span>Warm Septembers slow the loss of chlorophyll, and the cool snaps that speed the change arrive later in the year.</aside>
+  </div>
+</section>
+
+<!-- ============================================================ VII -->
+<section class="chapter" id="painters">
+  <header class="ch-head">
+    <span class="ch-num">VII &middot; Painters of the turning</span>
+    <h2>Holding on to October</h2>
+  </header>
+  <div class="with-notes">
+    <p>American painters made autumn a national subject in the middle of the 1800s. The Hudson River School climbed into the Catskills and Adirondacks each fall to sketch, then finished large canvases in the studio, sometimes far from the trees. Cropsey painted <i>Autumn on the Hudson River</i> from memory, in London. Later, painters like Winslow Homer took watercolor into the woods themselves.</p>
+    <p>Every work here is in the public domain, from museums that release open-access images. Tap one to see it larger.</p>
+  </div>
+  <div class="gallery" id="gallery"></div>
+  <dialog class="lightbox" id="lightbox">
+    <button class="btn lb-close" type="button" id="lbClose">Close</button>
+    <div class="lb-inner"><img id="lbImg" alt=""><div class="lb-cap" id="lbCap"></div></div>
+  </dialog>
+</section>
+
+<!-- ============================================================ coda -->
+<section class="coda" id="coda">
+  <canvas id="fallCanvas" aria-hidden="true"></canvas>
+  <div class="poem">
+    <div class="t">October</div>
+    <p>O hushed October morning mild,</p>
+    <p>Thy leaves have ripened to the fall;</p>
+    <p>To-morrow&rsquo;s wind, if it be wild,</p>
+    <p>Should waste them all.</p>
+    <p>The crows above the forest call;</p>
+    <p>To-morrow they may form and go.</p>
+    <p>O hushed October morning mild,</p>
+    <p>Begin the hours of this day slow,</p>
+    <p>Make the day seem to us less brief.</p>
+    <p>Hearts not averse to being beguiled,</p>
+    <p>Beguile us in the way you know;</p>
+    <p>Release one leaf at break of day;</p>
+    <p>At noon release another leaf;</p>
+    <p>One from our trees, one far away;</p>
+    <p>Retard the sun with gentle mist;</p>
+    <p>Enchant the land with amethyst.</p>
+    <p>Slow, slow!</p>
+    <p>For the grapes&rsquo; sake, if they were all,</p>
+    <p>Whose leaves already are burnt with frost,</p>
+    <p>Whose clustered fruit must else be lost&mdash;</p>
+    <p>For the grapes&rsquo; sake along the wall.</p>
+    <cite>Robert Frost, from <i>A Boy&rsquo;s Will</i>, 1913</cite>
+  </div>
+  <div class="release"><button class="btn" type="button" id="releaseBtn">Release one leaf</button></div>
+</section>
+
+<!-- ============================================================ sources -->
+<section class="sources" id="sources">
+  <h2>Notes and sources</h2>
+  <p>Designed and built by <a href="../">Connor Allen</a> with Claude (Anthropic) as a collaborator, October 2026. The watercolor plates, leaf portraits, leaf lab and map on this page were painted for it with Python, NumPy and OpenCV, using a small pigment-layering model in which each wash absorbs part of the light. The historical paintings are reproduced from open-access museum collections. Current-season notes are dated and reflect reports published on or before October 8, 2026.</p>
+  <h3>How leaves change</h3>
+  <ul>
+    <li><a href="https://www.fs.usda.gov/visit/fall-colors/science-of-fall-colors">USDA Forest Service, The science of fall colors</a></li>
+    <li><a href="https://harvardforest1.fas.harvard.edu/publications/pdfs/Lee_EcologicalResearch_2003.pdf">Lee et al. 2003, Pigment dynamics and autumn leaf senescence in a New England deciduous forest, Ecological Research</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2663763/">Fracheboud et al. 2009, The control of autumn senescence in European aspen, Plant Physiology</a></li>
+    <li><a href="https://academic.oup.com/jxb/article/69/4/751/4810826">Kuai, Chen and H&ouml;rtensteiner 2018, The biochemistry and molecular biology of chlorophyll breakdown, Journal of Experimental Botany</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6582504/">Review of chlorophyll breakdown and its yearly global scale (PubMed Central)</a></li>
+    <li><a href="https://jacksonlab.stanford.edu/sites/g/files/sbiybj20871/files/media/file/em2012a.pdf">Vergutz et al. 2012, Global resorption efficiencies of leaf nutrients, Ecological Monographs</a></li>
+    <li><a href="https://ps.ueb.cas.cz/pdfs/phs/2022/01/02.pdf">Lichtenthaler and Babani 2022, chlorophyll to carotenoid ratios, Photosynthetica</a></li>
+    <li><a href="https://research.fs.usda.gov/download/treesearch/56547.pdf">Archetti et al. 2009, Unravelling the evolution of autumn colours, Trends in Ecology and Evolution</a></li>
+    <li><a href="https://research.fs.usda.gov/treesearch/18818">USDA Forest Service research on girdling and red leaf color in sugar maple (Treesearch 18818)</a></li>
+    <li><a href="https://www.fs.usda.gov/nrs/pubs/jrnl/2017/nrs_2017_schaberg_002.pdf">Schaberg et al. 2017, branch cooling, sugars and anthocyanins in sugar maple</a></li>
+    <li><a href="https://research.fs.usda.gov/download/treesearch/6986.pdf">Schaberg et al. 2003, nitrogen and red leaf color in sugar maple</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC281624/">Hoch, Singsaas and McCown 2003, anthocyanins and nutrient recovery in autumn</a></li>
+    <li><a href="https://holbrookgroup.oeb.harvard.edu/publications/why-leaves-turn-red-autumn-role-anthocyanins-senescing-leaves-red-osier">Feild, Lee and Holbrook 2001, why leaves turn red in autumn, Plant Physiology</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1088768/">Hamilton and Brown 2001, autumn tree colours as a signal to insects, Proc. Royal Society B</a></li>
+    <li><a href="https://www.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2015.00634/full">Ethylene and auxin in poplar leaf abscission, Frontiers in Plant Science 2015</a></li>
+    <li><a href="https://internationaloaksociety.org/content/when-oak-leaves-fail-fall">International Oak Society, When oak leaves fail to fall</a></li>
+    <li><a href="https://www.extension.purdue.edu/extmedia/FNR/FNR-FAQ-5.pdf">Purdue Extension, Why leaves change color</a></li>
+    <li><a href="https://www.esf.edu/ecenter/eis/leaves.php">SUNY ESF, Why leaves change color</a></li>
+    <li><a href="https://www.psu.edu/news/impact/story/extremely-dry-hot-conditions-fall-causing-early-muted-foliage-display">Penn State, dry hot conditions and the 2019 foliage display</a></li>
+    <li><a href="https://northernwoodlands.org/pdf/tos_weather_foliage.pdf">Northern Woodlands, weather and foliage</a></li>
+  </ul>
+  <h3>Timing and this season</h3>
+  <ul>
+    <li><a href="https://www.maine.gov/dacf/mfs/projects/fall_foliage/report/index.shtml">Maine DACF foliage report, Oct 7, 2026</a> and <a href="https://www.maine.gov/dacf/mfs/projects/fall_foliage/report/past.shtml">past peak weeks</a></li>
+    <li><a href="https://www.iloveny.com/things-to-do/fall/foliage-report/">I LOVE NY fall foliage report, week of Oct 7 to 13, 2026</a></li>
+    <li><a href="https://www.poconomountains.com/plan-your-vacation/seasons/fall/fall-foliage-forecast/">Pocono Mountains fall foliage forecast, Oct 8 to 14, 2026</a></li>
+    <li><a href="https://www.pa.gov/agencies/dcnr/newsroom/2026-fall-foliage-october-1">PA DCNR fall foliage report, Oct 1, 2026</a> and <a href="https://www.pa.gov/agencies/dcnr/conservation/forests-and-tree/fall-foliage-reports.html">regional timing</a></li>
+    <li><a href="https://newengland.com/travel/new-england/2026-fall-foliage-forecast/">Yankee Magazine 2026 fall foliage forecast</a></li>
+    <li><a href="https://www.maine.gov/mema/sites/maine.gov.mema/files/inline-files/Drought%20Task%20Force%20Report_9.3.26.pdf">Maine Drought Task Force, Sept 3, 2026</a></li>
+    <li><a href="https://www.weather.gov/media/phi/DGT/DGT_PHI_09252026.txt">NWS Mount Holly drought statement, Sept 25, 2026</a></li>
+    <li><a href="https://jeff-foliage.com/2026/10/05/4-oct-foliage-report-and-high-winds-to-start-the-week/">Jeff Foliage report, Oct 5, 2026 (unofficial)</a></li>
+    <li><a href="https://thesunpapers.com/2026/09/18/new-jersey/fall-foliage/">The Sun Papers, New Jersey fall foliage, Sept 18, 2026</a></li>
+    <li><a href="https://www.nj.gov/dep/parksandforests/forest/fall_color.html">NJ Forest Service, fall color</a></li>
+    <li><a href="https://www.farmersalmanac.com/2026-fall-foliage-forecast">Farmers&rsquo; Almanac 2026 forecast</a> and <a href="https://www.almanac.com/fall-foliage-color-map-when-peak-foliage">Old Farmer&rsquo;s Almanac</a></li>
+    <li><a href="https://visitnh.gov/plan-your-trip/fall/foliage-tracker">Visit NH foliage tracker</a>, <a href="https://www.helloburlingtonvt.com/blog/post/when-is-peak-fall-foliage-in-vermont/">Hello Burlington</a>, <a href="https://www.visitma.com/blog/the-best-places-to-see-fall-foliage-in-massachusetts/">Visit Massachusetts</a>, <a href="https://ctvisit.com/articles/connecticut-fall-foliage-report">CTvisit</a>, <a href="https://www.visitrhodeisland.com/editorial/post/discover-the-magic-of-rhode-islands-fall-foliage/">Visit Rhode Island</a></li>
+    <li><a href="https://www.iloveny.com/blog/post/fall-foliage-when-and-where-to-go-in-new-york-state">I LOVE NY, when and where to go</a></li>
+    <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3592872/">Archetti, Richardson, O&rsquo;Keefe and Delpierre 2013, Predicting climate change impacts on autumn colors, PLOS ONE</a></li>
+    <li><a href="https://www.spokesman.com/stories/2026/sep/12/when-fall-foliage-colors-will-peak/">USA Today via The Spokesman-Review, Sept 12, 2026</a></li>
+    <li><a href="https://www.wcax.com/2026/09/08/fall-foliage-expected-be-vibrant-new-england/">WCAX, Sept 8, 2026</a></li>
+    <li><a href="https://extension.unh.edu/blog/2022/10/autumn-gold-tamarack">UNH Extension, autumn gold tamarack</a></li>
+  </ul>
+  <h3>Paintings, poems and map data</h3>
+  <ul id="artCredits"></ul>
+  <ul style="margin-top:.6rem">
+    <li><a href="https://www.nga.gov/stories/articles/celebrate-fall-foliage-autumn-art-national-gallery">National Gallery of Art on Cropsey&rsquo;s London exhibition</a></li>
+    <li>Thoreau, &ldquo;Autumnal Tints,&rdquo; in <a href="https://www.gutenberg.org/ebooks/9846"><i>Excursions</i> (Project Gutenberg)</a>. Frost, &ldquo;October,&rdquo; in <a href="https://www.gutenberg.org/ebooks/3021"><i>A Boy&rsquo;s Will</i> (Project Gutenberg)</a>.</li>
+    <li>Elevation: <a href="https://registry.opendata.aws/terrain-tiles/">Terrain Tiles on AWS</a>. State outlines: <a href="https://github.com/topojson/us-atlas">us-atlas</a> (U.S. Census Bureau). Lakes: <a href="https://www.naturalearthdata.com/">Natural Earth</a>.</li>
+  </ul>
+</section>
+</main>
+
+<script type="application/json" id="d-herogeo">{"W": 2000, "H": 860, "fore": [0.8021, 0.8037, 0.8014, 0.7982, 0.7932, 0.7954, 0.7937, 0.7969, 0.7941, 0.7873, 0.7919, 0.7937, 0.795, 0.7933, 0.7895, 0.7867, 0.7862, 0.7858, 0.7849, 0.785, 0.7858, 0.7861, 0.7824, 0.7841, 0.7838, 0.7866, 0.7825, 0.7826, 0.7795, 0.7809, 0.7833, 0.7773, 0.7718, 0.7715, 0.7737, 0.7733, 0.7704, 0.7669, 0.7667, 0.7702, 0.7707], "trees": [{"sp": "red_maple", "cx": 0.895, "cy": 0.4285, "rx": 0.075, "ry": 0.16, "trunk": 0.905, "n": 90, "drop": -4, "keep": 0.0}, {"sp": "red_oak", "cx": 0.985, "cy": 0.456, "rx": 0.06, "ry": 0.15, "trunk": 0.975, "n": 70, "drop": 14, "keep": 0.18}, {"sp": "birch", "cx": 0.8077, "cy": 0.4086, "rx": 0.045, "ry": 0.1, "trunk": 0.8, "n": 40, "drop": -3, "keep": 0.0}, {"sp": "birch", "cx": 0.8245, "cy": 0.4596, "rx": 0.045, "ry": 0.1, "trunk": 0.835, "n": 40, "drop": -3, "keep": 0.0}, {"sp": "sugar_maple", "cx": 0.125, "cy": 0.33, "rx": 0.15, "ry": 0.29, "trunk": 0.085, "n": 230, "drop": 7, "keep": 0.0}], "atlas": {"cell": 72, "cols": 8, "sprites": {"sugar_maple": [[0, "orange"], [1, "orange"], [2, "scarlet"], [3, "scarlet"], [4, "gold"], [5, "gold"], [6, "late"], [7, "late"]], "red_maple": [[8, "scarlet"], [9, "scarlet"], [10, "crimson"], [11, "crimson"], [12, "amber"], [13, "amber"]], "red_oak": [[14, "russet"], [15, "russet"], [16, "deep"], [17, "deep"], [18, "brown"], [19, "brown"]], "birch": [[20, "yellow"], [21, "yellow"], [22, "gold"], [23, "gold"], [24, "pale"], [25, "pale"]]}}}</script>
+<script type="application/json" id="d-presets">[{"id": "hackettstown", "name": "Hackettstown, NJ", "x": 442, "y": 668, "lat": 40.85, "lon": -74.83, "peak": 292, "elev": 600}, {"id": "caribou", "name": "Caribou, Maine", "x": 896, "y": 76, "lat": 46.86, "lon": -68.01, "peak": 271, "elev": 475}, {"id": "bar-harbor", "name": "Bar Harbor, Maine", "x": 900, "y": 314, "lat": 44.39, "lon": -68.2, "peak": 287, "elev": 0}, {"id": "rangeley", "name": "Rangeley, Maine", "x": 730, "y": 268, "lat": 44.97, "lon": -70.64, "peak": 272, "elev": 1675}, {"id": "stowe", "name": "Stowe, Vermont", "x": 592, "y": 320, "lat": 44.47, "lon": -72.69, "peak": 277, "elev": 1075}, {"id": "rutland", "name": "Rutland, Vermont", "x": 574, "y": 403, "lat": 43.61, "lon": -72.97, "peak": 282, "elev": 700}, {"id": "north-conway", "name": "North Conway, NH", "x": 700, "y": 357, "lat": 44.05, "lon": -71.13, "peak": 283, "elev": 525}, {"id": "keene", "name": "Keene, NH", "x": 623, "y": 467, "lat": 42.93, "lon": -72.28, "peak": 285, "elev": 500}, {"id": "lake-placid", "name": "Lake Placid, NY", "x": 503, "y": 339, "lat": 44.28, "lon": -73.98, "peak": 274, "elev": 1775}, {"id": "old-forge", "name": "Old Forge, NY", "x": 435, "y": 393, "lat": 43.71, "lon": -74.97, "peak": 275, "elev": 1850}, {"id": "woodstock", "name": "Woodstock, NY (Catskills)", "x": 494, "y": 554, "lat": 42.04, "lon": -74.12, "peak": 287, "elev": 550}, {"id": "watkins-glen", "name": "Watkins Glen, NY", "x": 298, "y": 518, "lat": 42.38, "lon": -76.87, "peak": 287, "elev": 500}, {"id": "kingston", "name": "Kingston, NY", "x": 502, "y": 564, "lat": 41.93, "lon": -74, "peak": 291, "elev": 175}, {"id": "new-york", "name": "New York City", "x": 502, "y": 682, "lat": 40.71, "lon": -74, "peak": 309, "elev": 100}, {"id": "montauk", "name": "Montauk, NY", "x": 651, "y": 648, "lat": 41.04, "lon": -71.95, "peak": 311, "elev": 25}, {"id": "lenox", "name": "Lenox, Mass. (Berkshires)", "x": 553, "y": 523, "lat": 42.36, "lon": -73.28, "peak": 284, "elev": 1200}, {"id": "worcester", "name": "Worcester, Mass.", "x": 658, "y": 531, "lat": 42.26, "lon": -71.8, "peak": 289, "elev": 575}, {"id": "boston", "name": "Boston, Mass.", "x": 711, "y": 520, "lat": 42.36, "lon": -71.06, "peak": 301, "elev": 25}, {"id": "hyannis", "name": "Hyannis, Mass. (Cape Cod)", "x": 769, "y": 585, "lat": 41.65, "lon": -70.28, "peak": 309, "elev": 0}, {"id": "litchfield", "name": "Litchfield, Conn.", "x": 560, "y": 581, "lat": 41.75, "lon": -73.19, "peak": 289, "elev": 1100}, {"id": "new-haven", "name": "New Haven, Conn.", "x": 579, "y": 624, "lat": 41.31, "lon": -72.93, "peak": 309, "elev": 0}, {"id": "providence", "name": "Providence, RI", "x": 688, "y": 572, "lat": 41.82, "lon": -71.41, "peak": 299, "elev": 25}, {"id": "wellsboro", "name": "Wellsboro, Pa.", "x": 266, "y": 577, "lat": 41.75, "lon": -77.3, "peak": 283, "elev": 1450}, {"id": "stroudsburg", "name": "Stroudsburg, Pa. (Poconos)", "x": 416, "y": 654, "lat": 40.99, "lon": -75.19, "peak": 294, "elev": 625}, {"id": "state-college", "name": "State College, Pa.", "x": 221, "y": 668, "lat": 40.79, "lon": -77.86, "peak": 289, "elev": 1150}, {"id": "ohiopyle", "name": "Ohiopyle, Pa. (Laurel Highlands)", "x": 97, "y": 749, "lat": 39.87, "lon": -79.49, "peak": 290, "elev": 1450}, {"id": "pittsburgh", "name": "Pittsburgh, Pa.", "x": 64, "y": 692, "lat": 40.44, "lon": -79.99, "peak": 294, "elev": 825}, {"id": "philadelphia", "name": "Philadelphia, Pa.", "x": 416, "y": 754, "lat": 39.95, "lon": -75.16, "peak": 300, "elev": 50}, {"id": "high-point", "name": "High Point, NJ", "x": 454, "y": 623, "lat": 41.32, "lon": -74.66, "peak": 288, "elev": 1125}, {"id": "princeton", "name": "Princeton, NJ", "x": 454, "y": 716, "lat": 40.35, "lon": -74.66, "peak": 299, "elev": 75}, {"id": "hammonton", "name": "Hammonton, NJ (Pine Barrens)", "x": 443, "y": 784, "lat": 39.64, "lon": -74.8, "peak": 305, "elev": 100}, {"id": "cape-may", "name": "Cape May, NJ", "x": 434, "y": 852, "lat": 38.94, "lon": -74.91, "peak": 309, "elev": 0}]</script>
+<script type="application/json" id="d-overlay">{"W":1000,"H":877,"borders":"M733.3,451.4L724.3,445.1L724.1,439.4L725.4,435.8L714.8,425.7L712.3,421.4L714.0,413.0L713.0,412.2L714.3,404.9L712.7,403.0L710.5,377.3L710.2,369.9L705.0,299.0L699.2,236.7M701.1,582.2L698.4,578.3L693.4,575.8L692.0,571.2L692.3,564.5L689.2,565.1L688.9,553.0L659.2,554.9L658.9,553.4L607.1,553.5L601.5,553.9L590.8,553.6L590.0,556.8L586.5,557.3L586.7,553.6L572.8,553.5L542.6,552.7L538.8,552.8L537.2,549.3L545.7,516.7L554.0,485.8L610.8,486.9L661.2,487.6L693.2,487.7L695.6,483.8L700.9,483.5L700.5,478.4L704.2,475.3L709.0,476.7L711.1,471.5L720.1,468.5L724.0,470.8L726.0,469.7M709.3,602.4L708.0,586.8L703.3,585.5M390.3,779.2L392.7,776.5L394.1,771.5L397.4,768.1L401.9,764.6L412.0,762.6L418.7,759.0L418.8,753.3L423.0,751.3L424.9,748.6L434.0,742.8L438.8,741.6L442.0,737.4L444.6,738.1L449.1,734.9L445.5,729.0L440.2,725.6L438.4,721.2L433.0,716.7L431.2,711.1L424.6,709.4L423.6,705.7L424.3,697.9L421.7,694.8L417.2,695.1L414.9,693.9L414.4,687.1L416.3,684.6L414.2,682.8L416.7,674.6L419.6,675.0L425.7,665.8L419.6,655.8L423.0,651.8L427.7,649.5L431.9,644.9L430.9,642.9L435.4,640.1L438.3,636.1L442.0,625.9L447.8,620.3L451.9,619.2L474.6,633.6L508.9,654.0L509.7,655.6L504.5,671.0L501.4,676.4L500.3,681.8L498.7,683.6M496.9,686.4L487.2,689.3L486.2,696.2L483.8,697.5L483.0,701.6M386.7,786.8L386.4,784.5M92.7,517.7L90.9,543.6L91.2,543.7L154.3,547.8L174.0,548.7L216.8,551.1L279.0,553.6L305.9,554.3L334.3,555.5L377.6,556.6L405.0,557.0L408.5,561.9L409.8,561.6L411.8,569.9L415.6,569.6L422.5,572.5L425.0,576.6L422.9,579.2L426.5,581.0L426.9,594.1L424.8,595.1L431.1,604.5L431.3,607.3L434.2,606.9L438.0,609.7L437.5,611.2L444.0,611.0L444.7,612.8L448.9,612.2L448.6,614.6L451.9,619.2M397.4,768.1L391.3,765.0L385.5,764.4L379.1,765.9L375.1,768.6L369.6,775.3L312.0,773.9L280.7,772.9L240.6,771.3L178.0,768.1L97.1,763.6L52.8,760.5L20,758.0L26.8,670.1L36.8,541.8M659.2,554.9L659.4,563.7L660.7,582.0L661.0,594.4L660.7,611.6L657.6,612.4L658.5,618.6L656.5,621.1M526.9,655.2L527.1,652.5L521.9,644.1L539.5,633.3L534.5,625.3L535.5,612.0L536.7,587.6L538.8,552.8M610.8,486.9L608.4,482.5L606.9,483.4L603.7,475.0L605.9,469.0L606.1,464.3L609.4,463.4L611.3,459.6L609.7,455.4L611.9,452.6L610.6,447.3L611.4,435.9L614.3,430.5L612.7,425.6L615.0,414.4L613.7,411.5L614.8,405.4L618.5,402.6L619.8,393.6L622.0,389.9L626.6,386.3L628.0,382.6L627.7,377.3L632.3,371.7L632.1,364.7L635.0,361.0L637.9,355.2L637.8,351.4L635.2,345.8L636.5,341.1L635.0,338.3L637.3,333.2L645.9,330.4L648.4,331.4L652.3,329.5L653.4,325.2L659.3,323.9L662.7,320.6L664.3,316.8L668.2,314.9L666.5,310.1L669.2,308.9L669.5,302.9L667.0,299.8L664.0,291.5L667.6,287.1L668.4,281.8L672.6,275.4L669.2,268.2L671.9,265.6M546.8,268.2L547.1,277.2L545.4,279.7L544.5,284.9L547.7,289.6L545.3,294.2L544.8,301.8L543.9,304.3L544.9,310.1L549.6,317.3L550.6,323.0L547.7,329.7L549.5,339.0L548.6,342.0L543.9,347.3L542.7,354.6L540.8,361.1L543.1,363.4L542.9,371.9L545.4,377.4L544.2,382.7L547.2,387.3L543.3,395.4L541.6,404.8L544.1,406.9L545.8,401.5L550.6,401.4L551.1,405.8L554.4,408.2L554.1,436.5L552.9,471.3L553.0,477.4L552.0,480.5L554.0,485.8","outline":"M889.5,334.0L893.0,333.2L891.4,336.2L889.5,334.0M880.9,337.8L882.1,330.9L883.8,333.6L888.8,337.8L885.3,341.7L883.9,339.0L880.9,337.8M877.7,320.2L878.3,316.7L881.3,322.4L877.7,320.2M857.0,332.0L860.4,331.6L861.4,334.9L857.0,332.0M854.3,369.0L856.1,365.8L856.7,372.0L854.3,369.0M850.5,344.3L852.3,340.8L858.2,336.7L861.2,340.6L859.0,341.4L862.9,347.6L860.4,351.0L856.0,352.4L852.9,350.6L854.0,348.4L853.0,344.4L850.5,344.3M848.2,331.0L851.1,325.2L851.3,319.9L853.4,317.7L855.0,319.8L852.9,322.8L853.4,325.7L851.7,331.6L849.4,334.2L848.2,331.0M770.7,618.0L774.2,619.8L781.7,619.1L786.3,617.5L789.1,611.5L793.7,620.0L793.5,622.5L791.0,623.9L782.4,624.0L771.6,619.5L770.7,618.0M730.5,615.5L735.1,615.3L739.7,607.7L746.5,602.5L749.4,603.6L751.4,609.3L755.4,611.4L757.9,608.0L757.9,614.9L747.3,615.3L739.3,616.3L734.8,620.4L730.5,615.5M386.4,784.5L390.3,779.2M36.8,541.8L49.5,537.7L61.4,532.4L63.9,530.6L66.8,525.9L70.1,525.9L70.7,528.2L80.3,523.0L92.7,517.7L101.4,513.9L115.5,505.7L123.3,498.7L131.2,495.0L137.9,493.4L141.0,487.8L144.5,485.0L145.8,480.8L155.2,476.7L160.2,472.5L159.6,465.9L156.5,462.4L157.2,458.9L155.6,455.7L150.0,452.5L150.7,445.0L146.3,443.4L148.9,437.2L148.3,426.9L147.6,425.8L154.7,424.4L164.4,421.5L178.7,418.4L188.8,417.3L197.0,417.5L206.5,418.8L215.6,418.6L236.9,423.0L242.6,424.9L246.2,428.9L251.8,432.9L254.8,433.9L265.0,430.3L273.8,430.5L284.6,430.0L289.8,431.7L295.6,432L299.2,430.1L306.7,428.7L311.4,425.5L313.6,425.5L318.6,419.1L326.3,414.0L328.8,413.4L333.7,409.1L337.2,408.8L342.1,410.2L346.4,408.7L348.8,404.4L349.5,397.2L347.6,382.3L342.7,378.9L345.6,374.9L349.1,374.0L349.5,376.8L354.8,373.5L354.2,370.0L349.6,366.0L344.1,367.1L345.4,364.7L341.8,360.4L338.0,360.2L338.5,353.6L342.7,344.2L347.4,343.9L353.2,340.6L353.3,336.7L357.8,335.0L364.5,330.6L366.8,331.1L370.8,328.7L377.0,322.7L378.1,318.9L381.2,314.8L391.4,305.0L399.2,296.9L413.1,285.5L412.9,284.5L429.6,275.7L436.0,270.7L440.4,270.7L445.8,267.7L452.4,270.2L457.0,269.4L479.2,270.2L492.1,270.3L518.2,269.1L524.1,269.2L546.8,268.2L564.1,267.7L592.1,267.3L601.9,267.9L617.0,268.0L630.9,267.5L671.9,265.6L672.4,260.0L676.6,254.6L675.9,253.4L678.4,247.2L675.1,244.3L679.5,243.3L680.4,241.1L685.6,237.5L689.4,242.4L696.2,242.6L699.2,236.7L704.2,235.2L704.1,232.5L710.3,235.7L710.2,238.8L712.0,242.3L714.7,243.5L717.6,236.3L717.8,229.2L716.3,227.0L719.1,223.9L721.0,224.0L724.1,227.6L729.2,228.1L729.3,224.9L723.2,218.3L722.9,215.6L727.8,206.6L731.1,204.2L733.6,200.6L735.6,200.6L739.0,197.0L744.7,193.6L742.3,187.9L747.1,182.2L752.4,178.3L753.4,173.6L751.6,171.3L748.3,171.5L748.0,166.0L750.3,162.8L748.3,161.7L751.7,157.4L752.8,153.5L749.0,150.0L752.4,140.4L754.2,138.8L753.9,135.8L757.8,132.9L760.9,127.9L763.5,127.1L766.3,100.2L813.0,24L816.0,24.1L822.5,26.8L825.0,26.4L824.6,31.2L825.5,42.8L826.6,44.3L835.6,49.8L841.2,45.9L847.2,43.0L853.7,42.4L856.0,38.0L863.0,36.6L868.9,37.2L868.6,32.1L872.2,29.9L878.1,30.0L883.6,32.6L884.8,35.2L892.9,40.3L902.1,50.6L902.2,51.8L909.1,55.5L912.4,100.5L917.4,157.5L917.5,163.4L919.9,165.7L916.5,169.2L920.3,174.7L916.9,177.8L918.0,189.0L923.6,190.0L924.2,188.3L927.0,192.9L931.7,194.8L939.1,196.2L942.4,194.3L944.7,199.3L945.3,203.9L942.1,203.5L939.6,205.5L941.7,210.9L946.0,215.8L944.3,222.0L942.1,225.6L948.4,234.7L948.6,236.6L953.2,239.5L956.2,237.0L956.1,233.2L960.7,235.3L965.3,235.2L968.8,239.5L970.6,243.6L968.8,244.9L971.4,247.3L975.0,255.2L978.9,258.0L980,267.7L977.4,272.0L975.0,272.1L974.2,274.8L967.1,284.7L961.4,287.2L962.6,289.0L958.9,289.9L960.1,286.4L958.6,279.4L952.2,282.4L955.5,287.0L952.9,290.7L950.1,289.9L947.3,294.9L944.0,293.7L941.6,294.8L942.3,297.7L946.5,300.7L941.4,305.8L938.0,302.2L936.1,297.7L933.0,298.7L932.5,301.9L930.5,301.8L928.4,297.1L927.1,302.3L925.0,303.6L923.5,309.9L921.6,308.4L920.5,312.5L919.2,309.1L914.6,313.7L913.2,311.5L910.8,319.3L906.6,316.4L906.4,313.4L904.1,315.3L901.3,314.8L902.2,320.2L898.7,326.3L901.6,328.8L893.0,330.7L887.2,328.5L882.7,319.9L884.0,317.4L889.2,314.8L886.8,311.3L883.8,314.4L884.0,310.7L881.6,311.1L882.2,316.7L881.0,316.8L880.6,311.5L875.0,316.5L876.4,319.3L875.2,323.0L879.0,328.3L878.5,332.0L873.2,338.7L875.5,339.5L872.7,342.2L875.7,346.7L874.9,352.4L871.0,353.5L869.8,346.5L871.2,346.1L870.2,341.6L865.8,338.2L864.5,333.0L867.9,328.6L863.0,325.6L864.3,323.3L861.8,322.7L857.5,324.7L857.2,315.3L859.7,311.5L859.6,307.4L857.9,306.4L856.4,310.3L853.1,313.8L850.3,311.2L848.7,313.9L845.0,314.5L848.9,321.0L848.4,325.0L845.5,327.0L843.4,333.0L842.8,339.0L839.9,345.6L844.8,347.8L841.7,350.3L844.5,354.9L842.2,358.2L835.5,358.2L832.6,364.3L828.9,364.6L828.6,369.4L825.9,370.3L825.7,366.0L827.3,362.9L825.0,361.8L824.4,364.3L821.4,365.5L822.4,360.1L818.0,361.1L818.5,365.4L814.6,368.6L813.6,372.8L810.4,368.8L810.1,372.7L806.5,375.5L803.5,373.5L803.0,379L799.5,375.0L796.7,382.7L791.1,385.2L789.9,386.9L788.3,380.1L784.3,379.9L780.8,383.5L779.7,386.8L774.7,386.7L773.1,390.8L768.1,390.7L765.8,394.8L765.3,399.0L766.6,401.3L764.7,404.1L761.4,401.8L756.0,404.6L753.9,408.5L755.7,414.0L753.8,417.6L751.4,418.9L752.2,421.6L748.8,423.8L745.3,423.6L742.9,425.7L740.4,433.9L741.8,435.4L738.5,442.2L738.8,444.0L735.6,450.2L733.3,451.4L726.3,466.0L726.0,469.7L726.7,475.6L729.4,486.7L735.9,490.4L738.8,486.8L742.4,489.4L738.7,497.0L732.9,497.8L723.3,501.1L726.5,505.1L722.1,509.4L720.3,508.7L719.2,513.6L718.1,510.3L715.4,514.7L718.5,520.7L715.1,520.0L713.9,522.4L716.0,524.5L714.8,526.7L718.5,527.8L719.9,524.7L723.4,523.9L725.9,527.7L732.1,529.8L735.3,533.2L735.9,536.9L741.6,544.4L741.5,548.5L739.8,551.8L736.8,552.3L737.6,554.3L743.2,558.3L746.2,557.5L748.4,559.4L750.7,566.2L749.6,570.3L753.1,574.1L759.1,576.8L767.9,577.4L770.3,579.2L775.0,575.3L779.9,574.5L786.7,571.4L788.1,569.3L787.6,562.8L785.8,557.8L782.6,560.5L782.2,552.5L780.7,548.1L776.7,545.4L774.5,546.1L773.3,549.4L770.3,544.7L773.6,543.6L779.0,544.8L785.1,549.3L790.2,559.3L793.0,569.0L794.1,580.2L790.7,591.1L790.4,594.7L788.5,594.0L791.2,584.7L789.3,582.9L782.6,583.6L771.7,587.4L763.9,587.1L762.2,589.5L757.9,590.2L754.2,595.5L745.8,596.7L737.2,602.5L733.2,606.5L727.9,609.0L722.0,610.5L723.5,608.3L732.4,605.1L736.4,601.1L742.4,596.8L743.6,593.5L742.7,583.8L744.1,580.4L737.3,578.5L737.5,583.4L735.6,582.3L734.8,586.4L731.2,586.3L731.8,589.0L723.8,590.2L722.2,594.3L722.8,597.9L721.4,600.3L715.0,602.5L711.8,601.2L709.3,602.4L704.2,606.4L702.4,598.0L702.8,592.7L700.1,591.0L701.1,604.1L696.7,604.1L696.2,607.0L693.7,607.6L693.3,603.1L697.2,595.1L699.0,589.5L703.3,585.5L701.1,582.2L700.5,585.9L697.0,589.4L695.3,586.0L696.2,583.1L691.2,578.8L689.1,575.6L690.7,586.2L685.0,584.9L688.2,588.1L688.6,594.2L685.5,595.3L687.7,599.6L687.9,605.5L685.5,609.3L683.6,615.4L680.4,615.0L673.5,616.7L666.6,619.7L656.8,622.4L656.5,621.1L654.7,619.6L650.3,619.5L644.9,621.6L640.2,621.5L636.9,623.5L632.7,621.3L631.2,624.4L618.6,627.5L617.8,625.9L613.9,626.0L606.9,628.8L605.3,627.1L598.6,627.2L596.8,629.3L592.1,627.5L581.8,629.9L580.9,624.9L578.6,626.4L573.8,633.2L570.7,633.2L565.0,639.3L561.6,637.5L555.4,642.3L553.6,641.2L547.6,643.6L548.9,645.4L546.4,648.1L538.8,649.0L533.1,653.5L530.8,652.3L526.9,655.2L525.1,658.7L519.6,662.2L519.1,668.7L515.7,668.5L518.1,673.5L522.8,666.3L525.6,667.5L528.2,664.0L533.7,661.8L538.4,661.6L539.4,658.9L545.2,661.3L545.7,657.9L548.0,660.2L553.2,660.8L557.9,662.7L563.9,660.3L564.4,656.8L568.8,656.0L571.4,657.0L591.0,656.5L601.1,654.7L604.7,653.1L612.4,647.8L614.7,644.5L617.8,643.3L621.1,639.1L626.5,637.3L629.7,637.4L625.1,641.8L622.7,642.3L626.7,644.8L628.1,648.4L632.5,649.3L635.3,647.2L639.6,653.0L643.5,651.5L649.4,647.4L649.9,645.1L654.2,644.1L657.4,645.0L656.1,646.8L638.9,655.0L618.8,665.5L605.8,670.9L584.8,678.9L571.0,685.5L559.8,689.0L552.7,690.1L551.1,688.8L534.4,693.9L518.4,693.1L506.3,697.7L507.1,694.6L501.1,694.7L501.9,692.7L499.0,689.4L500.8,686.5L498.7,683.6L496.9,686.4L498.2,691.9L495.9,695.1L485.9,701.6L483.0,701.6L483.0,705.2L488.0,707.5L492.2,706.0L498.5,709.7L502.1,710.4L503.2,706.8L504.3,714.2L503.5,723.1L499.8,738.1L496.3,758.5L495.0,772.8L484.3,792.7L481.4,796.7L479.0,797.4L479.8,800.0L477.1,804.6L471.7,809.8L471.4,811.3L463.1,815.8L454.5,824.7L448.8,834.4L442.8,846.7L437.4,851.6L432.2,852.7L429.3,851.5L431.0,844.2L435.1,836.3L436.0,830.6L430.4,827.5L425.6,827.1L424.0,825.0L419.2,825.2L417.2,828.1L414.9,826.1L414.4,822.2L409.6,819.1L408.8,816.6L406.2,817.5L402.2,811.8L400.4,812.5L395.6,807.6L393.0,802.9L388.0,800.8L389.8,789.2L386.7,786.8M644.0,627.6L644.7,626.1L651.7,624.1L646.3,627.8L644.0,627.6M636.5,642.9L637.8,641.2L640.7,642.4L640.8,646.6L639.2,643.7L636.5,642.9M631.2,634.8L635.3,633.4L632.2,637.0L631.2,634.8M337.6,375.3L341.7,371.3L340.4,375.0L337.6,375.3M332.2,373.6L335.3,370.4L337.5,370.8L332.2,373.6M691.2,587.3L692.5,586.7L695.5,590.9L694.2,591.5L691.2,587.3M689.2,606.6L690.7,602.4L689.6,600.5L690.7,595.8L691.8,597.4L692.0,604.4L689.2,606.6M674.8,636.0L677.5,629.3L678.8,630.4L679.3,636.6L674.8,636.0","states":{"ME":"M889.5,334.0L893.0,333.2L891.4,336.2ZM880.9,337.8L882.1,330.9L883.8,333.6L888.8,337.8L885.3,341.7L883.9,339.0ZM877.7,320.2L878.3,316.7L881.3,322.4ZM857.0,332.0L860.4,331.6L861.4,334.9ZM854.3,369.0L856.1,365.8L856.7,372.0ZM850.5,344.3L852.3,340.8L858.2,336.7L861.2,340.6L859.0,341.4L862.9,347.6L860.4,351.0L856.0,352.4L852.9,350.6L854.0,348.4L853.0,344.4ZM848.2,331.0L851.1,325.2L851.3,319.9L853.4,317.7L855.0,319.8L852.9,322.8L853.4,325.7L851.7,331.6L849.4,334.2ZM733.3,451.4L724.3,445.1L724.1,439.4L725.4,435.8L714.8,425.7L712.3,421.4L714.0,413.0L713.0,412.2L714.3,404.9L712.7,403.0L710.5,377.3L710.2,369.9L705.0,299.0L699.2,236.7L704.2,235.2L704.1,232.5L710.3,235.7L710.2,238.8L712.0,242.3L714.7,243.5L717.6,236.3L717.8,229.2L716.3,227.0L719.1,223.9L721.0,224.0L724.1,227.6L729.2,228.1L729.3,224.9L723.2,218.3L722.9,215.6L727.8,206.6L731.1,204.2L733.6,200.6L735.6,200.6L739.0,197.0L744.7,193.6L742.3,187.9L747.1,182.2L752.4,178.3L753.4,173.6L751.6,171.3L748.3,171.5L748.0,166.0L750.3,162.8L748.3,161.7L751.7,157.4L752.8,153.5L749.0,150.0L752.4,140.4L754.2,138.8L753.9,135.8L757.8,132.9L760.9,127.9L763.5,127.1L766.3,100.2L813.0,24L816.0,24.1L822.5,26.8L825.0,26.4L824.6,31.2L825.5,42.8L826.6,44.3L835.6,49.8L841.2,45.9L847.2,43.0L853.7,42.4L856.0,38.0L863.0,36.6L868.9,37.2L868.6,32.1L872.2,29.9L878.1,30.0L883.6,32.6L884.8,35.2L892.9,40.3L902.1,50.6L902.2,51.8L909.1,55.5L912.4,100.5L917.4,157.5L917.5,163.4L919.9,165.7L916.5,169.2L920.3,174.7L916.9,177.8L918.0,189.0L923.6,190.0L924.2,188.3L927.0,192.9L931.7,194.8L939.1,196.2L942.4,194.3L944.7,199.3L945.3,203.9L942.1,203.5L939.6,205.5L941.7,210.9L946.0,215.8L944.3,222.0L942.1,225.6L948.4,234.7L948.6,236.6L953.2,239.5L956.2,237.0L956.1,233.2L960.7,235.3L965.3,235.2L968.8,239.5L970.6,243.6L968.8,244.9L971.4,247.3L975.0,255.2L978.9,258.0L980,267.7L977.4,272.0L975.0,272.1L974.2,274.8L967.1,284.7L961.4,287.2L962.6,289.0L958.9,289.9L960.1,286.4L958.6,279.4L952.2,282.4L955.5,287.0L952.9,290.7L950.1,289.9L947.3,294.9L944.0,293.7L941.6,294.8L942.3,297.7L946.5,300.7L941.4,305.8L938.0,302.2L936.1,297.7L933.0,298.7L932.5,301.9L930.5,301.8L928.4,297.1L927.1,302.3L925.0,303.6L923.5,309.9L921.6,308.4L920.5,312.5L919.2,309.1L914.6,313.7L913.2,311.5L910.8,319.3L906.6,316.4L906.4,313.4L904.1,315.3L901.3,314.8L902.2,320.2L898.7,326.3L901.6,328.8L893.0,330.7L887.2,328.5L882.7,319.9L884.0,317.4L889.2,314.8L886.8,311.3L883.8,314.4L884.0,310.7L881.6,311.1L882.2,316.7L881.0,316.8L880.6,311.5L875.0,316.5L876.4,319.3L875.2,323.0L879.0,328.3L878.5,332.0L873.2,338.7L875.5,339.5L872.7,342.2L875.7,346.7L874.9,352.4L871.0,353.5L869.8,346.5L871.2,346.1L870.2,341.6L865.8,338.2L864.5,333.0L867.9,328.6L863.0,325.6L864.3,323.3L861.8,322.7L857.5,324.7L857.2,315.3L859.7,311.5L859.6,307.4L857.9,306.4L856.4,310.3L853.1,313.8L850.3,311.2L848.7,313.9L845.0,314.5L848.9,321.0L848.4,325.0L845.5,327.0L843.4,333.0L842.8,339.0L839.9,345.6L844.8,347.8L841.7,350.3L844.5,354.9L842.2,358.2L835.5,358.2L832.6,364.3L828.9,364.6L828.6,369.4L825.9,370.3L825.7,366.0L827.3,362.9L825.0,361.8L824.4,364.3L821.4,365.5L822.4,360.1L818.0,361.1L818.5,365.4L814.6,368.6L813.6,372.8L810.4,368.8L810.1,372.7L806.5,375.5L803.5,373.5L803.0,379L799.5,375.0L796.7,382.7L791.1,385.2L789.9,386.9L788.3,380.1L784.3,379.9L780.8,383.5L779.7,386.8L774.7,386.7L773.1,390.8L768.1,390.7L765.8,394.8L765.3,399.0L766.6,401.3L764.7,404.1L761.4,401.8L756.0,404.6L753.9,408.5L755.7,414.0L753.8,417.6L751.4,418.9L752.2,421.6L748.8,423.8L745.3,423.6L742.9,425.7L740.4,433.9L741.8,435.4L738.5,442.2L738.8,444.0L735.6,450.2Z","NH":"M671.9,265.6L672.4,260.0L676.6,254.6L675.9,253.4L678.4,247.2L675.1,244.3L679.5,243.3L680.4,241.1L685.6,237.5L689.4,242.4L696.2,242.6L699.2,236.7L705.0,299.0L710.2,369.9L710.5,377.3L712.7,403.0L714.3,404.9L713.0,412.2L714.0,413.0L712.3,421.4L714.8,425.7L725.4,435.8L724.1,439.4L724.3,445.1L733.3,451.4L726.3,466.0L726.0,469.7L724.0,470.8L720.1,468.5L711.1,471.5L709.0,476.7L704.2,475.3L700.5,478.4L700.9,483.5L695.6,483.8L693.2,487.7L661.2,487.6L610.8,486.9L608.4,482.5L606.9,483.4L603.7,475.0L605.9,469.0L606.1,464.3L609.4,463.4L611.3,459.6L609.7,455.4L611.9,452.6L610.6,447.3L611.4,435.9L614.3,430.5L612.7,425.6L615.0,414.4L613.7,411.5L614.8,405.4L618.5,402.6L619.8,393.6L622.0,389.9L626.6,386.3L628.0,382.6L627.7,377.3L632.3,371.7L632.1,364.7L635.0,361.0L637.9,355.2L637.8,351.4L635.2,345.8L636.5,341.1L635.0,338.3L637.3,333.2L645.9,330.4L648.4,331.4L652.3,329.5L653.4,325.2L659.3,323.9L662.7,320.6L664.3,316.8L668.2,314.9L666.5,310.1L669.2,308.9L669.5,302.9L667.0,299.8L664.0,291.5L667.6,287.1L668.4,281.8L672.6,275.4L669.2,268.2Z","VT":"M546.8,268.2L564.1,267.7L592.1,267.3L601.9,267.9L617.0,268.0L630.9,267.5L671.9,265.6L669.2,268.2L672.6,275.4L668.4,281.8L667.6,287.1L664.0,291.5L667.0,299.8L669.5,302.9L669.2,308.9L666.5,310.1L668.2,314.9L664.3,316.8L662.7,320.6L659.3,323.9L653.4,325.2L652.3,329.5L648.4,331.4L645.9,330.4L637.3,333.2L635.0,338.3L636.5,341.1L635.2,345.8L637.8,351.4L637.9,355.2L635.0,361.0L632.1,364.7L632.3,371.7L627.7,377.3L628.0,382.6L626.6,386.3L622.0,389.9L619.8,393.6L618.5,402.6L614.8,405.4L613.7,411.5L615.0,414.4L612.7,425.6L614.3,430.5L611.4,435.9L610.6,447.3L611.9,452.6L609.7,455.4L611.3,459.6L609.4,463.4L606.1,464.3L605.9,469.0L603.7,475.0L606.9,483.4L608.4,482.5L610.8,486.9L554.0,485.8L552.0,480.5L553.0,477.4L552.9,471.3L554.1,436.5L554.4,408.2L551.1,405.8L550.6,401.4L545.8,401.5L544.1,406.9L541.6,404.8L543.3,395.4L547.2,387.3L544.2,382.7L545.4,377.4L542.9,371.9L543.1,363.4L540.8,361.1L542.7,354.6L543.9,347.3L548.6,342.0L549.5,339.0L547.7,329.7L550.6,323.0L549.6,317.3L544.9,310.1L543.9,304.3L544.8,301.8L545.3,294.2L547.7,289.6L544.5,284.9L545.4,279.7L547.1,277.2Z","MA":"M770.7,618.0L774.2,619.8L781.7,619.1L786.3,617.5L789.1,611.5L793.7,620.0L793.5,622.5L791.0,623.9L782.4,624.0L771.6,619.5ZM730.5,615.5L735.1,615.3L739.7,607.7L746.5,602.5L749.4,603.6L751.4,609.3L755.4,611.4L757.9,608.0L757.9,614.9L747.3,615.3L739.3,616.3L734.8,620.4ZM554.0,485.8L610.8,486.9L661.2,487.6L693.2,487.7L695.6,483.8L700.9,483.5L700.5,478.4L704.2,475.3L709.0,476.7L711.1,471.5L720.1,468.5L724.0,470.8L726.0,469.7L726.7,475.6L729.4,486.7L735.9,490.4L738.8,486.8L742.4,489.4L738.7,497.0L732.9,497.8L723.3,501.1L726.5,505.1L722.1,509.4L720.3,508.7L719.2,513.6L718.1,510.3L715.4,514.7L718.5,520.7L715.1,520.0L713.9,522.4L716.0,524.5L714.8,526.7L718.5,527.8L719.9,524.7L723.4,523.9L725.9,527.7L732.1,529.8L735.3,533.2L735.9,536.9L741.6,544.4L741.5,548.5L739.8,551.8L736.8,552.3L737.6,554.3L743.2,558.3L746.2,557.5L748.4,559.4L750.7,566.2L749.6,570.3L753.1,574.1L759.1,576.8L767.9,577.4L770.3,579.2L775.0,575.3L779.9,574.5L786.7,571.4L788.1,569.3L787.6,562.8L785.8,557.8L782.6,560.5L782.2,552.5L780.7,548.1L776.7,545.4L774.5,546.1L773.3,549.4L770.3,544.7L773.6,543.6L779.0,544.8L785.1,549.3L790.2,559.3L793.0,569.0L794.1,580.2L790.7,591.1L790.4,594.7L788.5,594.0L791.2,584.7L789.3,582.9L782.6,583.6L771.7,587.4L763.9,587.1L762.2,589.5L757.9,590.2L754.2,595.5L745.8,596.7L737.2,602.5L733.2,606.5L727.9,609.0L722.0,610.5L723.5,608.3L732.4,605.1L736.4,601.1L742.4,596.8L743.6,593.5L742.7,583.8L744.1,580.4L737.3,578.5L737.5,583.4L735.6,582.3L734.8,586.4L731.2,586.3L731.8,589.0L723.8,590.2L722.2,594.3L722.8,597.9L721.4,600.3L715.0,602.5L711.8,601.2L709.3,602.4L708.0,586.8L703.3,585.5L701.1,582.2L698.4,578.3L693.4,575.8L692.0,571.2L692.3,564.5L689.2,565.1L688.9,553.0L659.2,554.9L658.9,553.4L607.1,553.5L601.5,553.9L590.8,553.6L590.0,556.8L586.5,557.3L586.7,553.6L572.8,553.5L542.6,552.7L538.8,552.8L537.2,549.3L545.7,516.7Z","RI":"M703.3,585.5L708.0,586.8L709.3,602.4L704.2,606.4L702.4,598.0L702.8,592.7L700.1,591.0L701.1,604.1L696.7,604.1L696.2,607.0L693.7,607.6L693.3,603.1L697.2,595.1L699.0,589.5ZM691.2,587.3L692.5,586.7L695.5,590.9L694.2,591.5ZM689.2,606.6L690.7,602.4L689.6,600.5L690.7,595.8L691.8,597.4L692.0,604.4ZM674.8,636.0L677.5,629.3L678.8,630.4L679.3,636.6ZM656.5,621.1L658.5,618.6L657.6,612.4L660.7,611.6L661.0,594.4L660.7,582.0L659.4,563.7L659.2,554.9L688.9,553.0L689.2,565.1L692.3,564.5L692.0,571.2L693.4,575.8L698.4,578.3L701.1,582.2L700.5,585.9L697.0,589.4L695.3,586.0L696.2,583.1L691.2,578.8L689.1,575.6L690.7,586.2L685.0,584.9L688.2,588.1L688.6,594.2L685.5,595.3L687.7,599.6L687.9,605.5L685.5,609.3L683.6,615.4L680.4,615.0L673.5,616.7L666.6,619.7L656.8,622.4Z","CT":"M538.8,552.8L542.6,552.7L572.8,553.5L586.7,553.6L586.5,557.3L590.0,556.8L590.8,553.6L601.5,553.9L607.1,553.5L658.9,553.4L659.2,554.9L659.4,563.7L660.7,582.0L661.0,594.4L660.7,611.6L657.6,612.4L658.5,618.6L656.5,621.1L654.7,619.6L650.3,619.5L644.9,621.6L640.2,621.5L636.9,623.5L632.7,621.3L631.2,624.4L618.6,627.5L617.8,625.9L613.9,626.0L606.9,628.8L605.3,627.1L598.6,627.2L596.8,629.3L592.1,627.5L581.8,629.9L580.9,624.9L578.6,626.4L573.8,633.2L570.7,633.2L565.0,639.3L561.6,637.5L555.4,642.3L553.6,641.2L547.6,643.6L548.9,645.4L546.4,648.1L538.8,649.0L533.1,653.5L530.8,652.3L526.9,655.2L527.1,652.5L521.9,644.1L539.5,633.3L534.5,625.3L535.5,612.0L536.7,587.6Z","NY":"M644.0,627.6L644.7,626.1L651.7,624.1L646.3,627.8ZM636.5,642.9L637.8,641.2L640.7,642.4L640.8,646.6L639.2,643.7ZM631.2,634.8L635.3,633.4L632.2,637.0ZM496.9,686.4L498.2,691.9L495.9,695.1L485.9,701.6L483.0,701.6L483.8,697.5L486.2,696.2L487.2,689.3ZM337.6,375.3L341.7,371.3L340.4,375.0ZM332.2,373.6L335.3,370.4L337.5,370.8ZM92.7,517.7L101.4,513.9L115.5,505.7L123.3,498.7L131.2,495.0L137.9,493.4L141.0,487.8L144.5,485.0L145.8,480.8L155.2,476.7L160.2,472.5L159.6,465.9L156.5,462.4L157.2,458.9L155.6,455.7L150.0,452.5L150.7,445.0L146.3,443.4L148.9,437.2L148.3,426.9L147.6,425.8L154.7,424.4L164.4,421.5L178.7,418.4L188.8,417.3L197.0,417.5L206.5,418.8L215.6,418.6L236.9,423.0L242.6,424.9L246.2,428.9L251.8,432.9L254.8,433.9L265.0,430.3L273.8,430.5L284.6,430.0L289.8,431.7L295.6,432L299.2,430.1L306.7,428.7L311.4,425.5L313.6,425.5L318.6,419.1L326.3,414.0L328.8,413.4L333.7,409.1L337.2,408.8L342.1,410.2L346.4,408.7L348.8,404.4L349.5,397.2L347.6,382.3L342.7,378.9L345.6,374.9L349.1,374.0L349.5,376.8L354.8,373.5L354.2,370.0L349.6,366.0L344.1,367.1L345.4,364.7L341.8,360.4L338.0,360.2L338.5,353.6L342.7,344.2L347.4,343.9L353.2,340.6L353.3,336.7L357.8,335.0L364.5,330.6L366.8,331.1L370.8,328.7L377.0,322.7L378.1,318.9L381.2,314.8L391.4,305.0L399.2,296.9L413.1,285.5L412.9,284.5L429.6,275.7L436.0,270.7L440.4,270.7L445.8,267.7L452.4,270.2L457.0,269.4L479.2,270.2L492.1,270.3L518.2,269.1L524.1,269.2L546.8,268.2L547.1,277.2L545.4,279.7L544.5,284.9L547.7,289.6L545.3,294.2L544.8,301.8L543.9,304.3L544.9,310.1L549.6,317.3L550.6,323.0L547.7,329.7L549.5,339.0L548.6,342.0L543.9,347.3L542.7,354.6L540.8,361.1L543.1,363.4L542.9,371.9L545.4,377.4L544.2,382.7L547.2,387.3L543.3,395.4L541.6,404.8L544.1,406.9L545.8,401.5L550.6,401.4L551.1,405.8L554.4,408.2L554.1,436.5L552.9,471.3L553.0,477.4L552.0,480.5L554.0,485.8L545.7,516.7L537.2,549.3L538.8,552.8L536.7,587.6L535.5,612.0L534.5,625.3L539.5,633.3L521.9,644.1L527.1,652.5L526.9,655.2L525.1,658.7L519.6,662.2L519.1,668.7L515.7,668.5L518.1,673.5L522.8,666.3L525.6,667.5L528.2,664.0L533.7,661.8L538.4,661.6L539.4,658.9L545.2,661.3L545.7,657.9L548.0,660.2L553.2,660.8L557.9,662.7L563.9,660.3L564.4,656.8L568.8,656.0L571.4,657.0L591.0,656.5L601.1,654.7L604.7,653.1L612.4,647.8L614.7,644.5L617.8,643.3L621.1,639.1L626.5,637.3L629.7,637.4L625.1,641.8L622.7,642.3L626.7,644.8L628.1,648.4L632.5,649.3L635.3,647.2L639.6,653.0L643.5,651.5L649.4,647.4L649.9,645.1L654.2,644.1L657.4,645.0L656.1,646.8L638.9,655.0L618.8,665.5L605.8,670.9L584.8,678.9L571.0,685.5L559.8,689.0L552.7,690.1L551.1,688.8L534.4,693.9L518.4,693.1L506.3,697.7L507.1,694.6L501.1,694.7L501.9,692.7L499.0,689.4L500.8,686.5L498.7,683.6L500.3,681.8L501.4,676.4L504.5,671.0L509.7,655.6L508.9,654.0L474.6,633.6L451.9,619.2L448.6,614.6L448.9,612.2L444.7,612.8L444.0,611.0L437.5,611.2L438.0,609.7L434.2,606.9L431.3,607.3L431.1,604.5L424.8,595.1L426.9,594.1L426.5,581.0L422.9,579.2L425.0,576.6L422.5,572.5L415.6,569.6L411.8,569.9L409.8,561.6L408.5,561.9L405.0,557.0L377.6,556.6L334.3,555.5L305.9,554.3L279.0,553.6L216.8,551.1L174.0,548.7L154.3,547.8L91.2,543.7L90.9,543.6Z","NJ":"M386.4,784.5L390.3,779.2L392.7,776.5L394.1,771.5L397.4,768.1L401.9,764.6L412.0,762.6L418.7,759.0L418.8,753.3L423.0,751.3L424.9,748.6L434.0,742.8L438.8,741.6L442.0,737.4L444.6,738.1L449.1,734.9L445.5,729.0L440.2,725.6L438.4,721.2L433.0,716.7L431.2,711.1L424.6,709.4L423.6,705.7L424.3,697.9L421.7,694.8L417.2,695.1L414.9,693.9L414.4,687.1L416.3,684.6L414.2,682.8L416.7,674.6L419.6,675.0L425.7,665.8L419.6,655.8L423.0,651.8L427.7,649.5L431.9,644.9L430.9,642.9L435.4,640.1L438.3,636.1L442.0,625.9L447.8,620.3L451.9,619.2L474.6,633.6L508.9,654.0L509.7,655.6L504.5,671.0L501.4,676.4L500.3,681.8L498.7,683.6L496.9,686.4L487.2,689.3L486.2,696.2L483.8,697.5L483.0,701.6L483.0,705.2L488.0,707.5L492.2,706.0L498.5,709.7L502.1,710.4L503.2,706.8L504.3,714.2L503.5,723.1L499.8,738.1L496.3,758.5L495.0,772.8L484.3,792.7L481.4,796.7L479.0,797.4L479.8,800.0L477.1,804.6L471.7,809.8L471.4,811.3L463.1,815.8L454.5,824.7L448.8,834.4L442.8,846.7L437.4,851.6L432.2,852.7L429.3,851.5L431.0,844.2L435.1,836.3L436.0,830.6L430.4,827.5L425.6,827.1L424.0,825.0L419.2,825.2L417.2,828.1L414.9,826.1L414.4,822.2L409.6,819.1L408.8,816.6L406.2,817.5L402.2,811.8L400.4,812.5L395.6,807.6L393.0,802.9L388.0,800.8L389.8,789.2L386.7,786.8Z","PA":"M36.8,541.8L49.5,537.7L61.4,532.4L63.9,530.6L66.8,525.9L70.1,525.9L70.7,528.2L80.3,523.0L92.7,517.7L90.9,543.6L91.2,543.7L154.3,547.8L174.0,548.7L216.8,551.1L279.0,553.6L305.9,554.3L334.3,555.5L377.6,556.6L405.0,557.0L408.5,561.9L409.8,561.6L411.8,569.9L415.6,569.6L422.5,572.5L425.0,576.6L422.9,579.2L426.5,581.0L426.9,594.1L424.8,595.1L431.1,604.5L431.3,607.3L434.2,606.9L438.0,609.7L437.5,611.2L444.0,611.0L444.7,612.8L448.9,612.2L448.6,614.6L451.9,619.2L447.8,620.3L442.0,625.9L438.3,636.1L435.4,640.1L430.9,642.9L431.9,644.9L427.7,649.5L423.0,651.8L419.6,655.8L425.7,665.8L419.6,675.0L416.7,674.6L414.2,682.8L416.3,684.6L414.4,687.1L414.9,693.9L417.2,695.1L421.7,694.8L424.3,697.9L423.6,705.7L424.6,709.4L431.2,711.1L433.0,716.7L438.4,721.2L440.2,725.6L445.5,729.0L449.1,734.9L444.6,738.1L442.0,737.4L438.8,741.6L434.0,742.8L424.9,748.6L423.0,751.3L418.8,753.3L418.7,759.0L412.0,762.6L401.9,764.6L397.4,768.1L391.3,765.0L385.5,764.4L379.1,765.9L375.1,768.6L369.6,775.3L312.0,773.9L280.7,772.9L240.6,771.3L178.0,768.1L97.1,763.6L52.8,760.5L20,758.0L26.8,670.1Z"},"stateLabels":[["MAINE",824.8,202.6,0],["N. H.",668.6,387.2,0],["VT.",588.3,355.3,0],["MASS.",643.7,509.9,0],["R. I.",677.2,586.9,0],["CONN.",591.9,593.5,0],["NEW YORK",389.2,484.6,0],["PENNSYLVANIA",230.4,642.9,0],["N. J.",469,735.4,0]],"ranges":[["Adirondacks",484.8,370.4],["Green Mts.",581.6,417.9],["White Mts.",677.5,337],["Catskills",473.6,548],["Berkshires",567.4,522.8],["Poconos",397.2,635.6],["Allegheny Plateau",215,584.5],["Pine Barrens",461.4,769],["Finger Lakes",296.9,501.3],["North Woods",794.4,136.8],["Taconics",544.3,466.3]],"cities":[["Boston",710.7,519.5],["New York",502.1,681.7],["Philadelphia",416.5,754.2],["Pittsburgh",64.1,692],["Albany",519,495.2],["Burlington",556.2,319.2],["Portland",761.9,392.5],["Bangor",858.5,277.6],["Hartford",596.7,580],["Providence",687.5,572.1],["Scranton",382.4,613.2],["Harrisburg",290.8,720.3],["Buffalo",158.8,462.2],["Syracuse",351.2,454.9],["Concord",674.3,438.9],["Trenton",446.3,728.5],["Caribou",896.1,76.5]]}</script>
+<script type="application/json" id="d-reports">[{"name":"Aroostook County, ME","x":878.1,"y":93.2,"status":"past","pct":null,"src":"Maine DACF, Oct 7","note":"Northern and western Maine: past peak, with high leaf drop."},{"name":"Central Maine","x":793,"y":305.4,"status":"near","pct":"50 to 70%","src":"Maine DACF, Oct 7","note":"Peak closing in for the holiday weekend across central, coastal and southern Maine."},{"name":"Downeast Maine","x":918,"y":278.4,"status":"near","pct":null,"src":"Maine DACF, Oct 7","note":"Cranberry bogs and blueberry barrens putting on their own show."},{"name":"Saranac Lake, NY","x":493.1,"y":333.9,"status":"peak","pct":"95%","src":"I LOVE NY, Oct 7 to 13","note":"Peak conditions."},{"name":"Newcomb, NY","x":495.2,"y":368.5,"status":"past","pct":"100%","src":"I LOVE NY, Oct 7 to 13","note":"Peak to just past peak."},{"name":"Lake George, NY","x":522.3,"y":421.3,"status":"early","pct":"35%","src":"I LOVE NY, Oct 7 to 13","note":"Color building."},{"name":"Windham, NY","x":484.3,"y":527.9,"status":"past","pct":"100%","src":"I LOVE NY, Oct 7 to 13","note":"Upper elevations at peak to past peak."},{"name":"Hunter, NY","x":486.4,"y":540.4,"status":"near","pct":"85%","src":"I LOVE NY, Oct 7 to 13","note":"Near peak in Haines Falls, Hunter and Hensonville."},{"name":"Belleayre, NY","x":467.9,"y":545.1,"status":"peak","pct":"100%","src":"I LOVE NY, Oct 7 to 13","note":"Peak; above 2,000 ft expected past peak by the weekend."},{"name":"New Paltz, NY","x":495.6,"y":581.7,"status":"near","pct":"75%+","src":"I LOVE NY, Oct 7 to 13","note":"Near peak."},{"name":"Beacon, NY","x":504.2,"y":605.7,"status":"early","pct":"30%","src":"I LOVE NY, Oct 7 to 13","note":"Early color."},{"name":"Cold Spring, NY","x":505.7,"y":613.4,"status":"early","pct":"20%","src":"I LOVE NY, Oct 7 to 13","note":"Early color."},{"name":"West Babylon, NY","x":549.4,"y":680.5,"status":"near","pct":"60%","src":"I LOVE NY, Oct 7 to 13","note":"Near peak at Belmont Lake State Park."},{"name":"Shelter Island, NY","x":623.8,"y":646.8,"status":"early","pct":"under 20%","src":"I LOVE NY, Oct 7 to 13","note":"Mashomack Preserve still mostly green."},{"name":"Manhattan","x":503.5,"y":680.7,"status":"early","pct":"30%","src":"I LOVE NY, Oct 7 to 13","note":"Lower East Side."},{"name":"Northern Poconos, PA","x":411.6,"y":593.5,"status":"peak","pct":"90%","src":"Pocono Mountains, Oct 8 to 14","note":"Peak color now in northern Wayne and Pike counties."},{"name":"Central Poconos, PA","x":411.7,"y":632,"status":"near","pct":"65%","src":"Pocono Mountains, Oct 8 to 14","note":"Projected peak Oct 10 to 17."},{"name":"Southern Poconos, PA","x":396.8,"y":660.6,"status":"early","pct":"30%","src":"Pocono Mountains, Oct 8 to 14","note":"Projected peak Oct 20 to 28."},{"name":"Potter & Tioga Cos., PA","x":244.1,"y":576.2,"status":"near","pct":null,"src":"PA DCNR, Oct 1 to 7","note":"Among ten northern counties approaching peak; none at peak yet."},{"name":"Crawford Notch, NH","x":681.2,"y":345.5,"status":"past","pct":null,"src":"Jeff Foliage (unofficial), Oct 5","note":"Peak to past peak in the notches, with leaf drop up high."},{"name":"Smugglers’ Notch, VT","x":585.6,"y":312.1,"status":"past","pct":null,"src":"Jeff Foliage (unofficial), Oct 5","note":"Peak to past peak."}]</script>
+<script type="application/json" id="d-places">[["Boston",-71.06,42.36,710.7,519.5],["New York",-74,40.71,502.1,681.7],["Philadelphia",-75.16,39.95,416.5,754.2],["Pittsburgh",-79.99,40.44,64.1,692],["Albany",-73.76,42.65,519,495.2],["Burlington",-73.21,44.48,556.2,319.2],["Portland",-70.26,43.66,761.9,392.5],["Bangor",-68.77,44.8,858.5,277.6],["Hartford",-72.68,41.76,596.7,580],["Providence",-71.41,41.82,687.5,572.1],["Scranton",-75.66,41.41,382.4,613.2],["Harrisburg",-76.88,40.27,290.8,720.3],["Buffalo",-78.88,42.89,158.8,462.2],["Syracuse",-76.15,43.05,351.2,454.9],["Concord",-71.54,43.21,674.3,438.9],["Lake Placid",-73.98,44.28,503.4,338.7],["Trenton",-74.76,40.22,446.3,728.5],["Erie",-80.09,42.13,68.6,529.5],["Caribou",-68.01,46.86,896.1,76.5],["State College",-77.86,40.79,221.2,667.5],["Hackettstown",-74.83,40.85,441.7,667.9],["Washington",-74.98,40.76,430.7,676.4],["Cape May",-74.91,38.94,433.9,851.6],["Montpelier",-72.58,44.26,599.8,339.8],["Stowe",-72.69,44.47,591.9,319.7],["North Conway",-71.13,44.05,700.2,357.4],["Lenox",-73.28,42.36,553.2,522.9],["Woodstock",-74.12,42.04,493.5,553.9],["New Paltz",-74.09,41.75,495.6,581.7],["Stroudsburg",-75.19,40.99,415.7,654.1],["Ithaca",-76.5,42.44,324.9,512.8],["Rutland",-72.97,43.61,573.7,402.6],["Bar Harbor",-68.2,44.39,900,314.4],["Worcester",-71.8,42.26,658.5,530.7],["Springfield",-72.59,42.1,602.6,547.2],["Newport",-71.31,41.49,695.7,603.6],["Hyannis",-70.28,41.65,769.1,585.4],["Allentown",-75.49,40.6,393.3,691.3],["Wilkes-Barre",-75.88,41.25,366.2,628.2],["Rochester",-77.61,43.16,249.2,440.8],["Binghamton",-75.91,42.1,365.9,546.5],["Old Forge",-74.97,43.71,434.7,393],["Greenville ME",-69.59,45.46,799.3,217.5],["Rangeley",-70.64,44.97,730.5,267.8],["Littleton",-71.77,44.31,655.4,333.8],["Brattleboro",-72.56,42.85,603.5,475.2],["Litchfield",-73.19,41.75,560.1,581.4],["New Haven",-72.93,41.31,579.3,623.5],["Montauk",-71.95,41.04,650.7,648.1],["Atlantic City",-74.42,39.36,470.8,811.4],["Wellsboro",-77.3,41.75,265.6,577.1],["Lancaster",-76.31,40.04,332,743.8],["Morristown",-74.48,40.8,467.1,672.9],["Newton",-74.75,41.06,447.7,647.8],["Princeton",-74.66,40.35,453.7,716.1],["Jim Thorpe",-75.73,40.88,376.4,664],["Ohiopyle",-79.49,39.87,97,749.2],["Watkins Glen",-76.87,42.38,298.5,517.7],["Saratoga Springs",-73.78,43.08,517.5,453.9],["Kingston",-74,41.93,502.1,564.4],["Augusta",-69.78,44.31,792.1,328.5],["Millinocket",-68.71,45.66,857.4,194.8],["Keene",-72.28,42.93,623,467.1],["Manchester",-71.46,42.99,680.5,459.9],["Northampton",-72.63,42.33,599.4,525.2],["Lewisburg",-76.88,40.96,293.1,654.1],["Altoona",-78.39,40.52,181.4,691.5],["Utica",-75.23,43.1,415.8,451.4],["Plattsburgh",-73.45,44.7,539.6,298.2],["Watertown",-75.91,43.97,370,367],["Glens Falls",-73.64,43.31,527.2,431.8],["Poughkeepsie",-73.92,41.7,507.8,586.5],["Danbury",-73.45,41.39,541.7,616.2],["New London",-72.1,41.36,639.1,617.6],["Toms River",-74.2,39.95,487.3,754.7],["Hammonton",-74.8,39.64,442.8,784.3],["Sussex",-74.61,41.21,458,633.4],["High Point",-74.66,41.32,454.4,622.8],["Delaware Water Gap",-75.14,40.97,419.3,656.1]]</script>
+<script type="application/json" id="d-art">[
+ {
+  "artist": "Jasper Francis Cropsey",
+  "artist_dates": "1823-1900",
+  "title": "Autumn - On the Hudson River",
+  "date": "1860",
+  "medium": "Oil on canvas",
+  "location_depicted": "Hudson River Valley, New York; NGA describes the view as looking southeast toward the Hudson River and Storm King Mountain (painted from memory in London)",
+  "museum": "National Gallery of Art, Washington",
+  "accession_or_id": "1963.9.1 (NGA object 46474)",
+  "license": "Public domain (NGA Open Access image; flagged open access in NGA open data; NGA: 'free and in the public domain')",
+  "source_page_url": "https://www.nga.gov/artworks/46474-autumn-hudson-river",
+  "note": "Trees in scarlet, orange and gold frame a broad sunlit valley that opens onto the Hudson, with sunbeams breaking through clouds above the water.",
+  "file": "art_cropsey_autumn_on_the_hudson_1860.webp",
+  "w": 1400,
+  "h": 772
+ },
+ {
+  "artist": "Sanford Robinson Gifford",
+  "artist_dates": "1823-1880",
+  "title": "A Gorge in the Mountains (Kauterskill Clove)",
+  "date": "1862",
+  "medium": "Oil on canvas",
+  "location_depicted": "Kaaterskill (Kauterskill) Clove, Catskill Mountains, New York",
+  "museum": "The Metropolitan Museum of Art, New York",
+  "accession_or_id": "15.30.62 (Met object 10946)",
+  "license": "CC0 / Public Domain (The Met Open Access)",
+  "source_page_url": "https://www.metmuseum.org/art/collection/search/10946",
+  "note": "From a rocky ledge framed by golden-leaved trees, the view drops into a deep wooded gorge filled with hazy autumn light, with the sun glowing over distant ridges.",
+  "file": "art_gifford_gorge_kauterskill_clove_1862.webp",
+  "w": 1168,
+  "h": 1400
+ },
+ {
+  "artist": "Thomas Cole",
+  "artist_dates": "1801-1848",
+  "title": "View of Schroon Mountain, Essex County, New York, After a Storm",
+  "date": "1838",
+  "medium": "Oil on canvas",
+  "location_depicted": "Schroon Mountain (officially Hoffman Mountain), Essex County, Adirondacks, New York",
+  "museum": "Cleveland Museum of Art",
+  "accession_or_id": "1917.1335 (CMA id 93014)",
+  "license": "CC0 (Cleveland Museum of Art Open Access)",
+  "source_page_url": "https://clevelandart.org/art/1917.1335",
+  "note": "Storm clouds part around a dark pointed peak while the slopes below blaze with red, orange and yellow trees, and a broken birch stands in the foreground.",
+  "file": "art_cole_view_of_schroon_mountain_1838.webp",
+  "w": 1400,
+  "h": 859
+ },
+ {
+  "artist": "Jervis McEntee",
+  "artist_dates": "1828-1891",
+  "title": "Autumn in the Catskills",
+  "date": "1873",
+  "medium": "Oil on canvas",
+  "location_depicted": "Catskill Mountains, New York",
+  "museum": "Cleveland Museum of Art",
+  "accession_or_id": "1915.692 (CMA id 173640)",
+  "license": "CC0 (Cleveland Museum of Art Open Access)",
+  "source_page_url": "https://clevelandart.org/art/1915.692",
+  "note": "A still forest pool reflects a canopy of slender trees in golden and amber leaf, with a small cascade among rocks beyond.",
+  "file": "art_mcentee_autumn_in_the_catskills_1873.webp",
+  "w": 1177,
+  "h": 1400
+ },
+ {
+  "artist": "William Hart",
+  "artist_dates": "1823-1894",
+  "title": "Autumn Scene in the Adirondacks",
+  "date": "1877",
+  "medium": "Oil on canvas",
+  "location_depicted": "Adirondack Mountains, New York",
+  "museum": "Cleveland Museum of Art",
+  "accession_or_id": "1915.685 (CMA id 173181)",
+  "license": "CC0 (Cleveland Museum of Art Open Access)",
+  "source_page_url": "https://clevelandart.org/art/1915.685",
+  "note": "A rocky stream flows out of a misty clearing beneath arching white birches and trees in deep red and orange foliage.",
+  "file": "art_hart_autumn_scene_adirondacks_1877.webp",
+  "w": 1167,
+  "h": 1400
+ },
+ {
+  "artist": "Jasper Francis Cropsey",
+  "artist_dates": "1823-1900",
+  "title": "Autumn Landscape, Sugar Loaf Mountain, Orange County, New York",
+  "date": "ca. 1870-75",
+  "medium": "Oil on canvas",
+  "location_depicted": "Sugar Loaf Mountain, Orange County, New York",
+  "museum": "The Metropolitan Museum of Art, New York",
+  "accession_or_id": "61.262 (Met object 10578)",
+  "license": "CC0 / Public Domain (The Met Open Access)",
+  "source_page_url": "https://www.metmuseum.org/art/collection/search/10578",
+  "note": "A white farmhouse and distant church spires sit in a valley below a peaked mountain, with red and orange trees in the foreground under a rosy evening sky.",
+  "file": "art_cropsey_autumn_sugar_loaf_mountain_1870s.webp",
+  "w": 1400,
+  "h": 1124
+ },
+ {
+  "artist": "Thomas Doughty",
+  "artist_dates": "1791-1856",
+  "title": "View on the Hudson in Autumn",
+  "date": "1850",
+  "medium": "Oil on canvas",
+  "location_depicted": "Hudson River, New York (per title; no specific site named)",
+  "museum": "National Gallery of Art, Washington (Corcoran Collection)",
+  "accession_or_id": "2015.19.113 (NGA object 195077)",
+  "license": "Public domain (NGA Open Access image; flagged open access in NGA open data; NGA: 'free and in the public domain')",
+  "source_page_url": "https://www.nga.gov/artworks/195077-view-hudson-autumn",
+  "note": "Sailboats drift on a calm bend of the Hudson beyond a meadow with small figures, while red and golden trees line the banks under a pink-tinged sky.",
+  "file": "art_doughty_view_on_hudson_in_autumn_1850.webp",
+  "w": 1400,
+  "h": 984
+ },
+ {
+  "artist": "George Inness",
+  "artist_dates": "1825-1894",
+  "title": "Autumn Oaks",
+  "date": "ca. 1878",
+  "medium": "Oil on canvas",
+  "location_depicted": "Not named by the museum; an American pastoral scene painted soon after Inness returned to the New York area from Europe",
+  "museum": "The Metropolitan Museum of Art, New York",
+  "accession_or_id": "87.8.8 (Met object 11227)",
+  "license": "CC0 / Public Domain (The Met Open Access)",
+  "source_page_url": "https://www.metmuseum.org/art/collection/search/11227",
+  "note": "Cattle graze in a sunlit pasture beneath a stand of oaks turning russet, orange and gold, under a dark, clearing storm sky.",
+  "file": "art_inness_autumn_oaks_1878.webp",
+  "w": 1400,
+  "h": 934
+ },
+ {
+  "artist": "William Trost Richards",
+  "artist_dates": "1833-1905",
+  "title": "October",
+  "date": "1863",
+  "medium": "Oil on canvas",
+  "location_depicted": "Not named by the museum; inscribed 'Phil. 1863' (painted in Philadelphia), so probably a Pennsylvania woodland, unconfirmed",
+  "museum": "National Gallery of Art, Washington",
+  "accession_or_id": "2003.29.1 (NGA object 127263)",
+  "license": "Public domain (NGA Open Access image; flagged open access in NGA open data; NGA: 'free and in the public domain')",
+  "source_page_url": "https://www.nga.gov/artworks/127263-october",
+  "note": "A shaded forest path winds past lichen-covered boulders and ferns beneath trees whose leaves are turning red and orange.",
+  "file": "art_richards_october_1863.webp",
+  "w": 1189,
+  "h": 1400
+ },
+ {
+  "artist": "William Trost Richards",
+  "artist_dates": "1833-1905",
+  "title": "Indian Summer",
+  "date": "1875",
+  "medium": "Oil on canvas",
+  "location_depicted": "Not named by the museum (Richards was based in the Philadelphia area)",
+  "museum": "The Metropolitan Museum of Art, New York",
+  "accession_or_id": "25.110.6 (Met object 11894)",
+  "license": "CC0 / Public Domain (The Met Open Access)",
+  "source_page_url": "https://www.metmuseum.org/art/collection/search/11894",
+  "note": "Trees in yellow and orange leaf line a still pond in hazy, backlit late-day light, with a leaf-strewn path and small figures by the shore.",
+  "file": "art_richards_indian_summer_1875.webp",
+  "w": 1170,
+  "h": 1400
+ },
+ {
+  "artist": "Winslow Homer",
+  "artist_dates": "1836-1910",
+  "title": "On the Trail",
+  "date": "1889",
+  "medium": "Watercolor over graphite on wove paper",
+  "location_depicted": "Adirondacks, New York (implied: first shown in an 1890 exhibition of Homer's Adirondack subjects; NGA does not name the site)",
+  "museum": "National Gallery of Art, Washington",
+  "accession_or_id": "1975.92.12 (NGA object 55587)",
+  "license": "Public domain (NGA Open Access image; flagged open access in NGA open data; NGA: 'free and in the public domain')",
+  "source_page_url": "https://www.nga.gov/artworks/55587-trail",
+  "note": "A hunter in a brown coat crouches with two hounds in birch woods whose leaves have turned yellow, orange and rust.",
+  "file": "art_homer_on_the_trail_1889.webp",
+  "w": 1400,
+  "h": 899
+ },
+ {
+  "artist": "Jasper Francis Cropsey",
+  "artist_dates": "1823-1900",
+  "title": "Landscape (Hastings-on-Hudson)",
+  "date": "1888",
+  "medium": "Watercolor over graphite",
+  "location_depicted": "Hastings-on-Hudson, Westchester County, New York",
+  "museum": "Cleveland Museum of Art",
+  "accession_or_id": "2005.342 (CMA id 164001)",
+  "license": "CC0 (Cleveland Museum of Art Open Access)",
+  "source_page_url": "https://clevelandart.org/art/2005.342",
+  "note": "Rose-tinted and golden trees frame a calm pond at sunset, with a moored rowboat and a stony path in the foreground.",
+  "file": "art_cropsey_hastings_on_hudson_watercolor_1888.webp",
+  "w": 1400,
+  "h": 799
+ },
+ {
+  "artist": "Dwight Blaney",
+  "artist_dates": "1865-1944",
+  "title": "Autumn Forest",
+  "date": "1924",
+  "medium": "Watercolor",
+  "location_depicted": "Not named by the museum; Blaney was a Boston painter who summered on Ironbound Island, Maine, so likely New England, unconfirmed",
+  "museum": "Cleveland Museum of Art",
+  "accession_or_id": "1953.657 (CMA id 130976)",
+  "license": "CC0 (Cleveland Museum of Art Open Access)",
+  "source_page_url": "https://clevelandart.org/art/1953.657",
+  "note": "Quick, bright brushstrokes show a woodland edge with a granite boulder, pale tree trunks and shrubs in red, orange and yellow among dark evergreens.",
+  "file": "art_blaney_autumn_forest_watercolor_1924.webp",
+  "w": 1400,
+  "h": 992
+ }
+]</script>
+<script>
+(() => {
+'use strict';
+
+/* ------------------------------------------------------------------ data */
+const PRESETS = JSON.parse(document.getElementById('d-presets').textContent);
+const OVERLAY = JSON.parse(document.getElementById('d-overlay').textContent);
+const REPORTS = JSON.parse(document.getElementById('d-reports').textContent);
+const PLACES = JSON.parse(document.getElementById('d-places').textContent);
+const ART = JSON.parse(document.getElementById('d-art').textContent);
+
+const START_DOY = 227;            // Aug 15, 2026
+const N = 108;                    // through Nov 30
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+const MDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function doyToMD(doy) {
+  let m = 0, d = Math.round(doy);
+  while (m < 11 && d > MDAYS[m]) { d -= MDAYS[m]; m++; }
+  return [m, d];
+}
+function fmt(doy) { const [m, d] = doyToMD(doy); return MONTHS[m] + ' ' + d; }
+function mdToDoy(m, d) { let s = 0; for (let i = 0; i < m; i++) s += MDAYS[i]; return s + d; }
+function todayIndex() {
+  const t = new Date();
+  const doy = mdToDoy(t.getMonth(), t.getDate());
+  const i = doy - START_DOY;
+  return (i >= 0 && i < N) ? i : 281 - START_DOY;
+}
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const smooth = (x, a, b) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const rgbStr = c => `rgb(${c.map(v => Math.round(clamp(v, 0, 255))).join(',')})`;
+const mixC = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+
+/* canopy color by days from local peak: the same ramp paints the map, the dial track and the page accent */
+const RAMP = [[-60, '#78984c'], [-20, '#7f9d4a'], [-13, '#a5aa4c'], [-7, '#d2b24a'], [-3, '#e8963a'], [0, '#de6a30'],
+  [4, '#c84c30'], [9, '#a95a3a'], [15, '#957660'], [24, '#9e949a'], [90, '#9e949a']].map(([s, h]) => [s, hex(h)]);
+function ramp(s) {
+  if (s <= RAMP[0][0]) return RAMP[0][1].slice();
+  for (let i = 1; i < RAMP.length; i++) {
+    if (s <= RAMP[i][0]) { const t = (s - RAMP[i - 1][0]) / (RAMP[i][0] - RAMP[i - 1][0]); return mixC(RAMP[i - 1][1], RAMP[i][1], t); }
+  }
+  return RAMP[RAMP.length - 1][1].slice();
+}
+
+/* ------------------------------------------------------------------ state */
+const S = { i: todayIndex(), place: PRESETS[0], wx: 'bright', view: 'all' };
+const subs = [];
+let pending = false;
+function emit() {
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(() => { pending = false; subs.forEach(f => f()); });
+}
+function setIndex(i) { S.i = clamp(Math.round(i), 0, N - 1); emit(); }
+function setPlace(p) { S.place = p; emit(); }
+const doyNow = () => START_DOY + S.i;
+const stageNow = () => doyNow() - S.place.peak;
+
+function isDark() {
+  const t = document.documentElement.getAttribute('data-theme');
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+/* ------------------------------------------------------------------ narrative */
+function stageWords(s) {
+  if (s < -36) return ['Late summer', 'The canopy is still full and green, but the nights have been lengthening since June.'];
+  if (s < -24) return ['First color', 'Black gums, sumac and Virginia creeper redden along fencerows and swamp edges. Most trees are green.'];
+  if (s < -15) return ['Early color', 'Swamp red maples, white ash and dogwood are turning; birches show yellow. The hills are still mostly green.'];
+  if (s < -7) return ['Color spreading', 'Sugar maples blush from the crown edges inward, and the hillsides speckle with orange and red.'];
+  if (s < -2) return ['Near peak', 'Maples carry most of the color. Oaks are only beginning to turn.'];
+  if (s <= 4) return ['Peak', 'Sugar maples are at full color, red maples are dropping, and the oaks are reddening.'];
+  if (s <= 11) return ['Just past peak', 'Maples are thinning fast. Oaks hold russet and scarlet; aspens and hickories glow gold.'];
+  if (s <= 20) return ['Late color', 'Oaks in bronze, beech in gold, tamaracks and Norway maples still yellow. Most maples are bare.'];
+  if (s <= 32) return ['Mostly bare', 'Young oaks and beeches hold dry leaves into winter. Next year’s buds are already set.'];
+  return ['Bare branches', 'The leaves are down. The buds for next spring formed back in summer.'];
+}
+function relWords(s) {
+  const a = Math.abs(s);
+  if (a <= 1) return 'at typical peak';
+  return a + ' days ' + (s < 0 ? 'before' : 'after') + ' typical peak';
+}
+
+/* ------------------------------------------------------------------ accent + dial */
+const root = document.documentElement;
+function updateAccent() {
+  let c = ramp(clamp(stageNow(), -40, 20));
+  const dark = isDark();
+  const ink = dark ? [245, 240, 230] : [36, 44, 53];
+  root.style.setProperty('--accent', rgbStr(c));
+  root.style.setProperty('--accent-ink', rgbStr(mixC(c, ink, dark ? 0.18 : 0.32)));
+  root.style.setProperty('--sheet-accent', rgbStr(mixC(c, [36, 44, 53], 0.34)));
+}
+function trackGradient() {
+  const stops = [];
+  for (let k = 0; k <= 12; k++) {
+    const i = Math.round(k * (N - 1) / 12);
+    stops.push(rgbStr(ramp(START_DOY + i - S.place.peak)) + ' ' + (k / 12 * 100).toFixed(1) + '%');
+  }
+  return 'linear-gradient(90deg,' + stops.join(',') + ')';
+}
+const dateRange = document.getElementById('dateRange');
+const miniRange = document.getElementById('miniRange');
+const labRange = document.getElementById('labRange');
+[dateRange, miniRange, labRange].forEach(r => {
+  r.max = N - 1;
+  r.addEventListener('input', () => { stopPlay(); setIndex(+r.value); });
+});
+document.getElementById('todayBtn').addEventListener('click', () => { stopPlay(); setIndex(todayIndex()); });
+
+function renderTicks() {
+  const el = document.getElementById('ticks');
+  const marks = [[mdToDoy(8, 1), 'Sept 1'], [mdToDoy(9, 1), 'Oct 1'], [mdToDoy(10, 1), 'Nov 1']];
+  let html = marks.map(([d, t]) => `<span style="left:${((d - START_DOY) / (N - 1) * 100).toFixed(2)}%">${t}</span>`).join('');
+  const pk = S.place.peak - START_DOY;
+  if (pk >= 0 && pk < N) html += `<span class="pk" style="left:${(pk / (N - 1) * 100).toFixed(2)}%;top:1.05rem">peak</span>`;
+  el.innerHTML = html;
+}
+
+const placeSel = document.getElementById('placeSel');
+function fillPlaces(extra) {
+  placeSel.innerHTML = '';
+  const list = extra ? [extra, ...PRESETS] : PRESETS;
+  list.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id; o.textContent = p.name;
+    placeSel.appendChild(o);
+  });
+  placeSel.value = S.place.id;
+}
+let customPlace = null;
+fillPlaces();
+placeSel.addEventListener('change', () => {
+  const p = (customPlace && placeSel.value === customPlace.id) ? customPlace : PRESETS.find(q => q.id === placeSel.value);
+  if (p) setPlace(p);
+});
+
+subs.push(() => {
+  const s = stageNow();
+  const d = doyNow();
+  [dateRange, miniRange, labRange].forEach(r => { if (+r.value !== S.i) r.value = S.i; });
+  const g = trackGradient();
+  [dateRange, miniRange, labRange].forEach(r => r.style.setProperty('--track', g));
+  document.getElementById('dialDate').textContent = fmt(d);
+  document.getElementById('miniDate').textContent = fmt(d);
+  document.getElementById('miniPlace').textContent = S.place.name;
+  const [title, words] = stageWords(s);
+  document.getElementById('dialStage').innerHTML = `<strong>${title}</strong> in ${S.place.name} &middot; ${relWords(s)}`;
+  document.getElementById('stateLine').innerHTML = `<b>${words}</b> Typical peak here falls around ${fmt(S.place.peak - 3)} to ${fmt(S.place.peak + 3)}.`;
+  if (placeSel.value !== S.place.id) placeSel.value = S.place.id;
+  renderTicks();
+  updateAccent();
+});
+
+/* play */
+let playing = false, playRaf = 0, playPos = 0, lastT = 0;
+const playBtns = [document.getElementById('playBtn'), document.getElementById('miniPlay')];
+const PLAY_ICON = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1 L9 5 L2 9 Z" fill="currentColor"/></svg>';
+const PAUSE_ICON = '<svg viewBox="0 0 10 10" aria-hidden="true"><rect x="2" y="1" width="2.2" height="8" fill="currentColor"/><rect x="5.8" y="1" width="2.2" height="8" fill="currentColor"/></svg>';
+function stopPlay() {
+  if (!playing) return;
+  playing = false; cancelAnimationFrame(playRaf);
+  playBtns.forEach(b => { b.innerHTML = PLAY_ICON; b.setAttribute('aria-label', 'Play the season'); });
+}
+function startPlay() {
+  playing = true;
+  playPos = S.i >= N - 2 ? 0 : S.i;
+  lastT = performance.now();
+  playBtns.forEach(b => { b.innerHTML = PAUSE_ICON; b.setAttribute('aria-label', 'Pause'); });
+  const step = t => {
+    const dt = Math.min(80, t - lastT); lastT = t;
+    playPos += dt / 1000 * 9;    // nine days a second
+    if (playPos >= N - 1) { setIndex(N - 1); stopPlay(); return; }
+    if (Math.round(playPos) !== S.i) setIndex(playPos);
+    playRaf = requestAnimationFrame(step);
+  };
+  playRaf = requestAnimationFrame(step);
+}
+playBtns.forEach(b => b.addEventListener('click', () => playing ? stopPlay() : startPlay()));
+
+/* sticky mini dial */
+const mini = document.getElementById('mini');
+const heroDial = document.getElementById('dial');
+const coda = document.getElementById('coda');
+let heroVisible = true, codaVisible = false;
+function syncMini() {
+  const show = !heroVisible && !codaVisible && window.scrollY > 300;
+  mini.classList.toggle('show', show);
+  mini.setAttribute('aria-hidden', show ? 'false' : 'true');
+  mini.querySelectorAll('button, input').forEach(el => el.tabIndex = show ? 0 : -1);
+}
+new IntersectionObserver(es => { heroVisible = es[0].isIntersecting; syncMini(); }).observe(heroDial);
+const endSeen = new Set();
+const endObs = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? endSeen.add(e.target) : endSeen.delete(e.target)); codaVisible = endSeen.size > 0; syncMini(); }, { rootMargin: '0px 0px -30% 0px' });
+endObs.observe(coda); endObs.observe(document.getElementById('sources'));
+
+/* ------------------------------------------------------------------ hero */
+const frames = [...document.querySelectorAll('#heroFrames img')];
+const fS = frames.map(f => +f.dataset.s);
+const heroBox = document.getElementById('heroFrames');
+const heroStage = document.getElementById('heroStage');
+const GEO = JSON.parse(document.getElementById('d-herogeo').textContent);
+const PW = GEO.W, PH = GEO.H;
+
+/* where the painting sits inside its box (object-fit: cover, object-position 38% 50%) */
+function heroMap() {
+  const w = heroBox.clientWidth, h = heroBox.clientHeight;
+  const sc = Math.max(w / PW, h / PH);
+  const dw = PW * sc, dh = PH * sc;
+  return { w, h, sc, offX: (w - dw) * 0.38, offY: (h - dh) * 0.5 };
+}
+function heroSegment(s) {
+  let lo = 0;
+  while (lo < fS.length - 2 && s > fS[lo + 1]) lo++;
+  return [lo, clamp((s - fS[lo]) / (fS[lo + 1] - fS[lo]), 0, 1)];
+}
+
+/* WebGL dissolve: each dab-sized patch of the painting switches between frames at its own moment,
+   so crowns thin leaf by leaf instead of fading as a whole */
+const heroGl = (() => {
+  const cv = document.getElementById('heroGl');
+  let gl = null;
+  try { gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false }); } catch (e) { gl = null; }
+  if (!gl) return null;
+  const VS = `attribute vec2 p; uniform vec2 uv0, uvS; varying vec2 vUv;
+    void main(){ vec2 q = p * 0.5 + 0.5; vUv = uv0 + vec2(q.x, 1.0 - q.y) * uvS; gl_Position = vec4(p, 0.0, 1.0); }`;
+  const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    uniform sampler2D A, B; uniform float t; varying vec2 vUv;
+    float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+    float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
+    vec2 cells(vec2 p){ vec2 i = floor(p), f = fract(p); float md = 9.0, v = 0.0;
+      for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+        vec2 g = vec2(float(x), float(y)); vec2 c = i + g;
+        vec2 o = 0.15 + 0.7 * vec2(h21(c), h21(c + 7.31)); vec2 r = g + o - f; float d = dot(r, r);
+        if (d < md) { md = d; v = h21(c + 19.19); } }
+      return vec2(v, sqrt(md)); }
+    void main(){
+      vec2 px = vUv * vec2(${PW}.0, ${PH}.0);
+      vec2 c = cells(px / 7.5);
+      // each patch switches from its center outward, so leaves drop out as round dabs
+      float n = 0.4 * c.x + 0.3 * vnoise(px / 46.0) + 0.2 * vnoise(px / 140.0) + 0.28 * c.y - 0.09;
+      float m = smoothstep(n - 0.06, n + 0.06, t * 1.42 - 0.17);
+      vec3 a = texture2D(A, vUv).rgb, b = texture2D(B, vUv).rgb;
+      gl_FragColor = vec4(mix(a, b, m), 1.0);
+    }`;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; };
+  const vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) return null;
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  const uA = U('A'), uB = U('B'), uT = U('t'), uv0 = U('uv0'), uvS = U('uvS');
+  gl.uniform1i(uA, 0); gl.uniform1i(uB, 1);
+  const tex = frames.map(() => null);
+  let small = null;
+  function ensure(k) {
+    if (tex[k]) return true;
+    const im = frames[k];
+    if (!im.complete || !im.naturalWidth) return false;
+    if (small === null) small = heroBox.clientWidth * Math.min(2, window.devicePixelRatio || 1) < 1100;
+    let src = im;
+    if (small) {            // phones: upload a half-size copy to save GPU memory
+      const c = document.createElement('canvas'); c.width = 1100; c.height = Math.round(1100 * PH / PW);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); src = c;
+    }
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, src);
+    tex[k] = t;
+    return true;
+  }
+  let lost = false;
+  cv.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; heroBox.classList.remove('gl'); emit(); });
+  function render(lo, t) {
+    if (lost) return false;
+    if (!ensure(lo)) return false;
+    const hi = ensure(lo + 1) ? lo + 1 : lo;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const m = heroMap();
+    const W = Math.max(1, Math.round(m.w * dpr)), H = Math.max(1, Math.round(m.h * dpr));
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    gl.viewport(0, 0, W, H);
+    const dw = PW * m.sc, dh = PH * m.sc;
+    gl.uniform2f(uv0, -m.offX / dw, -m.offY / dh);
+    gl.uniform2f(uvS, m.w / dw, m.h / dh);
+    gl.uniform1f(uT, hi === lo ? 0 : t);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[lo]);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[hi]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    heroBox.classList.add('gl');
+    return true;
+  }
+  // upload the remaining frames in the background so playback never waits on a texture
+  function preload(k = 0) {
+    if (k >= frames.length || lost) return;
+    const go = () => { ensure(k); setTimeout(() => preload(k + 1), 120); };
+    frames[k].complete ? go() : frames[k].addEventListener('load', go, { once: true });
+  }
+  setTimeout(() => preload(0), 1200);
+  return { render };
+})();
+
+function renderHero() {
+  const s = stageNow();
+  heroBox.setAttribute('aria-label', `Watercolor of a valley farm below a long ridge cut by a water gap, painted at the ${stageWords(s)[0].toLowerCase()} stage of the season`);
+  const [lo, t] = heroSegment(s);
+  if (heroGl && heroGl.render(lo, t)) return;
+  frames.forEach((f, k) => {
+    f.style.opacity = k === lo ? 1 : (k === lo + 1 ? t : 0);
+    f.style.zIndex = k === lo + 1 ? 2 : (k === lo ? 1 : 0);
+  });
+}
+subs.push(renderHero);
+frames.forEach(f => f.addEventListener('load', renderHero));
+new ResizeObserver(() => renderHero()).observe(heroBox);
+
+/* falling leaves: each foreground tree sheds leaves at the rate its crown thins in the painting */
+const leafFall = (() => {
+  if (reduceMotion) return { stage() {} };
+  const cv = document.getElementById('heroLeaves');
+  const ctx = cv.getContext('2d');
+  const atlas = new Image();
+  atlas.src = 'assets/fall_atlas.webp';
+  const A = GEO.atlas, CELL = A.cell;
+  const TREES = GEO.trees.map(t => ({ ...t, acc: 0, pending: 0 }));
+  const leaves = [];
+  let lastS = null, raf = 0, running = false, visible = true, clock = 0, last = 0;
+  let speed = 0, lastMove = 0;   // how fast the dial is moving, in days per second: leaves fall in time-lapse to match
+  const WIDTH = 20;   // days over which a crown drops most of its leaves
+  const lf = (T, s) => T.keep + (1 - T.keep) * (1 - smooth(s, T.drop - WIDTH / 2, T.drop + WIDTH / 2));
+  const slope = (T, s) => { const u = (s - (T.drop - WIDTH / 2)) / WIDTH; return u <= 0 || u >= 1 ? 0 : (1 - T.keep) * 6 * u * (1 - u) / WIDTH; };
+  const foreAt = u => { const f = GEO.fore, x = clamp(u, 0, 1) * (f.length - 1), i = Math.min(f.length - 2, Math.floor(x)); return lerp(f[i], f[i + 1], x - i); };
+  const rand = (a, b) => a + Math.random() * (b - a);
+  function pickSprite(T, s) {
+    const list = A.sprites[T.sp];
+    const late = list.filter(([, n]) => n === 'late' || n === 'brown');
+    const rest = list.filter(([, n]) => n !== 'late' && n !== 'brown');
+    const pLate = T.sp === 'red_oak' ? 0.35 : smooth(s, T.drop, T.drop + 14) * 0.6;
+    const pool = (late.length && Math.random() < pLate) ? late : rest;
+    return pool[Math.floor(Math.random() * pool.length)][0];
+  }
+  function spawn(T, s) {
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 0.85;
+    let u = T.cx + Math.cos(a) * T.rx * r;
+    let v = T.cy + Math.sin(a) * T.ry * r * 0.7 + T.ry * 0.18;
+    u = clamp(u, 0.04, 0.96);
+    const big = T.sp === 'sugar_maple' ? 1.15 : 1;
+    leaves.push({
+      x: u * PW, y: v * PH, vx: rand(-4, 4),
+      fall: rand(30, 48), phase: rand(0, 6.28), swayF: rand(1.3, 2.4), swayA: rand(10, 26),
+      rot0: rand(-0.6, 0.6), spin: rand(-0.6, 0.6), flipP: rand(0, 6.28), flipF: Math.random() < 0.55 ? rand(1.5, 4.5) : rand(0.2, 0.8),
+      size: rand(13, 19) * big, spr: pickSprite(T, s),
+      land: (Math.max(foreAt(u), v + 0.06) + rand(0.015, 0.085)) * PH,
+      ground: false, life: rand(7, 12), age: 0, fade: 1, fadeRate: 0, sx: 1, sy: 1, rot: 0,
+    });
+  }
+  function wind(t) { return 7 + 9 * Math.sin(t * 0.19) + 6 * Math.sin(t * 0.53 + 1.1) + 10 * Math.max(0, Math.sin(t * 0.11 + 2)) ** 6; }
+  function edgeFade(x, y) {   // fade into the painting's torn paper margin
+    const u = x / PW, v = y / PH;
+    return smooth(u, 0.02, 0.08) * smooth(1 - u, 0.02, 0.08) * smooth(1 - v, 0.08, 0.15);
+  }
+  function size() {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = heroStage.clientWidth, h = heroStage.clientHeight;
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function step(now) {
+    const dt0 = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+    speed *= Math.exp(-dt0 * (now - lastMove > 250 ? 3 : 0.4));
+    const dt = dt0 * (1 + Math.min(4, speed / 2.2));
+    clock += dt;
+    const s = stageNow();
+    const w = wind(clock);
+    // ambient shedding while the dial rests, plus queued leaves from dial moves
+    TREES.forEach(T => {
+      T.acc += T.n * slope(T, s) * 0.13 * (1 + 0.6 * smooth(w, 14, 28)) * dt;
+      const q = Math.min(T.pending, Math.ceil(90 * dt));
+      T.pending -= q; T.acc += q;
+      while (T.acc >= 1) { T.acc -= 1; if (leaves.length < 240) spawn(T, s); }
+    });
+    for (let i = leaves.length - 1; i >= 0; i--) {
+      const L = leaves[i];
+      L.age += dt;
+      if (!L.ground) {
+        L.phase += L.swayF * dt;
+        const sw = Math.sin(L.phase);
+        L.vx += ((w + Math.cos(L.phase) * L.swayA * L.swayF * 0.5) - L.vx) * Math.min(1, dt * 1.6);
+        L.x += L.vx * dt;
+        L.y += L.fall * (0.45 + 0.55 * Math.abs(Math.cos(L.phase))) * dt;
+        L.flipP += L.flipF * dt;
+        L.rot = L.rot0 + sw * 0.7 + L.spin * L.age;
+        L.sx = Math.cos(L.flipP); L.sy = 1;
+        if (L.y >= L.land) {
+          L.ground = true; L.y = L.land; L.age = 0;
+          L.sx = (L.sx < 0 ? -1 : 1) * rand(0.75, 1); L.sy = rand(0.42, 0.6);
+          if (edgeFade(L.x, L.y) < 0.6) L.life = 0.4;
+        }
+      } else {
+        if (L.age > L.life) L.fadeRate = Math.max(L.fadeRate, 0.4);
+      }
+      L.fade -= L.fadeRate * dt;
+      if (L.fade <= 0 || L.x > PW * 1.02 || L.x < -PW * 0.02) leaves.splice(i, 1);
+    }
+    draw();
+    const anyRate = TREES.some(T => slope(T, s) > 0 || T.pending > 0);
+    if (visible && (leaves.length || anyRate)) raf = requestAnimationFrame(step);
+    else { running = false; if (!leaves.length) ctx.clearRect(0, 0, cv.width, cv.height); }
+  }
+  function draw() {
+    size();
+    const m = heroMap();
+    // heroBox sits inside heroStage at the same origin
+    ctx.clearRect(0, 0, heroStage.clientWidth, heroStage.clientHeight);
+    if (!atlas.complete || !atlas.naturalWidth) return;
+    const order = leaves.filter(L => L.ground).concat(leaves.filter(L => !L.ground));
+    for (const L of order) {
+      const a = L.fade * edgeFade(L.x, L.y) * (L.ground ? 0.92 : 0.96);
+      if (a <= 0.01) continue;
+      const X = m.offX + L.x * m.sc, Y = m.offY + L.y * m.sc;
+      const S = Math.max(6, L.size * m.sc);
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(X, Y);
+      ctx.rotate(L.rot);
+      ctx.scale(Math.abs(L.sx) < 0.08 ? 0.08 * Math.sign(L.sx || 1) : L.sx, L.sy);
+      const sx = (L.spr % A.cols) * CELL, sy = Math.floor(L.spr / A.cols) * CELL;
+      ctx.drawImage(atlas, sx, sy, CELL, CELL, -S / 2, -S / 2, S, S);
+      ctx.restore();
+    }
+  }
+  function kick() {
+    if (running || !visible) return;
+    running = true; last = performance.now(); raf = requestAnimationFrame(step);
+  }
+  new IntersectionObserver(es => {
+    visible = es[0].isIntersecting;
+    if (visible) kick(); else { cancelAnimationFrame(raf); running = false; }
+  }).observe(heroStage);
+  new ResizeObserver(() => { if (!running) { size(); draw(); } }).observe(heroStage);
+  atlas.addEventListener('load', kick);
+  return {
+    stage() {
+      const s = stageNow();
+      if (lastS === null || !visible) { lastS = s; kick(); return; }
+      const now = performance.now(), gap = Math.max(16, now - lastMove);
+      if (s !== lastS) { speed = 0.7 * speed + 0.3 * Math.min(40, Math.abs(s - lastS) / (gap / 1000)); lastMove = now; }
+      if (s > lastS) {
+        // leaves lost from each crown between the old and new date fall now, in a quick cascade
+        let budget = 110;
+        TREES.forEach(T => {
+          const n = Math.min(budget, (lf(T, lastS) - lf(T, s)) * T.n * 0.75);
+          T.pending = Math.min(70, T.pending + n);
+          budget -= n;
+        });
+      } else if (s < lastS) {
+        // running time backwards: put the leaves back on the trees
+        TREES.forEach(T => { T.pending = 0; T.acc = 0; });
+        leaves.forEach(L => { L.fadeRate = Math.max(L.fadeRate, L.ground ? 3 : 2); });
+      }
+      lastS = s;
+      kick();
+    },
+  };
+})();
+subs.push(() => leafFall.stage());
+
+/* ------------------------------------------------------------------ day length */
+function dayLength(lat, doy) {
+  const decl = 23.44 * Math.sin(2 * Math.PI * (284 + doy) / 365) * Math.PI / 180;
+  const phi = lat * Math.PI / 180;
+  const h0 = -0.833 * Math.PI / 180;
+  const c = (Math.sin(h0) - Math.sin(phi) * Math.sin(decl)) / (Math.cos(phi) * Math.cos(decl));
+  return 2 * Math.acos(clamp(c, -1, 1)) * 180 / Math.PI / 15;
+}
+const hm = h => { const m = Math.round(h * 60); return Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; };
+const svgNS = 'http://www.w3.org/2000/svg';
+function renderDaylen() {
+  const svg = document.getElementById('daylenSvg');
+  const lat = S.place.lat;
+  const x0 = 46, x1 = 624, d0 = 152, d1 = 365, yTop = 18, yBot = 172, hTop = 15.5, hBot = 9;
+  const X = d => x0 + (d - d0) / (d1 - d0) * (x1 - x0);
+  const Y = h => yBot - (h - hBot) / (hTop - hBot) * (yBot - yTop);
+  let path = '';
+  for (let d = d0; d <= d1; d++) path += (d === d0 ? 'M' : 'L') + X(d).toFixed(1) + ' ' + Y(dayLength(lat, d)).toFixed(1);
+  const on = S.place.peak - 26, off = S.place.peak + 21;
+  const doy = doyNow();
+  const dl = dayLength(lat, doy), prev = dayLength(lat, doy - 1);
+  let g = `<rect class="band" x="${X(on).toFixed(1)}" y="${yTop}" width="${(X(off) - X(on)).toFixed(1)}" height="${yBot - yTop}"/>`;
+  g += `<text class="t-label" x="${((X(on) + X(off)) / 2).toFixed(1)}" y="${yTop + 13}" text-anchor="middle">color season here</text>`;
+  [10, 12, 14].forEach(h => {
+    g += `<line class="grid" x1="${x0}" x2="${x1}" y1="${Y(h)}" y2="${Y(h)}"/>`;
+    g += `<text x="${x0 - 8}" y="${Y(h) + 4}" text-anchor="end">${h} h</text>`;
+  });
+  for (let m = 5; m <= 11; m++) {
+    const d = mdToDoy(m, 1);
+    g += `<line class="tick" x1="${X(d)}" x2="${X(d)}" y1="${yBot}" y2="${yBot + 5}"/>`;
+    g += `<text x="${X(d) + 3}" y="${yBot + 19}">${MONTHS[m]}</text>`;
+  }
+  g += `<path class="curve" d="${path}"/>`;
+  [[172, 'solstice, June 21'], [265, 'equinox, Sept 22']].forEach(([d, t]) => {
+    g += `<circle class="dot" cx="${X(d)}" cy="${Y(dayLength(lat, d))}" r="3"/>`;
+    g += `<text x="${X(d) + 7}" y="${Y(dayLength(lat, d)) - 7}">${t}</text>`;
+  });
+  g += `<line class="now-line" x1="${X(doy)}" x2="${X(doy)}" y1="${Y(dl)}" y2="${yBot}"/>`;
+  g += `<circle class="now-dot" cx="${X(doy)}" cy="${Y(dl)}" r="5.5"/>`;
+  svg.innerHTML = g;
+  const after = doy >= 266;
+  document.getElementById('daylenRead').innerHTML = `On <b>${fmt(doy)}</b>, ${S.place.name} (${lat.toFixed(1)}&deg; N) gets <b>${hm(dl)}</b> of daylight, ${Math.round((prev - dl) * 60)} minutes less than the day before. ${after ? 'Nights are now longer than days.' : 'Nights are catching up to the days.'}`;
+}
+subs.push(renderDaylen);
+
+/* ------------------------------------------------------------------ image data helpers */
+function loadImage(src) {
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+}
+function pixels(im) {
+  const c = document.createElement('canvas');
+  c.width = im.naturalWidth; c.height = im.naturalHeight;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(im, 0, 0);
+  return x.getImageData(0, 0, c.width, c.height).data;
+}
+function whenVisible(el, f) {
+  let vis = false, dirty = true;
+  new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && dirty) { dirty = false; f(); } }, { rootMargin: '200px' }).observe(el);
+  return () => { if (vis) { dirty = false; f(); } else dirty = true; };
+}
+
+/* ------------------------------------------------------------------ leaf lab */
+const WX = {
+  bright: { shift: 0, amax: 1.0, rate: 1.0, drop: 7, frost: null, brown: 0 },
+  cloudy: { shift: 5, amax: 0.32, rate: 0.75, drop: 12, frost: null, brown: 0 },
+  drought: { shift: -8, amax: 0.55, rate: 1.35, drop: -1, frost: null, brown: 0.25 },
+  frost: { shift: 0, amax: 1.0, rate: 1.0, drop: 3, frost: -2, brown: 0 },
+};
+function pig(t, w) {
+  const o = -16 + w.shift;
+  const wid = 3.2 / w.rate;
+  let C = 0.07 + 0.93 / (1 + Math.exp((t - (o + 9)) / wid));
+  let K = 1 - 0.54 * smooth(t, o, w.drop + 8);
+  let A = w.amax * Math.pow(smooth(0.69 - C, 0, 0.45), 0.9);
+  let B = 0.85 * smooth(t, w.drop - 2, w.drop + 12) + w.brown * smooth(t, o, o + 14);
+  A *= 1 - 0.35 * smooth(t, w.drop, w.drop + 14);
+  if (w.frost !== null && t > w.frost) {
+    const tf = w.frost, dt = t - tf;
+    const Cf = 0.07 + 0.93 / (1 + Math.exp((tf - (o + 9)) / wid));
+    const Af = w.amax * Math.pow(smooth(0.69 - Cf, 0, 0.45), 0.9);
+    C = Math.max(0.03, Cf * Math.exp(-dt / 1.6));
+    A = Af * Math.exp(-dt / 4);
+    K = K * (1 - 0.4 * smooth(dt, 0, 6));
+    B = Math.max(B, 0.95 * smooth(dt, 0, 5));
+  }
+  const Nr = w.frost !== null && t > w.frost
+    ? 0.62 * (1 - (0.07 + 0.93 / (1 + Math.exp((w.frost - (o + 9)) / wid)) - 0.07) / 0.93)
+    : 0.62 * (1 - (C - 0.07) / 0.93);
+  return { C, K, A: clamp(A, 0, 1), B: clamp(B, 0, 1), N: clamp(Nr, 0, 0.62), fallen: t > w.drop + 3, o };
+}
+const Kc = [1.09, 0.27, 0.20], Kk = [0.11, 0.48, 1.9], Ka = [0.15, 1.6, 0.9], Kb = [0.5, 0.8, 1.1];
+const lab = { ready: false };
+const leafCanvas = document.getElementById('leafCanvas');
+const lctx = leafCanvas.getContext('2d');
+Promise.all([loadImage('assets/lab_a.png'), loadImage('assets/lab_b.png')]).then(([a, b]) => {
+  const A = pixels(a), B = pixels(b);
+  const n = 640 * 640;
+  const idx = [], Dm = [], g = [], af = [], bf = [], lift = [], pet = [];
+  for (let p = 0; p < n; p++) {
+    const d = A[p * 4] / 255 * 2, pe = B[p * 4 + 1] / 255;
+    if (d < 0.004 && pe < 0.01) continue;
+    idx.push(p);
+    const Rp = A[p * 4 + 1] / 255, Gp = A[p * 4 + 2] / 255;
+    Dm.push(d); g.push(1.8 + (0.45 - 1.8) * Gp); af.push(clamp(0.15 + 1.25 * Math.pow(Rp, 1.3), 0, 1.3));
+    bf.push(0.5 + 0.8 * (1 - Gp)); lift.push(1 - 0.3 * (B[p * 4] / 255)); pet.push(pe);
+  }
+  Object.assign(lab, { idx: Int32Array.from(idx), Dm: Float32Array.from(Dm), g: Float32Array.from(g), af: Float32Array.from(af),
+    bf: Float32Array.from(bf), lift: Float32Array.from(lift), pet: Float32Array.from(pet), img: lctx.createImageData(640, 640), ready: true });
+  const d = lab.img.data;
+  for (let p = 0; p < n; p++) { d[p * 4] = d[p * 4 + 1] = d[p * 4 + 2] = 255; d[p * 4 + 3] = 255; }
+  labDirty();
+});
+function renderLab() {
+  if (!lab.ready) return;
+  const w = WX[S.wx];
+  const t = stageNow();
+  const P = pig(t, w);
+  let C = P.C, K = P.K, A = P.A, B = P.B;
+  if (S.view === 'chl') { K = 0; A = 0; B = 0; }
+  if (S.view === 'car') { C = 0; A = 0; B = 0; }
+  if (S.view === 'ant') { C = 0; K = 0; B = 0; A = Math.max(A, 0); }
+  const d = lab.img.data;
+  const petT = smooth(t, P.o, P.o + 20);
+  const petA = [lerp(0.55, 0.35, petT), lerp(0.35, 0.95, petT), lerp(1.05, 1.2, petT)];
+  const n = lab.idx.length;
+  const kr = K * Kk[0], kg = K * Kk[1], kb = K * Kk[2];
+  for (let j = 0; j < n; j++) {
+    const p = lab.idx[j] * 4;
+    const ch = C > 0 ? Math.pow(C, lab.g[j]) : 0;
+    const an = A * lab.af[j], br = B * lab.bf[j];
+    const m = lab.Dm[j] * lab.lift[j];
+    const ar = m * (ch * Kc[0] + kr + an * Ka[0] + br * Kb[0]) + lab.pet[j] * petA[0];
+    const ag = m * (ch * Kc[1] + kg + an * Ka[1] + br * Kb[1]) + lab.pet[j] * petA[1];
+    const ab = m * (ch * Kc[2] + kb + an * Ka[2] + br * Kb[2]) + lab.pet[j] * petA[2];
+    d[p] = 255 * Math.exp(-ar); d[p + 1] = 255 * Math.exp(-ag); d[p + 2] = 255 * Math.exp(-ab);
+  }
+  lctx.putImageData(lab.img, 0, 0);
+  document.getElementById('leafbox').classList.toggle('fallen', P.fallen && !reduceMotion);
+  document.getElementById('leafTagDate').textContent = fmt(doyNow()) + (P.fallen ? ' · fallen' : '');
+  // readouts
+  const set = (id, v, bar, frac) => { document.getElementById(id).firstChild.nodeValue = v; document.getElementById(bar).style.width = (clamp(frac, 0, 1) * 100).toFixed(1) + '%'; };
+  set('roChl', (P.C * 29).toFixed(P.C * 29 < 10 ? 1 : 0), 'barChl', P.C);
+  set('roCar', (P.K * 2.55).toFixed(1), 'barCar', P.K);
+  set('roAnt', Math.round(P.A * 100), 'barAnt', P.A);
+  set('roN', Math.round(P.N * 100), 'barN', P.N / 0.62);
+  document.getElementById('labNow').textContent = labWords(t, P, w);
+  renderLabChart(w);
+}
+function labWords(t, P, w) {
+  let s;
+  if (P.fallen) s = `The leaf has dropped. Before it let go, the tree pulled back about ${Math.round(P.N * 100)} percent of its nitrogen.`;
+  else if (w.frost !== null && t > w.frost && t <= w.frost + 6) s = 'A hard freeze has stopped the leaf’s chemistry. Red pigment stops forming, and the leaf will brown and fall within days.';
+  else if (P.B > 0.45) s = 'Cells are dying and tannins are showing through. The leaf is browning on the branch.';
+  else if (P.C > 0.9) s = 'Full summer green. Chlorophyll masks the yellow carotenoids that are already in the leaf.';
+  else if (P.C > 0.69) s = 'Chlorophyll is starting to fall, first at the edges. Green lingers along the veins.';
+  else if (P.C > 0.25) s = P.A > 0.12 ? 'Chlorophyll is below 20 µg/cm², and fresh red pigment is forming on the tips and the sunny side.' : 'The green is going and yellow is showing. With little spare sugar, the leaf makes little red.';
+  else s = P.A > 0.45 ? 'Little chlorophyll is left. Carotenoid yellow under fresh anthocyanin red gives a sugar maple its orange.' : 'Little chlorophyll is left, and without much red the leaf glows yellow and gold.';
+  const v = { chl: ' Showing chlorophyll alone.', car: ' Showing carotenoids alone.', ant: ' Showing anthocyanins alone.', all: '' }[S.view];
+  return s + v;
+}
+function renderLabChart(w) {
+  const svg = document.getElementById('labChart');
+  const x0 = 6, x1 = 514, yT = 30, yB = 124;
+  const X = i => x0 + i / (N - 1) * (x1 - x0);
+  const Y = v => yB - v * (yB - yT);
+  const series = { C: '', K: '', A: '', B: '' };
+  for (let i = 0; i < N; i++) {
+    const P = pig(START_DOY + i - S.place.peak, w);
+    const c = i ? 'L' : 'M';
+    series.C += c + X(i).toFixed(1) + ' ' + Y(P.C).toFixed(1);
+    series.K += c + X(i).toFixed(1) + ' ' + Y(P.K).toFixed(1);
+    series.A += c + X(i).toFixed(1) + ' ' + Y(P.A).toFixed(1);
+    series.B += c + X(i).toFixed(1) + ' ' + Y(P.B).toFixed(1);
+  }
+  let g = '';
+  [mdToDoy(8, 1), mdToDoy(9, 1), mdToDoy(10, 1)].forEach((d, k) => {
+    const x = X(d - START_DOY);
+    g += `<line x1="${x}" x2="${x}" y1="${yT - 4}" y2="${yB}" stroke="#dcdad0"/><text x="${x + 3}" y="${yB + 16}" fill="#5d646b">${['Sept', 'Oct', 'Nov'][k]}</text>`;
+  });
+  g += `<line x1="${x0}" x2="${x1}" y1="${yB}" y2="${yB}" stroke="#bdbbb0"/>`;
+  g += `<path d="${series.B}" fill="none" stroke="#8a5a36" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+  g += `<path d="${series.K}" fill="none" stroke="#c98a12" stroke-width="2.2"/>`;
+  g += `<path d="${series.A}" fill="none" stroke="#b0263c" stroke-width="2.2"/>`;
+  g += `<path d="${series.C}" fill="none" stroke="#4e7a33" stroke-width="2.2"/>`;
+  const xi = X(S.i);
+  g += `<line x1="${xi}" x2="${xi}" y1="${yT - 6}" y2="${yB}" stroke="#242c35" stroke-width="1.5"/>`;
+  g += `<text class="lg" x="${x0}" y="12" fill="#5d646b"><tspan fill="#4e7a33">chlorophyll</tspan><tspan dx="14" fill="#c98a12">carotenoids</tspan><tspan dx="14" fill="#b0263c">anthocyanins</tspan><tspan dx="14" fill="#8a5a36">browning</tspan></text>`;
+  svg.innerHTML = g;
+}
+const labDirty = whenVisible(document.getElementById('lab'), renderLab);
+subs.push(labDirty);
+function chipGroup(id, key) {
+  const el = document.getElementById(id);
+  el.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    el.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+    S[key] = b.dataset[key === 'wx' ? 'wx' : 'view'];
+    renderLab();
+  });
+}
+chipGroup('wxChips', 'wx');
+chipGroup('viewChips', 'view');
+
+/* ------------------------------------------------------------------ abscission diagram */
+(function drawAbscission() {
+  const svg = document.getElementById('abscission');
+  const T = (x, y, t, anchor = 'start') => `<text class="ab-t" x="${x}" y="${y}" text-anchor="${anchor}">${t}</text>`;
+  const L = (x1, y1, x2, y2) => `<path class="ab-lead" d="M${x1} ${y1} L${x2} ${y2}"/><circle cx="${x2}" cy="${y2}" r="2" fill="#5d646b"/>`;
+  const twig = `<path d="M95 350 C105 262 112 150 122 14" stroke="#5f5046" stroke-width="30" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M95 350 C105 262 112 150 122 14" stroke="#8a7766" stroke-width="18" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M99 330 C106 250 110 160 117 40" stroke="#b3a08c" stroke-width="3" fill="none" opacity=".5"/>`;
+  const bud = `<path d="M117 176 C108 158 112 134 128 122 C134 140 132 162 117 176 Z" fill="#7a6248" stroke="#4f3d2c" stroke-width="1.2"/>
+    <path d="M118 172 C116 156 119 140 127 128" stroke="#a88a66" stroke-width="1.2" fill="none"/>`;
+  let g = `<defs>
+    <pattern id="cells" width="7" height="6" patternUnits="userSpaceOnUse"><rect width="7" height="6" fill="#efe2c4"/><path d="M0 0 H7 M0 3 H7 M2 0 V3 M5 3 V6" stroke="#9c7c4a" stroke-width=".8"/></pattern>
+    <pattern id="cork" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#b08458"/><path d="M0 2.5 H5 M2.5 0 V5" stroke="#6b4428" stroke-width=".9"/></pattern>
+  </defs>`;
+  // early autumn
+  g += `<g>${twig}
+    <path d="M116 192 C160 174 206 157 262 140" stroke="#a5582a" stroke-width="15" fill="none" stroke-linecap="round"/>
+    <path d="M116 192 C160 174 206 157 262 140" stroke="#e0913c" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M125 188 C165 171 210 155 258 141" stroke="#3f6b2c" stroke-width="1.4" fill="none" stroke-dasharray="5 3"/>
+    <path d="M262 140 C290 96 342 78 376 92 C352 122 318 146 262 140 Z" fill="#e48a3a" opacity=".9"/>
+    <path d="M262 140 C296 160 338 176 372 166 C352 140 316 128 262 140 Z" fill="#d0472c" opacity=".88"/>
+    <path d="M262 140 L366 96 M262 140 L364 162" stroke="#9a3a1e" stroke-width="1.2" opacity=".6"/>
+    <rect x="133" y="172" width="9" height="26" rx="2" transform="rotate(-21 137 185)" fill="url(#cells)" stroke="#8b6b3a" stroke-width="1"/>
+    <rect x="125" y="175" width="7" height="26" rx="2" transform="rotate(-21 128 188)" fill="url(#cork)" stroke="#6b4428" stroke-width="1"/>
+    ${bud}</g>`;
+  g += T(150, 66, 'bud, formed in summer') + L(152, 72, 128, 132);
+  g += T(198, 134, 'leaf stalk');
+  g += T(214, 200, 'veins still connected') + L(212, 195, 196, 162);
+  g += T(150, 254, 'separation layer') + L(152, 248, 140, 190);
+  g += T(150, 276, 'protective (corky) layer') + L(152, 270, 128, 196);
+  g += `<text class="ab-h" x="14" y="352">Early autumn</text>`;
+  // after the fall
+  g += `<g transform="translate(400,0)">${twig}
+    <ellipse cx="121" cy="186" rx="7" ry="10" transform="rotate(-21 121 186)" fill="url(#cork)" stroke="#5b3a20" stroke-width="1.3"/>
+    <circle cx="119" cy="182" r="1.7" fill="#2f2015"/><circle cx="123" cy="189" r="1.7" fill="#2f2015"/><circle cx="117.5" cy="189" r="1.7" fill="#2f2015"/>
+    ${bud}
+    <g transform="translate(250 305) rotate(14)">
+      <path d="M0 0 C26 -30 74 -38 102 -24 C80 2 46 14 0 0 Z" fill="#a9653a" opacity=".75"/>
+      <path d="M0 0 C30 16 70 22 98 10 C78 -6 46 -12 0 0 Z" fill="#8c4a2e" opacity=".7"/>
+      <path d="M0 0 L-26 9" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/>
+    </g></g>`;
+  g += T(552, 66, 'bud waits for spring') + L(554, 72, 528, 132);
+  g += T(560, 178, 'leaf scar, sealed') + L(558, 174, 528, 184);
+  g += T(560, 202, 'vein scars') + L(558, 198, 525, 189);
+  g += T(700, 268, 'the fallen leaf', 'middle');
+  g += `<text class="ab-h" x="414" y="352">After the leaf falls</text>`;
+  svg.innerHTML = g;
+})();
+
+/* ------------------------------------------------------------------ map */
+const mapCanvas = document.getElementById('mapCanvas');
+const mctx = mapCanvas.getContext('2d');
+const MW = 1000, MH = OVERLAY.H;
+const mapD = { ready: false };
+Promise.all([loadImage('assets/map_a.png'), loadImage('assets/map_b.png'), loadImage('assets/map_c.png')]).then(([a, b, c]) => {
+  const A = pixels(a), B = pixels(b), C = pixels(c);
+  const n = MW * MH;
+  const peak = new Float32Array(n), elev = new Int16Array(n), lutIx = new Int32Array(n), region = new Uint8Array(n);
+  const img = mctx.createImageData(MW, MH);
+  const d = img.data;
+  const water = hex('#a9c3d6'), canada = hex('#d3d3c6');
+  const wA = water.map(v => -Math.log(v / 255)), cA = canada.map(v => -Math.log(v / 255));
+  for (let p = 0; p < n; p++) {
+    const r = Math.round(B[p * 4] / 50);
+    region[p] = r;
+    peak[p] = A[p * 4] + 230 + C[p * 4 + 2] / 255;
+    elev[p] = A[p * 4 + 1] * 25;
+    const hs = B[p * 4 + 1] / 255;
+    const con = A[p * 4 + 2] / 255;
+    const jit = ((p * 2654435761) >>> 0) / 4294967296 - 0.5;   // ordered-noise dither hides bin edges
+    lutIx[p] = clamp(Math.round(con * 16 + jit), 0, 16) * 17 + clamp(Math.round(hs * 16 + jit * 0.8), 0, 16);
+    d[p * 4 + 3] = 255;
+    if (r === 1 || r === 2) continue;
+    let ar = 0, ag = 0, ab = 0;
+    if (r === 4) {
+      const wd = 0.22 + 0.5 * C[p * 4 + 1] / 255 + 0.7 * C[p * 4] / 255;
+      ar = wA[0] * wd; ag = wA[1] * wd; ab = wA[2] * wd;
+    } else if (r === 3 || r === 0) {
+      const k = 0.55 + 0.6 * (0.5 - hs);
+      ar = cA[0] * k; ag = cA[1] * k; ab = cA[2] * k;
+    }
+    d[p * 4] = 255 * Math.exp(-ar); d[p * 4 + 1] = 255 * Math.exp(-ag); d[p * 4 + 2] = 255 * Math.exp(-ab);
+  }
+  // lookup table: (stage, conifer share, hillshade) -> color, for study states and faded neighbors
+  const conif = hex('#3f5f45').map(v => -Math.log(v / 255));
+  const NS = 181 * 4, lut1 = new Uint8ClampedArray(NS * 289 * 3), lut2 = new Uint8ClampedArray(NS * 289 * 3);
+  for (let si = 0; si < NS; si++) {
+    const col = ramp(si / 4 - 90).map(v => -Math.log(Math.max(v, 4) / 255));
+    for (let cb = 0; cb <= 16; cb++) for (let hb = 0; hb <= 16; hb++) {
+      const con = cb / 16, hs = hb / 16;
+      const dens = 0.82 + 0.5 * (0.5 - hs);
+      const o = (si * 289 + cb * 17 + hb) * 3;
+      for (let k = 0; k < 3; k++) {
+        const a = lerp(col[k], conif[k], con) * dens;
+        lut1[o + k] = 255 * Math.exp(-a);
+        lut2[o + k] = 255 * Math.exp(-a * 0.3);
+      }
+    }
+  }
+  const study = [];
+  for (let p = 0; p < n; p++) if (region[p] === 1 || region[p] === 2) study.push(p);
+  Object.assign(mapD, { peak, elev, lutIx, region, img, lut1, lut2, study: Int32Array.from(study), ready: true });
+  mapDirty();
+});
+function renderMap() {
+  if (!mapD.ready) return;
+  const doy = doyNow();
+  const d = mapD.img.data, st = mapD.study, pk = mapD.peak, li = mapD.lutIx, rg = mapD.region, l1 = mapD.lut1, l2 = mapD.lut2;
+  for (let j = 0; j < st.length; j++) {
+    const p = st[j];
+    let s = doy - pk[p];
+    s = s < -90 ? -90 : (s > 90 ? 90 : s);
+    const o = (Math.round((s + 90) * 4) * 289 + li[p]) * 3;
+    const L = rg[p] === 1 ? l1 : l2;
+    d[p * 4] = L[o]; d[p * 4 + 1] = L[o + 1]; d[p * 4 + 2] = L[o + 2];
+  }
+  mctx.putImageData(mapD.img, 0, 0);
+  document.getElementById('mapDate').textContent = fmt(doy) + ', 2026';
+}
+const mapDirty = whenVisible(document.getElementById('map'), renderMap);
+subs.push(mapDirty);
+
+/* overlay */
+const mapSvg = document.getElementById('mapSvg');
+let showReports = false;
+function overlay() {
+  const ink = '#242c35';
+  let g = `<path d="${OVERLAY.borders}" fill="none" stroke="${ink}" stroke-width="1" stroke-dasharray="5 3 1 3" opacity=".55"/>`;
+  g += `<path d="${OVERLAY.outline}" fill="none" stroke="${ink}" stroke-width=".8" opacity=".35"/>`;
+  OVERLAY.stateLabels.forEach(([t, x, y]) => {
+    g += `<text class="m-state" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  });
+  OVERLAY.ranges.forEach(([t, x, y]) => {
+    g += `<text class="m-range" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  });
+  OVERLAY.cities.forEach(([t, x, y]) => {
+    g += `<circle cx="${x}" cy="${y}" r="2.6" fill="${ink}"/><text class="m-city" x="${x + 5}" y="${y - 4}">${t}</text>`;
+  });
+  [['Québec', 700, 120], ['Ontario', 120, 250], ['New Brunswick', 965, 185], ['Atlantic Ocean', 840, 720], ['Lake Ontario', 300, 382], ['Lake Erie', 70, 520]].forEach(([t, x, y]) => {
+    g += `<text class="m-region" x="${x}" y="${y}" text-anchor="middle">${t}</text>`;
+  });
+  if (showReports) {
+    const col = { early: '#a5aa4c', near: '#e8963a', peak: '#c8402c', past: '#8a6a5a' };
+    REPORTS.forEach((r, k) => {
+      g += `<g class="hit" data-r="${k}" tabindex="0" role="button" aria-label="${r.name}: ${r.pct ? r.pct + ', ' : ''}${r.note}">
+        <circle cx="${r.x}" cy="${r.y}" r="9" fill="${col[r.status]}" stroke="#fbfaf5" stroke-width="2"/>
+        <circle cx="${r.x}" cy="${r.y}" r="12.5" fill="none" stroke="${ink}" stroke-width="1" opacity=".55"/></g>`;
+    });
+  }
+  const p = S.place;
+  g += `<g transform="translate(${p.x},${p.y})">
+    <circle r="15" fill="none" stroke="${ink}" stroke-width="1.6"/><circle r="3.2" fill="${ink}"/>
+    <path d="M0 -24 V-16 M0 16 V24 M-24 0 H-16 M16 0 H24" stroke="${ink}" stroke-width="1.6"/></g>`;
+  const lx = p.x > 760 ? -22 : 22, anchor = p.x > 760 ? 'end' : 'start';
+  g += `<text class="m-pin" x="${p.x + lx}" y="${p.y - 18}" text-anchor="${anchor}">${p.name}</text>`;
+  mapSvg.innerHTML = g;
+}
+subs.push(overlay);
+const tip = document.getElementById('reportTip');
+function showTip(k, el) {
+  const r = REPORTS[k];
+  tip.innerHTML = `<b>${r.name}</b>${r.pct ? r.pct + ' color change. ' : ''}${r.note}<br><span>${r.src}, 2026</span>`;
+  tip.hidden = false;
+  const box = document.getElementById('map').getBoundingClientRect();
+  const sx = box.width / 1000, sy = box.height / MH;
+  let x = r.x * sx + 14, y = r.y * sy + 14;
+  if (x > box.width - 250) x = r.x * sx - 14 - Math.min(256, box.width * .6);
+  tip.style.left = Math.max(4, x) + 'px'; tip.style.top = y + 'px';
+}
+mapSvg.addEventListener('pointerover', e => { const h = e.target.closest('.hit'); if (h) showTip(+h.dataset.r, h); });
+mapSvg.addEventListener('pointerout', e => { if (e.target.closest('.hit')) tip.hidden = true; });
+mapSvg.addEventListener('focusin', e => { const h = e.target.closest('.hit'); if (h) showTip(+h.dataset.r, h); });
+mapSvg.addEventListener('focusout', () => { tip.hidden = true; });
+mapSvg.addEventListener('click', e => { const h = e.target.closest('.hit'); if (h) { showTip(+h.dataset.r, h); e.stopPropagation(); } });
+document.getElementById('reportsBtn').addEventListener('click', e => {
+  showReports = !showReports;
+  e.currentTarget.setAttribute('aria-pressed', showReports ? 'true' : 'false');
+  tip.hidden = true;
+  overlay();
+});
+mapCanvas.addEventListener('click', e => {
+  if (!mapD.ready) return;
+  const r = mapCanvas.getBoundingClientRect();
+  const x = Math.round((e.clientX - r.left) / r.width * MW), y = Math.round((e.clientY - r.top) / r.height * MH);
+  const p = y * MW + x;
+  if (x < 0 || y < 0 || x >= MW || y >= MH || mapD.region[p] !== 1) return;
+  let best = null, bd = 1e9;
+  PLACES.forEach(q => { const dd = (q[3] - x) ** 2 + (q[4] - y) ** 2; if (dd < bd) { bd = dd; best = q; } });
+  const km = Math.sqrt(bd) * 0.84;
+  const near = km < 6 ? best[0] : 'near ' + best[0];
+  customPlace = { id: 'custom', name: km < 6 ? best[0] : 'A spot ' + near, x, y, lat: best[2], lon: best[1], peak: Math.round(mapD.peak[p]), elev: mapD.elev[p], custom: true };
+  fillPlaces(customPlace);
+  setPlace(customPlace);
+});
+
+function renderHere() {
+  const p = S.place, s = stageNow();
+  document.getElementById('hereName').textContent = p.name;
+  const elev = Math.round(p.elev / 50) * 50;
+  document.getElementById('hereMeta').textContent = `${p.lat.toFixed(1)}° N · about ${elev.toLocaleString()} ft above sea level`;
+  document.getElementById('herePeak').innerHTML = `Typical peak <b>${fmt(p.peak - 3)} to ${fmt(p.peak + 3)}</b>`;
+  const [t, w] = stageWords(s);
+  document.getElementById('hereStage').innerHTML = `<span style="font-family:var(--f-ui);font-size:.92rem"><b>${t}</b> on ${fmt(doyNow())} (${relWords(s)}). ${w}</span>`;
+  document.getElementById('calPlace').textContent = p.name;
+}
+subs.push(renderHere);
+
+/* ramp legend */
+(function () {
+  const stops = [];
+  for (let k = 0; k <= 10; k++) { const s = -30 + k * 5.5; stops.push(rgbStr(ramp(s)) + ' ' + (k * 10) + '%'); }
+  document.getElementById('rampBar').style.background = 'linear-gradient(90deg,' + stops.join(',') + ')';
+})();
+
+/* windows */
+const WINDOWS = [
+  ['Northern Maine (Aroostook)', 'Sept 23 to Oct 6', 'Maine DACF, peaks 2020 to 2024'],
+  ['Central and western Maine', 'around Oct 12', 'Maine DACF'],
+  ['Maine coast', 'Oct 7 to 25', 'Maine DACF, peaks 2020 to 2024'],
+  ['Great North Woods, NH', 'last week of Sept', 'Visit NH'],
+  ['White Mountains, NH', 'Oct 1 to 14', 'Visit NH'],
+  ['Southern and coastal NH', 'second half of Oct', 'Visit NH'],
+  ['Northeast Kingdom, Vt.', 'mid to late Sept', 'Hello Burlington'],
+  ['Champlain Valley and southern Vt.', 'early to mid Oct', 'Hello Burlington'],
+  ['Adirondacks', 'late Sept to mid Oct', 'I LOVE NY'],
+  ['Catskills', 'early to mid Oct', 'I LOVE NY'],
+  ['Hudson Valley', 'mid Oct to early Nov', 'I LOVE NY'],
+  ['Finger Lakes', 'mid Oct to early Nov', 'I LOVE NY'],
+  ['Long Island and New York City', 'early to mid Nov', 'I LOVE NY'],
+  ['Berkshires, high ground', 'late Sept to early Oct', 'Visit Massachusetts'],
+  ['Boston', 'last week of Oct', 'Jim Salge, via Boston.com'],
+  ['Northwest and northeast Conn.', 'Oct 7 to 13', 'CTvisit'],
+  ['Connecticut shoreline', 'Oct 28 to Nov 3', 'CTvisit'],
+  ['Southwest Connecticut', 'Nov 4 to 10', 'CTvisit'],
+  ['Rhode Island', 'early Oct to late Oct', 'Visit Rhode Island'],
+  ['Northern Pennsylvania', 'Oct 1 to 10', 'PA DCNR'],
+  ['Central Pennsylvania', 'Oct 10 to 20', 'PA DCNR'],
+  ['Southeast Pennsylvania', 'Oct 20 to 31', 'PA DCNR'],
+  ['Northern New Jersey', 'Oct 16 to 20', 'The Sun Papers'],
+  ['Delaware Water Gap, Old Mine Road', '2nd to 3rd week of Oct', 'The Sun Papers'],
+  ['Central and southern New Jersey', 'Oct 21 to 24', 'The Sun Papers'],
+  ['Pine Barrens and the Shore', 'into early Nov', 'The Sun Papers'],
+];
+document.getElementById('windows').innerHTML = WINDOWS.map(([r, w, s]) => `<div class="win"><span class="r"><b>${r}</b></span><span class="w">${w}</span><span class="s">${s}</span></div>`).join('');
+
+/* ------------------------------------------------------------------ species calendar */
+const SP = [
+  ['black_gum', 'Black gum', 'Nyssa sylvatica', -34, -18, -8, 0, '#c4242c', 'Scarlet to crimson', 'A', 'Often the first tree to go red, in swamps and old fields, by late September.'],
+  ['creeper', 'Virginia creeper', 'Parthenocissus quinquefolia', -30, -16, -6, 0, '#b8233a', 'Crimson to purple, best in full sun', 'A', 'The vine reddening on stone walls and fencerows: Helen Hunt Jackson’s “leaves of woodbine twining.”'],
+  ['sumac', 'Staghorn sumac', 'Rhus typhina', -32, -16, -4, 0, '#e0452a', 'Scarlet, orange and yellow', 'AC', 'Among the earliest reds along roadsides and field edges.'],
+  ['red_maple', 'Red maple', 'Acer rubrum', -26, -10, -4, 0, '#d8352c', 'Scarlet, sometimes yellow', 'A', 'Swamp red maples start first, sometimes in early September. At Harvard Forest it was the first species to drop half its leaves.'],
+  ['dogwood', 'Flowering dogwood', 'Cornus florida', -24, -10, 0, 0, '#a8303a', 'Red to red-purple', 'A', 'Its red berries ripen as the leaves turn.'],
+  ['paper_birch', 'Paper birch', 'Betula papyrifera', -20, -7, -3, 0, '#f0cf4a', 'Clear yellow', 'C', 'Birches make no red pigment. Their yellow is carotenoid that was in the leaf all summer.'],
+  ['white_ash', 'White ash', 'Fraxinus americana', -20, -6, 0, 0, '#8a3c5a', 'Yellow to purple and maroon', 'AC', 'One of the few trees that goes purple, from strong anthocyanin in its upper cells. Emerald ash borer has killed many across the region.'],
+  ['sassafras', 'Sassafras', 'Sassafras albidum', -18, -6, 2, 0, '#f09a35', 'Orange, red and yellow on one tree', 'AC', 'Three leaf shapes grow on one tree: the mitten, the three-lobed leaf and the plain oval.'],
+  ['witch_hazel', 'Witch hazel', 'Hamamelis virginiana', -14, -3, 1, 0, '#eecb4f', 'Yellow', 'C', 'Blooms in October and November, often as its own leaves are falling.'],
+  ['sugar_maple', 'Sugar maple', 'Acer saccharum', -16, 0, 7, 0, '#ea7a2c', 'Orange, scarlet and gold', 'AC', 'The tree that defines peak. Its red is about 82 percent one anthocyanin, cyanidin-3-glucoside.'],
+  ['hickory', 'Shagbark hickory', 'Carya ovata', -12, 2, 9, 0, '#e4b43e', 'Golden yellow to golden brown', 'C', 'Gold that browns as the tannins show through.'],
+  ['aspen', 'Quaking aspen', 'Populus tremuloides', -8, 5, 12, 0, '#f1bf33', 'Golden yellow', 'C', 'Aspen pulls about 90 percent of the nitrogen out of its leaves before they fall.'],
+  ['red_oak', 'Northern red oak', 'Quercus rubra', -6, 8, 14, 0.18, '#a8452c', 'Russet red to brown', 'AT', 'Makes anthocyanin even though its leaves often read as brown.'],
+  ['scarlet_oak', 'Scarlet oak', 'Quercus coccinea', -4, 11, 17, 0.15, '#b8302b', 'Deep scarlet, late', 'A', 'Thoreau gave it the line “I am the last to blush, but I blush deeper than any of ye.”'],
+  ['white_oak', 'White oak', 'Quercus alba', -2, 11, 19, 0.25, '#8f4a3c', 'Purple-brown to red-brown', 'AT', 'Young white oaks often hold their dry leaves into winter.'],
+  ['beech', 'American beech', 'Fagus grandifolia', -4, 13, 21, 0.45, '#d9a441', 'Gold, then tan and copper', 'CT', 'Holds pale tan leaves through the winter. Beech leaf disease is thinning its color this year.'],
+  ['tamarack', 'Tamarack', 'Larix laricina', 4, 14, 24, 0, '#e2b03c', 'Gold needles', 'C', 'A conifer that drops its needles. It turns gold in bogs after the hardwoods are done.'],
+  ['norway_maple', 'Norway maple', 'Acer platanoides', 2, 14, 22, 0, '#e2c84a', 'Yellow, late', 'C', 'An invasive street tree that keeps its leaves after the native maples are bare. Black tar spot is common on it.'],
+  ['ginkgo', 'Ginkgo', 'Ginkgo biloba', 8, 18, 22, 0, '#f3d23e', 'Butter yellow', 'C', 'A city tree that can drop nearly all of its leaves within a day after a hard freeze.'],
+].map(([k, name, latin, o, p, d, keep, col, color, pig, note]) => ({ k, name, latin, o, p, d, keep, col, color, pig, note }));
+const PIGNAME = { A: ['anthocyanins', '#b0263c'], C: ['carotenoids', '#c98a12'], T: ['tannins', '#8a5a36'] };
+const SUMMER = '#6f9a3c';
+const rowsEl = document.getElementById('rows');
+const pct = doy => ((doy - START_DOY) / (N - 1) * 100);
+document.getElementById('months').innerHTML = [[mdToDoy(8, 1), 'Sept'], [mdToDoy(9, 1), 'Oct'], [mdToDoy(10, 1), 'Nov']]
+  .map(([d, t]) => `<span style="left:${pct(d).toFixed(2)}%">${t}</span>`).join('') + '<b class="nowlab" id="nowLab"></b>';
+SP.forEach((sp, k) => {
+  const row = document.createElement('button');
+  row.type = 'button'; row.className = 'sp-row'; row.setAttribute('aria-expanded', 'false'); row.dataset.k = k;
+  row.innerHTML = `<span class="thumb wash"><img src="assets/leaf_${sp.k}_green.webp" alt="" class="g"><img src="assets/leaf_${sp.k}_fall.webp" alt="" class="f"></span>
+    <span class="sp-name">${sp.name}<i>${sp.latin}</i></span>
+    <span class="track">${[mdToDoy(8, 1), mdToDoy(9, 1), mdToDoy(10, 1)].map(d => `<i class="gridl" style="left:${pct(d).toFixed(2)}%"></i>`).join('')}<i class="keep"></i><i class="bar"></i><i class="pk"></i><i class="now"></i></span>`;
+  rowsEl.appendChild(row);
+  const det = document.createElement('div');
+  det.className = 'sp-detail'; det.hidden = true; det.id = 'det-' + k;
+  row.setAttribute('aria-controls', det.id);
+  rowsEl.appendChild(det);
+  row.addEventListener('click', () => {
+    const open = row.getAttribute('aria-expanded') === 'true';
+    rowsEl.querySelectorAll('.sp-row').forEach(r => r.setAttribute('aria-expanded', 'false'));
+    rowsEl.querySelectorAll('.sp-detail').forEach(d => d.hidden = true);
+    if (!open) { row.setAttribute('aria-expanded', 'true'); det.hidden = false; fillDetail(k); }
+    placeCursor();
+  });
+});
+function spProgress(sp, s) {
+  const turn = smooth(s, sp.o, sp.p);
+  const lf = s < sp.d - 7 ? 1 : (s > sp.d + 7 ? sp.keep : sp.keep + (1 - sp.keep) * (1 - smooth(s, sp.d - 7, sp.d + 7)));
+  return { turn, lf };
+}
+function fillDetail(k) {
+  const sp = SP[k], pk = S.place.peak;
+  const det = document.getElementById('det-' + k);
+  const tags = sp.pig.split('').map(c => `<span style="background:${PIGNAME[c][1]}">${PIGNAME[c][0]}</span>`).join('');
+  det.innerHTML = `<div class="big wash"><img src="assets/leaf_${sp.k}_green.webp" alt="" class="g"><img src="assets/leaf_${sp.k}_fall.webp" alt="${sp.name} leaf in fall color, watercolor"></div>
+    <div><h4>${sp.name}</h4><span style="font-family:var(--f-ui);font-size:.9rem;color:var(--sheet-soft)"><i>${sp.latin}</i></span>
+    <dl><dt>Fall color</dt><dd>${sp.color}</dd><dt>Pigments</dt><dd><span class="pigtags">${tags}</span></dd>
+    <dt>First color</dt><dd>about ${fmt(pk + sp.o)}</dd><dt>Best color</dt><dd>about ${fmt(pk + sp.p)}</dd><dt>Half the leaves down</dt><dd>about ${fmt(pk + sp.d)}${sp.keep ? ', some held all winter' : ''}</dd></dl>
+    <p style="margin:0;font-size:1rem">${sp.note}</p></div>`;
+  updateThumbs();
+}
+function renderCalendar() {
+  const pk = S.place.peak;
+  rowsEl.querySelectorAll('.sp-row').forEach(row => {
+    const sp = SP[+row.dataset.k];
+    const a = clamp(pct(pk + sp.o), 0, 100), b = clamp(pct(pk + sp.d), 0, 100), p = clamp(pct(pk + sp.p), 0, 100);
+    const bar = row.querySelector('.bar');
+    bar.style.left = a + '%'; bar.style.width = Math.max(0, b - a) + '%';
+    const mid = b > a ? ((p - a) / (b - a) * 100) : 50;
+    bar.style.background = `linear-gradient(90deg, ${SUMMER} 0%, ${rgbStr(mixC(hex(SUMMER), hex(sp.col), .5))} ${(mid * .55).toFixed(0)}%, ${sp.col} ${mid.toFixed(0)}%, ${rgbStr(mixC(hex(sp.col), [140, 100, 70], .45))} 100%)`;
+    row.querySelector('.pk').style.left = p + '%';
+    const keep = row.querySelector('.keep');
+    if (sp.keep) { const e = clamp(pct(pk + sp.d + 40), 0, 100); keep.style.left = b + '%'; keep.style.width = Math.max(0, e - b) + '%'; keep.hidden = false; }
+    else keep.hidden = true;
+  });
+  const open = rowsEl.querySelector('.sp-row[aria-expanded="true"]');
+  if (open) fillDetail(+open.dataset.k);
+  updateThumbs();
+  placeCursor();
+}
+function updateThumbs() {
+  const s = stageNow();
+  rowsEl.querySelectorAll('.sp-row').forEach(row => {
+    const sp = SP[+row.dataset.k];
+    const { turn, lf } = spProgress(sp, s);
+    const f = row.querySelector('img.f');
+    f.style.opacity = turn.toFixed(3);
+    const th = row.querySelector('.thumb');
+    th.style.opacity = (0.28 + 0.72 * lf).toFixed(3);
+    th.style.filter = lf < 0.6 && sp.keep ? 'sepia(.55) saturate(.7)' : '';
+  });
+  const open = rowsEl.querySelector('.sp-row[aria-expanded="true"]');
+  if (open) {
+    const sp = SP[+open.dataset.k];
+    const det = document.getElementById('det-' + open.dataset.k);
+    const im = det.querySelector('img:last-child');
+    if (im) im.style.opacity = spProgress(sp, s).turn.toFixed(3);
+  }
+}
+function placeCursor() {
+  const x = pct(doyNow()).toFixed(2) + '%';
+  rowsEl.querySelectorAll('.track .now').forEach(n => { n.style.left = x; });
+  const lab = document.getElementById('nowLab');
+  lab.style.left = x; lab.textContent = fmt(doyNow());
+}
+let lastPeak = null;
+subs.push(() => { if (lastPeak !== S.place.peak) { lastPeak = S.place.peak; renderCalendar(); } else { updateThumbs(); placeCursor(); } });
+window.addEventListener('resize', placeCursor);
+
+/* ------------------------------------------------------------------ gallery */
+const gal = document.getElementById('gallery');
+ART.forEach((a, k) => {
+  const wc = /watercolor/i.test(a.medium);
+  const fig = document.createElement('figure');
+  fig.className = 'art' + (wc ? ' wc' : '');
+  fig.innerHTML = `<button type="button" aria-label="View ${a.title} larger"><div class="frame"><img src="assets/${a.file}" width="${a.w}" height="${a.h}" loading="lazy" alt="${a.title}, ${a.artist}, ${a.date}"></div></button>
+    <figcaption><b>${a.title}</b>${a.artist}, ${a.date}. ${a.medium}. ${a.museum}.</figcaption>`;
+  fig.querySelector('button').addEventListener('click', () => openLightbox(k));
+  gal.appendChild(fig);
+});
+const lb = document.getElementById('lightbox');
+function openLightbox(k) {
+  const a = ART[k];
+  document.getElementById('lbImg').src = 'assets/' + a.file;
+  document.getElementById('lbImg').alt = a.title + ', ' + a.artist;
+  document.getElementById('lbCap').innerHTML = `<b>${a.title}</b>${a.artist} (${a.artist_dates}), ${a.date}. ${a.medium}. ${a.note} <a href="${a.source_page_url}" target="_blank" rel="noopener">${a.museum}</a>, ${a.accession_or_id}.`;
+  if (lb.showModal) lb.showModal(); else lb.setAttribute('open', '');
+}
+document.getElementById('lbClose').addEventListener('click', () => lb.close());
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+document.getElementById('artCredits').innerHTML = ART.map(a =>
+  `<li>${a.artist}, <i>${a.title}</i>, ${a.date}. ${a.museum}, ${a.accession_or_id}. ${/CC0/.test(a.license) ? 'CC0' : 'Public domain'}. <a href="${a.source_page_url}">Museum page</a></li>`).join('');
+
+/* ------------------------------------------------------------------ coda: falling leaves */
+const fc = document.getElementById('fallCanvas');
+const fx = fc.getContext('2d');
+const SPR = ['sugar_maple', 'red_maple', 'red_oak', 'paper_birch', 'aspen', 'sassafras', 'black_gum', 'beech'].map(k => { const im = new Image(); im.src = `assets/sprite_${k}.webp`; return im; });
+const leaves = [];
+let codaOn = false, codaRaf = 0, codaLast = 0, spawnT = 0;
+function sizeFall() {
+  const r = coda.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  fc.width = Math.round(r.width * dpr); fc.height = Math.round(r.height * dpr);
+  fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function spawn(x) {
+  const r = coda.getBoundingClientRect();
+  const wide = r.width > 720;
+  const side = Math.random() < 0.5 ? Math.random() * 0.26 : 0.74 + Math.random() * 0.26;
+  leaves.push({ x: x ?? (wide ? side : Math.random()) * r.width, y: -60, vy: 28 + Math.random() * 26, ph: Math.random() * 6.28, sw: 18 + Math.random() * 30,
+    rot: Math.random() * 6.28, vr: (Math.random() - .5) * 1.4, s: 34 + Math.random() * 30, im: SPR[Math.floor(Math.random() * SPR.length)], age: 0 });
+}
+function stepFall(t) {
+  const dt = Math.min(0.05, (t - codaLast) / 1000); codaLast = t;
+  const r = coda.getBoundingClientRect();
+  fx.clearRect(0, 0, r.width, r.height);
+  spawnT -= dt;
+  if (spawnT <= 0 && leaves.length < 12) { spawn(); spawnT = 2.2 + Math.random() * 2; }
+  for (let k = leaves.length - 1; k >= 0; k--) {
+    const L = leaves[k];
+    L.age += dt; L.y += L.vy * dt; L.rot += L.vr * dt;
+    const x = L.x + Math.sin(L.age * 1.3 + L.ph) * L.sw;
+    if (L.y > r.height + 60) { leaves.splice(k, 1); continue; }
+    fx.save(); fx.translate(x, L.y); fx.rotate(L.rot + Math.sin(L.age * 1.3 + L.ph) * .5);
+    fx.globalAlpha = .88;
+    if (L.im.complete && L.im.naturalWidth) fx.drawImage(L.im, -L.s / 2, -L.s / 2, L.s, L.s);
+    fx.restore();
+  }
+  if (codaOn) codaRaf = requestAnimationFrame(stepFall);
+}
+function codaStatic() {
+  sizeFall();
+  const r = coda.getBoundingClientRect();
+  const place = () => {
+    fx.clearRect(0, 0, r.width, r.height);
+    [[.08, .2], [.86, .12], [.14, .62], [.9, .55], [.8, .9], [.2, .92]].forEach(([u, v], k) => {
+      const im = SPR[k % SPR.length];
+      if (im.complete) { fx.save(); fx.translate(u * r.width, v * r.height); fx.rotate(k * 1.1); fx.globalAlpha = .85; fx.drawImage(im, -24, -24, 48, 48); fx.restore(); }
+    });
+  };
+  SPR.forEach(im => im.addEventListener('load', place));
+  place();
+}
+if (reduceMotion) codaStatic();
+else {
+  new IntersectionObserver(es => {
+    codaOn = es[0].isIntersecting;
+    if (codaOn) {
+      sizeFall();
+      if (!leaves.length) { const r = coda.getBoundingClientRect(); for (let k = 0; k < 6; k++) { spawn(); leaves[leaves.length - 1].y = Math.random() * r.height * 0.85; } }
+      codaLast = performance.now(); cancelAnimationFrame(codaRaf); codaRaf = requestAnimationFrame(stepFall);
+    }
+    else cancelAnimationFrame(codaRaf);
+  }).observe(coda);
+  window.addEventListener('resize', () => { if (codaOn) sizeFall(); });
+}
+document.getElementById('releaseBtn').addEventListener('click', () => {
+  if (reduceMotion) return;
+  const r = coda.getBoundingClientRect();
+  spawn(r.width * (.25 + Math.random() * .5));
+});
+
+/* ------------------------------------------------------------------ theme changes + start */
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateAccent);
+new MutationObserver(updateAccent).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+emit();
+})();
+
+</script>
+</body>
+</html>
