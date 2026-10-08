@@ -87,6 +87,7 @@ kbd { font-family: var(--ui); font-size: 11px; font-weight: 600; color: var(--so
 .hero { padding-top: clamp(2.6rem, 7vw, 5.6rem); padding-bottom: clamp(2rem, 4.5vw, 3.4rem); }
 .kick { display: flex; align-items: center; gap: .6rem; margin: 0 0 1.4rem; font-size: 14.5px; color: var(--soft); flex-wrap: wrap; }
 .kick b { color: var(--ink); font-weight: 650; }
+@media (min-width: 561px) { .kick .pill { display: none; } }
 .hero h1 { margin: 0; max-width: 17.5em; font-family: var(--serif); font-weight: 380; font-size: clamp(2.35rem, 5.6vw, 4.6rem); line-height: 1.02; letter-spacing: -.022em; text-wrap: balance; font-optical-sizing: auto; }
 .hero-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: clamp(2rem, 4.5vw, 3.2rem); border-top: 1px solid var(--line-2); }
 .hero-meta > div { padding: .95rem 1.4rem 0 0; }
@@ -291,7 +292,7 @@ kbd { font-family: var(--ui); font-size: 11px; font-weight: 600; color: var(--so
 @media (max-width: 520px) { .ticks span:nth-child(even) { display: none; } }
 canvas.cv { display: block; width: 100%; touch-action: none; }
 #graph { height: 320px; background: #fffdf9; }
-@media (max-width: 520px) { #graph { height: 380px; } }
+@media (max-width: 520px) { #graph { height: 400px; } }
 .legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; padding: .7rem 1rem; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--soft); background: var(--card); }
 .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .35rem; }
 .device { background: #121110; padding: 14px; }
@@ -360,7 +361,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
   <section class="sec" id="board" aria-labelledby="h-board">
     <div class="wrap">
       <div class="sec-head">
-        <div><h2 id="h-board">Projects</h2><p>Four things I built to test my product judgment by shipping. Open any card for its live demo.</p></div>
+        <div><h2 id="h-board">Projects</h2><p>Four things I&rsquo;ve built to test my product judgment. Open any card for details and an interactive preview.</p></div>
         <div class="seg" role="group" aria-label="View">
           <button type="button" data-view="board" aria-pressed="true"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2" width="3" height="10" rx="1"/><rect x="5.5" y="2" width="3" height="7" rx="1"/><rect x="9.5" y="2" width="3" height="8.5" rx="1"/></svg>Board</button>
           <button type="button" data-view="list" aria-pressed="false"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 3.5h10M2 7h10M2 10.5h10"/></svg>List</button>
@@ -368,39 +369,39 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
       </div>
       <div class="kanban" id="kanban">
         <div class="col" data-col="progress">
-          <div class="col-h"><i class="st half" aria-hidden="true"></i><span>In progress</span><span class="n">2</span></div>
+          <div class="col-h"><i class="st half" aria-hidden="true"></i><span>In progress</span><span class="n">1</span></div>
           <div class="cards">
-            <button class="card" type="button" data-p="painted" aria-haspopup="dialog">
-              <span class="fresh" aria-hidden="true">Just shipped</span>
-              <span class="thumb pl"><img class="on" src="assets/pl_p00.webp" alt="" width="1100" height="473"><img src="assets/pl_p07.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_p14.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_m24.webp" alt="" width="1100" height="473" loading="lazy"></span>
-              <span class="c-body">
-                <span class="c-top"><span class="kind">Field guide</span><span class="pill amber" data-status>In progress</span></span>
-                <span class="c-title">Painted Leaves</span>
-                <span class="c-desc">An illustrated field guide to fall color in the Northeast, painted entirely in code.</span>
-                <span class="c-foot"><span class="tags"><span>Python</span><span>OpenCV</span><span>WebGL</span></span><span class="metric"><b>Oct</b> 2026</span></span>
-              </span>
-            </button>
             <button class="card" type="button" data-p="lightshow" aria-haspopup="dialog">
               <span class="thumb"><img src="assets/lightshow.webp" alt="" width="1400" height="863" loading="lazy"></span>
               <span class="c-body">
                 <span class="c-top"><span class="kind">macOS and ESP32</span><span class="pill amber">Active</span></span>
                 <span class="c-title">Lightshow sequencer</span>
                 <span class="c-desc">Splits a track into bass, mids, highs and vocals, then runs a light show on ESP32 hardware.</span>
-                <span class="c-foot"><span class="tags"><span>Swift</span><span>Audio DSP</span><span>ESP32</span></span><span class="metric"><b>6,500</b> lines</span></span>
+                <span class="c-foot"><span class="tags"><span>Audio DSP</span><span>ESP32</span><span>Three.js</span></span><span class="metric">About <b>6,500</b> lines</span></span>
               </span>
             </button>
           </div>
         </div>
         <div class="col" data-col="shipped">
-          <div class="col-h"><i class="st full" aria-hidden="true"></i><span>Shipped</span><span class="n">1</span></div>
+          <div class="col-h"><i class="st full" aria-hidden="true"></i><span>Shipped</span><span class="n">2</span></div>
           <div class="cards">
+            <button class="card" type="button" data-p="painted" aria-haspopup="dialog">
+              <span class="fresh" aria-hidden="true">Just shipped</span>
+              <span class="thumb pl"><img class="on" src="assets/pl_p00.webp" alt="" width="1100" height="473"><img src="assets/pl_p07.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_p14.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_m24.webp" alt="" width="1100" height="473" loading="lazy"></span>
+              <span class="c-body">
+                <span class="c-top"><span class="kind">Field guide</span><span class="pill green" data-status>Shipped</span></span>
+                <span class="c-title">Painted Leaves</span>
+                <span class="c-desc">An illustrated field guide to fall color in the Northeast, with watercolors painted in code.</span>
+                <span class="c-foot"><span class="tags"><span>Python</span><span>OpenCV</span><span>WebGL</span></span><span class="metric"><b>Oct</b> 2026</span></span>
+              </span>
+            </button>
             <button class="card" type="button" data-p="grackle" aria-haspopup="dialog">
               <span class="thumb"><img src="assets/grackle.webp" alt="" width="1400" height="716" loading="lazy"></span>
               <span class="c-body">
                 <span class="c-top"><span class="kind">Code analysis</span><span class="pill green">v0.11.0</span></span>
                 <span class="c-title">Grackle</span>
-                <span class="c-desc">A real-time call-graph tracer that shows how a codebase connects across four languages.</span>
-                <span class="c-foot"><span class="tags"><span>Python</span><span>Tree-sitter</span><span>TypeScript</span></span><span class="metric"><b>1,700</b> tests</span></span>
+                <span class="c-desc">A real-time call-graph tracer that maps how a codebase connects across languages.</span>
+                <span class="c-foot"><span class="tags"><span>Python</span><span>Tree-sitter</span><span>TypeScript</span></span><span class="metric"><b>28</b> decision records</span></span>
               </span>
             </button>
           </div>
@@ -434,9 +435,9 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
             <h3>Independent</h3><p class="role">Designing, building and shipping solo</p>
             <p>Product judgment, tested by building. Real systems with real users, prototyped with AI in the loop and decided on data.</p>
             <ul class="changes">
-              <li><span class="tag g">Shipped</span><span>Painted Leaves, a field guide to fall color painted entirely in code</span></li>
-              <li><span class="tag g">Released</span><span>Grackle v0.11.0, backed by 1,700 tests and 28 architecture decision records</span></li>
-              <li><span class="tag a">Building</span><span>A macOS sequencer that turns any track into a light show for ESP32 hardware</span></li>
+              <li><span class="tag g">Shipped</span><span>Painted Leaves, a field guide to fall color with watercolors painted in code</span></li>
+              <li><span class="tag g">Released</span><span>Grackle v0.11.0, backed by about 1,700 tests and 28 architecture decision records</span></li>
+              <li><span class="tag a">Building</span><span>A macOS sequencer that turns a track into a light show for ESP32 hardware</span></li>
             </ul>
           </div>
         </li>
@@ -447,7 +448,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
             <ul class="changes">
               <li><span class="tag a">Modernized</span><span>Fortnite&rsquo;s SQL ingest and export system, with automated validation that cut human error</span></li>
               <li><span class="tag g">Opened</span><span>Self-serve data access for non-technical teams</span></li>
-              <li><span class="tag b">Led</span><span>LLM-assisted tool development as primary stakeholder, with adoption tracked in Tableau and Grafana</span></li>
+              <li><span class="tag b">Stakeholder</span><span>Primary stakeholder for LLM-assisted tool development, with adoption tracked in Tableau and Grafana</span></li>
             </ul>
           </div>
         </li>
@@ -459,7 +460,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
               <li><span class="tag b">Owned</span><span>The monetization process, as one of three owners on a team of about ten</span></li>
               <li><span class="tag b">Ran</span><span>The monthly planning meeting with directors, VPs and execs</span></li>
               <li><span class="tag g">Shipped</span><span>Pricing experiments and checkout flows with measurable conversion and ARPU gains</span></li>
-              <li><span class="tag b">Forecast</span><span>Churn from retention cohorts, against weekly, monthly and quarterly KPIs</span></li>
+              <li><span class="tag b">Forecast</span><span>Churn from retention cohorts</span></li>
               <li><span class="tag n">Reported</span><span>Weekly performance and forecast decks</span></li>
             </ul>
           </div>
@@ -486,7 +487,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
         <tbody>
           <tr><th scope="row">Product</th><td><div class="chips"><span>Roadmap strategy</span><span>Requirements and PRDs</span><span>A/B testing</span><span>Agile and Scrum</span></div></td><td class="ev">Pricing experiments and checkout flows on Elder Scrolls Online</td></tr>
           <tr><th scope="row">Analytics</th><td><div class="chips"><span>SQL</span><span>Tableau</span><span>Grafana</span><span>Splunk</span><span>ARPU, LTV and churn forecasting</span></div></td><td class="ev">Weekly performance and forecast decks and churn forecasting at Zenimax; Fortnite&rsquo;s SQL ingest and export at Epic</td></tr>
-          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; every project on this page</td></tr>
+          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; Painted Leaves, built with Claude</td></tr>
           <tr><th scope="row">Tools</th><td><div class="chips"><span>Jira</span><span>Confluence</span><span>Salesforce</span><span>Statsig</span><span>GitHub Actions</span><span>Figma</span><span>Miro</span><span>Slack</span></div></td><td class="ev">Day to day</td></tr>
         </tbody>
       </table>
@@ -507,7 +508,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
       </div>
       <form class="composer" id="composer" aria-label="Draft an email to Connor">
         <div class="cp-head"><span class="av sm" aria-hidden="true">You</span>New conversation<span class="to">to <span class="av sm" aria-hidden="true">CA</span>Connor</span></div>
-        <input id="cTitle" type="text" placeholder="Our ops dashboards disagree with each other" aria-label="Subject" autocomplete="off">
+        <input id="cTitle" type="text" placeholder="Our ops dashboards disagree" aria-label="Subject" autocomplete="off">
         <textarea id="cBody" placeholder="What is breaking, who it slows down, and what you have tried so far." aria-label="Message"></textarea>
         <div class="cp-labels" role="group" aria-label="Labels"><button type="button" aria-pressed="false">Product operations</button><button type="button" aria-pressed="false">Internal tools</button><button type="button" aria-pressed="false">AI and automation</button><button type="button" aria-pressed="false">Full-time role</button></div>
         <div class="cp-foot"><span>Opens a draft in your email app. Nothing is sent from this page.</span><button class="btn primary" type="submit">Open draft<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2.5h6.5V9M11.5 2.5 3 11"/></svg></button></div>
@@ -530,7 +531,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
     <div class="d-top"><span id="dStatus"></span><span id="dKind"></span></div>
     <h2 id="dTitle">Painted Leaves</h2>
     <div class="seg d-tabs" role="group" aria-label="Preview" id="dTabs">
-      <button type="button" data-tab="demo" aria-pressed="true">Live demo</button><button type="button" data-tab="shot" aria-pressed="false">Screenshot</button>
+      <button type="button" data-tab="demo" aria-pressed="true">Interactive preview</button><button type="button" data-tab="shot" aria-pressed="false">Screenshot</button>
     </div>
     <div class="stagebox">
       <div data-demo="painted">
@@ -540,8 +541,8 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
         </div>
         <div class="scrub">
           <div class="scrub-top"><output id="plOut" for="plRange">Peak color</output><span>Drag through the season</span></div>
-          <input type="range" id="plRange" value="4" aria-label="Season, from late August to mid November">
-          <div class="ticks" aria-hidden="true"><span>Aug</span><span>Sept</span><span>Early Oct</span><span>Mid Oct</span><span>Peak</span><span>Late Oct</span><span>Nov</span><span>Mid Nov</span></div>
+          <input type="range" id="plRange" value="4" aria-label="Season, from early September to mid November">
+          <div class="ticks" aria-hidden="true"><span>Early Sept</span><span>Late Sept</span><span>Early Oct</span><span>Mid Oct</span><span>Peak</span><span>Late Oct</span><span>Early Nov</span><span>Mid Nov</span></div>
         </div>
       </div>
       <div data-demo="grackle" hidden>
@@ -564,7 +565,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
           <p>Each lane drives its own fixtures, the way the app turns a track into cues for real lights.</p>
         </div>
       </div>
-      <div class="shotbox" data-demo="shot" hidden><img id="dShot" src="" alt="" loading="lazy"></div>
+      <div class="shotbox" data-demo="shot" hidden><img id="dShot" alt="" loading="lazy"></div>
     </div>
     <p class="d-desc" id="dDesc"></p>
     <dl class="d-props" id="dProps"></dl>
@@ -622,7 +623,7 @@ const Kit = (() => {
 
   /* Painted Leaves season scrubber: continuous crossfade across eight painted frames */
   const PL_LABELS = ['6 weeks before peak', '3 weeks before peak', '2 weeks before peak', '1 week before peak', 'Peak color', '1 week after peak', '2 weeks after peak', '4 weeks after peak'];
-  const PL_SHORT = ['Late Aug', 'Late Sept', 'Early Oct', 'Mid Oct', 'Peak', 'Late Oct', 'Early Nov', 'Mid Nov'];
+  const PL_SHORT = ['Early Sept', 'Late Sept', 'Early Oct', 'Mid Oct', 'Peak', 'Late Oct', 'Early Nov', 'Mid Nov'];
   function scrubber({ imgs, range, out, onChange }) {
     const n = imgs.length;
     range.min = 0; range.max = n - 1; range.step = 0.01;
@@ -830,24 +831,24 @@ const Kit = (() => {
   const OUT = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2.5h6.5V9M11.5 2.5 3 11"/></svg>';
   const P = {
     painted: { name: 'Painted Leaves', kind: 'Field guide', demo: 'painted', shot: ['assets/painted.webp', 'The Painted Leaves field guide, opening on a watercolor valley in peak color'],
-      desc: 'An illustrated field guide to fall color in the Northeast: why leaves turn, when the color reaches each town, and how nineteenth-century painters chased it. Every illustration is generated in code, and it was built with Claude as a collaborator, from research through the final pixel.',
+      desc: 'An illustrated field guide to fall color in the Northeast: why leaves turn, when the color reaches each town, and how nineteenth-century painters chased it. Every watercolor in it is generated in code, and it was built with Claude as a collaborator, from research through the final pixel.',
       props: [['Released', 'October 2026'], ['Type', 'Field guide'], ['Stack', 'Python, OpenCV, WebGL, Canvas']],
       hl: ['A watercolor engine in Python and OpenCV paints the valley at eight points in the season', 'A pigment model recolors a maple leaf live as chlorophyll gives way to carotenoids and anthocyanins', 'A relief map built from elevation data predicts peak week for any spot'],
       links: [['Open the field guide', 'painted-leaves/', 1]] },
     grackle: { name: 'Grackle', kind: 'Code analysis', demo: 'grackle', shot: ['assets/grackle.webp', 'Grackle showing a call graph of a Go service with a node inspector'],
-      desc: 'A real-time call-graph tracer that maps program structure and dependency graphs across Python, TypeScript, Go and Rust.',
-      props: [['Version', 'v0.11.0'], ['Tests', '1,700'], ['Decisions', '28 architecture decision records'], ['Languages', 'Python, TypeScript, Go, Rust'], ['Stack', 'Python asyncio, Tree-sitter, React, TypeScript, WebSockets']],
-      hl: ['Python asyncio and Tree-sitter underneath, a React and TypeScript frontend over WebSockets on top', 'mypy strict throughout, backed by 1,700 tests', 'Every architectural decision written down as a record, 28 so far'],
+      desc: 'A real-time polyglot call-graph tracer that maps program structure and dependency graphs across languages.',
+      props: [['Version', 'v0.11.0'], ['Tests', 'About 1,700'], ['Decisions', '28 architecture decision records'], ['Languages', 'Python, TypeScript, Go, Rust'], ['Stack', 'Python asyncio, Tree-sitter, React, TypeScript, WebSockets']],
+      hl: ['Python asyncio and Tree-sitter underneath, a React and TypeScript frontend over WebSockets on top', 'mypy strict throughout, backed by about 1,700 tests', 'Every architectural decision written down as a record, 28 so far'],
       links: [['View the repository', 'https://github.com/Popespice/grackle', 1]] },
     lightshow: { name: 'Lightshow sequencer', kind: 'macOS and ESP32', demo: 'lightshow', shot: ['assets/lightshow.webp', 'The lightshow sequencing tool with stem lanes, a visualizer and effect settings'],
       desc: 'A native macOS app that listens to a track, splits it into bass, mids, highs and vocals, and sequences a light show for ESP32 hardware over Wi-Fi or USB.',
-      props: [['Status', 'Active'], ['Size', 'About 6,500 lines'], ['Stack', 'Swift, audio DSP, ESP32, Three.js']],
+      props: [['Status', 'Active'], ['Size', 'About 6,500 lines'], ['Stack', 'Audio DSP, ESP32, Three.js and WebGL']],
       hl: ['Splits a track into four stems and turns each into its own cue lane', 'Drives ESP32 fixtures over Wi-Fi or USB', 'A Three.js visualizer with sphere and swarm modes'],
-      links: [['See it on GitHub', 'https://github.com/Popespice', 0]] },
+      links: [['GitHub profile', 'https://github.com/Popespice', 0]] },
     dashboard: { name: 'Desk dashboard', kind: 'Personal tool', demo: null, shot: ['assets/dashboard.webp', 'Dot-matrix desktop dashboard with clock, system load and now playing'],
       desc: 'A dot-matrix status board for the desk: clock, system load, network, now playing, a focus timer and GitHub activity on one screen.',
       props: [['Type', 'Personal tool'], ['Platform', 'Desktop'], ['Shows', 'Clock, system load, network, now playing, focus timer, GitHub activity']],
-      hl: ['Clock, weather and system readouts at a glance', 'Now playing, a focus timer and quick settings in one place', 'GitHub activity and the next calendar event'],
+      hl: ['Clock, weather and system readouts at a glance', 'Now playing, a focus timer and quick settings in one place', 'GitHub activity and a slot for the next calendar event'],
       links: [] },
   };
   const ORDER = ['painted', 'grackle', 'lightshow', 'dashboard'];
@@ -892,14 +893,21 @@ const Kit = (() => {
   /* ---------- the move: a colleague's cursor ships Painted Leaves ---------- */
   const ghost = $('#ghost');
   let shipped = false;
-  function markShipped() {
+  const FRESH_UNTIL = Date.parse('2026-11-15');
+  function markShipped(flash) {
     const pill = plCard.querySelector('[data-status]');
-    pill.className = 'pill green flash'; pill.textContent = 'Shipped';
-    plCard.classList.add('just'); counts();
+    pill.className = 'pill green' + (flash ? ' flash' : ''); pill.textContent = 'Shipped';
+    if (Date.now() < FRESH_UNTIL) plCard.classList.add('just');
+    counts();
+  }
+  function stage() {
+    const pill = plCard.querySelector('[data-status]');
+    pill.className = 'pill amber'; pill.textContent = 'In progress';
+    $('.col[data-col="progress"] .cards').prepend(plCard); counts();
   }
   function shipNow() {
     if (shipped) return; shipped = true;
-    $('.col[data-col="shipped"] .cards').prepend(plCard); markShipped();
+    $('.col[data-col="shipped"] .cards').prepend(plCard); markShipped(false);
   }
   async function shipWithCursor() {
     if (shipped) return; shipped = true;
@@ -923,7 +931,7 @@ const Kit = (() => {
     const cardAnim = plCard.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.45, 0, .2, 1)' });
     const g2 = [grab[0] - dx, grab[1] - dy];
     await Promise.all([move(grab, g2, 900), cardAnim.finished.catch(() => {})]);
-    plCard.classList.remove('lifted'); markShipped();
+    plCard.classList.remove('lifted'); markShipped(true);
     const kr = kanban.getBoundingClientRect(); if (kr.bottom > 80 && kr.top < innerHeight - 80) Kit.toast('Connor moved Painted Leaves to Shipped');
     await move(g2, [g2[0] + 70, g2[1] + 120], 700);
     ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
@@ -931,6 +939,7 @@ const Kit = (() => {
   const wide = matchMedia('(min-width: 701px)');
   if (Kit.reduce || !wide.matches) shipNow();
   else {
+    stage();
     const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); setTimeout(() => shipWithCursor(), 500); } }, { threshold: .4 });
     io.observe(kanban);
   }
@@ -983,7 +992,7 @@ const Kit = (() => {
   const step = d => openP(ORDER[(ORDER.indexOf(cur) + d + ORDER.length) % ORDER.length]);
   $('#dPrev').addEventListener('click', () => step(-1)); $('#dNext').addEventListener('click', () => step(1));
   dlg.addEventListener('keydown', e => {
-    if (/input/i.test(e.target.tagName)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || /input/i.test(e.target.tagName)) return;
     if (e.key === 'j' || e.key === 'ArrowRight') { step(1); e.preventDefault(); }
     else if (e.key === 'k' || e.key === 'ArrowLeft') { step(-1); e.preventDefault(); }
   });
@@ -991,7 +1000,7 @@ const Kit = (() => {
 
   function makeGraph() {
     Kit.graph($('#graph'), {
-      font: '500 12px "Funnel Sans", system-ui, sans-serif', label: '#2a2620', edge: '#dcd4c4', edgeHot: '#d2462a', grid: '#f1ece2', glow: true, edgeWidth: 1.15,
+      font: (matchMedia('(max-width: 520px)').matches ? '500 11px' : '500 12px') + ' "Funnel Sans", system-ui, sans-serif', label: '#2a2620', edge: '#dcd4c4', edgeHot: '#d2462a', grid: '#f1ece2', glow: true, edgeWidth: 1.15,
       kinds: { file: '#6d5ae6', fn: '#c98a1b', method: '#cf4a6e', struct: '#2c7a4c', iface: '#2a8bb0' },
     });
   }
