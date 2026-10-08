@@ -405,9 +405,26 @@ dialog.lightbox::backdrop { background: rgba(14, 16, 16, .88); }
 .daylen .now-dot { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
 .lab-chart text { font-family: var(--f-ui); font-size: 12px; }
 .lab-chart .lg { font-family: var(--f-label); font-weight: 500; font-size: 11.5px; letter-spacing: .05em; }
-.fig .ab-t { font-family: var(--f-ui); font-size: 14px; fill: var(--ink); }
-.fig .ab-h { font-family: var(--f-display); font-style: italic; font-size: 20px; fill: var(--ink); }
+.fig .ab-t { font-family: var(--f-ui); font-size: 16px; fill: var(--ink); }
 .fig .ab-lead { stroke: var(--ink-soft); stroke-width: 1; fill: none; }
+.fig .ab-dot { fill: var(--ink-soft); }
+@media (max-width: 600px) { .fig .ab-t { font-size: 20px; } }  /* the diagram scales down on phones; keep labels near 12px */
+.ab-fig { max-width: 38rem; }
+.ab-fig .ab-lab { transition: opacity .45s ease; }
+.ab-ctl { display: flex; align-items: center; gap: .9rem; margin-top: .4rem; }
+.ab-ctl .play svg { width: .7rem; height: .7rem; }
+.ab-ctl .play .i-pause, .ab-ctl .play.is-playing .i-play { display: none; }
+.ab-ctl .play.is-playing .i-pause { display: block; }
+.ab-steps { position: relative; display: flex; align-items: center; gap: 0; }
+.ab-steps::before { content: ""; position: absolute; left: 12px; right: 12px; top: 50%; height: 1px; background: var(--rule); }
+.ab-steps button { position: relative; width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+.ab-steps button::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--ink-soft); transition: background .3s, border-color .3s, transform .3s; }
+.ab-steps button.done::after { background: var(--ink-soft); }
+.ab-steps button[aria-current="step"]::after { background: var(--ink); border-color: var(--ink); transform: scale(1.25); }
+.ab-steps button:hover::after { border-color: var(--ink); }
+.ab-now { font-family: var(--f-ui); font-size: .95rem; line-height: 1.5; color: var(--ink-soft); margin: .55rem 0 0; min-height: 4.5em; max-width: var(--col); }
+.ab-now b { font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: 1.15rem; color: var(--ink); margin-right: .2rem; }
+@media (prefers-reduced-motion: reduce) { .ab-fig .ab-lab, .ab-steps button::after { transition: none; } }
 .map .m-state { font-family: var(--f-display-sc); font-size: 17px; letter-spacing: 3px; fill: #242c35; opacity: .62; }
 .map .m-range { font-family: var(--f-display); font-style: italic; font-size: 13.5px; fill: #242c35; opacity: .72;
   paint-order: stroke; stroke: #fbfaf5; stroke-width: 2.4px; stroke-opacity: .55; }
@@ -630,9 +647,16 @@ dialog.lightbox::backdrop { background: rgba(14, 16, 16, .88); }
     <aside class="note"><span class="label">marcescence</span>Dead leaves that stay on through winter. Beech was the last species to drop at Harvard Forest, with half its leaves down by about November&nbsp;2.</aside>
     <p>Some trees never finish. In many oaks and young beeches the separation layer does not complete, and the dry leaves rattle on the branches until spring pushes them off.</p>
   </div>
-  <figure class="fig">
-    <svg id="abscission" viewBox="0 0 760 360" role="img" aria-label="Diagram of a leaf stalk joining a twig, showing the separation layer, the protective layer, the bud and the leaf scar"></svg>
-    <figcaption>Where the leaf stalk meets the twig. Left, early autumn: the abscission zone is forming. Right, after the leaf drops: a sealed scar and a waiting bud.</figcaption>
+  <figure class="fig ab-fig">
+    <svg id="abscission" viewBox="-30 0 590 380" role="img" aria-label="Animated diagram of a leaf stalk joining a twig, in five steps from early autumn to a sealed leaf scar below a bud"></svg>
+    <div class="ab-ctl">
+      <button class="btn play" id="abPlay" type="button" aria-label="Play the sequence"><svg class="i-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1 L9 5 L2 9 Z" fill="currentColor"/></svg><svg class="i-pause" viewBox="0 0 10 10" aria-hidden="true"><rect x="1.6" y="1" width="2.3" height="8" fill="currentColor"/><rect x="6.1" y="1" width="2.3" height="8" fill="currentColor"/></svg><span class="sr">Play</span></button>
+      <div class="ab-steps" id="abSteps" role="group" aria-label="Steps">
+        <button type="button" aria-label="Step 1: early autumn"></button><button type="button" aria-label="Step 2: sealing off"></button><button type="button" aria-label="Step 3: letting go"></button><button type="button" aria-label="Step 4: the fall"></button><button type="button" aria-label="Step 5: leaf scar"></button>
+      </div>
+    </div>
+    <p class="ab-now" id="abNow" aria-live="polite"></p>
+    <figcaption>Where the leaf stalk meets the twig, from early autumn to the sealed scar the leaf leaves behind.</figcaption>
   </figure>
 </section>
 
@@ -1767,53 +1791,148 @@ function chipGroup(id, key) {
 chipGroup('wxChips', 'wx');
 chipGroup('viewChips', 'view');
 
-/* ------------------------------------------------------------------ abscission diagram */
-(function drawAbscission() {
+/* ------------------------------------------------------------------ abscission: how a leaf lets go, in five steps */
+(function abscission() {
   const svg = document.getElementById('abscission');
+  const now = document.getElementById('abNow');
+  const playBtn = document.getElementById('abPlay');
+  const stepBtns = [...document.querySelectorAll('#abSteps button')];
+  const fig = svg.closest('figure');
+  const STEPS = [
+    { name: 'Early autumn', text: 'A narrow band of small cells, the separation layer, has formed across the base of the leaf stalk. The veins still carry water in and sugar out.', p: { cork: 0, sep: 0, droop: 0, fall: 0, scar: 0 } },
+    { name: 'Sealing off', text: 'On the tree’s side, a layer of corky cells thickens to seal the wound before the leaf goes.', p: { cork: 1, sep: 0, droop: 0, fall: 0, scar: 0 } },
+    { name: 'Letting go', text: 'Less auxin reaches the stalk, the cells turn sensitive to ethylene, and enzymes loosen their walls. The leaf hangs by little more than its veins.', p: { cork: 1, sep: 1, droop: 1, fall: 0, scar: 0 } },
+    { name: 'The fall', text: 'A breeze, or the leaf’s own weight, snaps the last strands and the leaf drops.', p: { cork: 1, sep: 1, droop: 1, fall: 1, scar: 0 } },
+    { name: 'Leaf scar', text: 'The sealed scar shows dots where the veins passed, just below the bud that holds next spring’s leaves.', p: { cork: 1, sep: 1, droop: 1, fall: 1, scar: 1 } },
+  ];
+  const DUR = [0, 1400, 1700, 2600, 1400];   // ms to arrive at each step while playing
+  const HOLD = 2600;                           // ms to read a step before the next one starts
+
+  // ---- drawing: the left panel of the old two-panel figure, now one scene that changes
   const T = (x, y, t, anchor = 'start') => `<text class="ab-t" x="${x}" y="${y}" text-anchor="${anchor}">${t}</text>`;
-  const L = (x1, y1, x2, y2) => `<path class="ab-lead" d="M${x1} ${y1} L${x2} ${y2}"/><circle cx="${x2}" cy="${y2}" r="2" fill="#5d646b"/>`;
-  const twig = `<path d="M95 350 C105 262 112 150 122 14" stroke="#5f5046" stroke-width="30" fill="none" stroke-linecap="round" opacity=".9"/>
-    <path d="M95 350 C105 262 112 150 122 14" stroke="#8a7766" stroke-width="18" fill="none" stroke-linecap="round" opacity=".75"/>
-    <path d="M99 330 C106 250 110 160 117 40" stroke="#b3a08c" stroke-width="3" fill="none" opacity=".5"/>`;
-  const bud = `<path d="M117 176 C108 158 112 134 128 122 C134 140 132 162 117 176 Z" fill="#7a6248" stroke="#4f3d2c" stroke-width="1.2"/>
-    <path d="M118 172 C116 156 119 140 127 128" stroke="#a88a66" stroke-width="1.2" fill="none"/>`;
-  let g = `<defs>
-    <pattern id="cells" width="7" height="6" patternUnits="userSpaceOnUse"><rect width="7" height="6" fill="#efe2c4"/><path d="M0 0 H7 M0 3 H7 M2 0 V3 M5 3 V6" stroke="#9c7c4a" stroke-width=".8"/></pattern>
-    <pattern id="cork" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#b08458"/><path d="M0 2.5 H5 M2.5 0 V5" stroke="#6b4428" stroke-width=".9"/></pattern>
-  </defs>`;
-  // early autumn
-  g += `<g>${twig}
-    <path d="M116 192 C160 174 206 157 262 140" stroke="#a5582a" stroke-width="15" fill="none" stroke-linecap="round"/>
-    <path d="M116 192 C160 174 206 157 262 140" stroke="#e0913c" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
-    <path d="M125 188 C165 171 210 155 258 141" stroke="#3f6b2c" stroke-width="1.4" fill="none" stroke-dasharray="5 3"/>
-    <path d="M262 140 C290 96 342 78 376 92 C352 122 318 146 262 140 Z" fill="#e48a3a" opacity=".9"/>
-    <path d="M262 140 C296 160 338 176 372 166 C352 140 316 128 262 140 Z" fill="#d0472c" opacity=".88"/>
-    <path d="M262 140 L366 96 M262 140 L364 162" stroke="#9a3a1e" stroke-width="1.2" opacity=".6"/>
-    <rect x="133" y="172" width="9" height="26" rx="2" transform="rotate(-21 137 185)" fill="url(#cells)" stroke="#8b6b3a" stroke-width="1"/>
-    <rect x="125" y="175" width="7" height="26" rx="2" transform="rotate(-21 128 188)" fill="url(#cork)" stroke="#6b4428" stroke-width="1"/>
-    ${bud}</g>`;
-  g += T(150, 66, 'bud, formed in summer') + L(152, 72, 128, 132);
-  g += T(198, 134, 'leaf stalk');
-  g += T(214, 200, 'veins still connected') + L(212, 195, 196, 162);
-  g += T(150, 254, 'separation layer') + L(152, 248, 140, 190);
-  g += T(150, 276, 'protective (corky) layer') + L(152, 270, 128, 196);
-  g += `<text class="ab-h" x="14" y="352">Early autumn</text>`;
-  // after the fall
-  g += `<g transform="translate(400,0)">${twig}
-    <ellipse cx="121" cy="186" rx="7" ry="10" transform="rotate(-21 121 186)" fill="url(#cork)" stroke="#5b3a20" stroke-width="1.3"/>
-    <circle cx="119" cy="182" r="1.7" fill="#2f2015"/><circle cx="123" cy="189" r="1.7" fill="#2f2015"/><circle cx="117.5" cy="189" r="1.7" fill="#2f2015"/>
-    ${bud}
-    <g transform="translate(250 305) rotate(14)">
-      <path d="M0 0 C26 -30 74 -38 102 -24 C80 2 46 14 0 0 Z" fill="#a9653a" opacity=".75"/>
-      <path d="M0 0 C30 16 70 22 98 10 C78 -6 46 -12 0 0 Z" fill="#8c4a2e" opacity=".7"/>
-      <path d="M0 0 L-26 9" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/>
-    </g></g>`;
-  g += T(552, 66, 'bud waits for spring') + L(554, 72, 528, 132);
-  g += T(560, 178, 'leaf scar, sealed') + L(558, 174, 528, 184);
-  g += T(560, 202, 'vein scars') + L(558, 198, 525, 189);
-  g += T(700, 268, 'the fallen leaf', 'middle');
-  g += `<text class="ab-h" x="414" y="352">After the leaf falls</text>`;
-  svg.innerHTML = g;
+  const L = (x1, y1, x2, y2) => `<path class="ab-lead" d="M${x1} ${y1} L${x2} ${y2}"/><circle cx="${x2}" cy="${y2}" r="2.2" class="ab-dot"/>`;
+  const lab = (on, inner) => `<g class="ab-lab" data-on="${on}">${inner}</g>`;
+  svg.innerHTML = `<defs>
+      <pattern id="cells" width="7" height="6" patternUnits="userSpaceOnUse"><rect width="7" height="6" fill="#efe2c4"/><path d="M0 0 H7 M0 3 H7 M2 0 V3 M5 3 V6" stroke="#9c7c4a" stroke-width=".8"/></pattern>
+      <pattern id="cellsLoose" width="7" height="6" patternUnits="userSpaceOnUse"><rect width="7" height="6" fill="#f6eedb"/><path d="M0 .6 H2.6 M4 .6 H7 M0 3.4 H1.4 M3.2 3.4 H7 M2 1.4 V2.4 M5 4.2 V5.2" stroke="#b39a6c" stroke-width=".7"/></pattern>
+      <pattern id="cork" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#b08458"/><path d="M0 2.5 H5 M2.5 0 V5" stroke="#6b4428" stroke-width=".9"/></pattern>
+      <pattern id="corkDeep" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#8f6440"/><path d="M0 2.5 H5 M2.5 0 V5" stroke="#4f3019" stroke-width="1"/></pattern>
+    </defs>
+    <path d="M175 376 C185 284 192 166 202 22" stroke="#5f5046" stroke-width="30" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M175 376 C185 284 192 166 202 22" stroke="#8a7766" stroke-width="18" fill="none" stroke-linecap="round" opacity=".75"/>
+    <path d="M179 356 C186 274 190 170 197 50" stroke="#b3a08c" stroke-width="3" fill="none" opacity=".5"/>
+    <g id="abScar" opacity="0">
+      <ellipse cx="201" cy="196" rx="7" ry="10" transform="rotate(-21 201 196)" fill="url(#cork)" stroke="#5b3a20" stroke-width="1.3"/>
+      <circle cx="199" cy="192" r="1.7" fill="#2f2015"/><circle cx="203" cy="199" r="1.7" fill="#2f2015"/><circle cx="197.5" cy="199" r="1.7" fill="#2f2015"/>
+    </g>
+    <g id="abLeaf">
+      <path d="M196 202 C240 184 286 167 342 150" stroke="#a5582a" stroke-width="15" fill="none" stroke-linecap="round"/>
+      <path d="M196 202 C240 184 286 167 342 150" stroke="#e0913c" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
+      <path d="M205 198 C245 181 290 165 338 151" stroke="#3f6b2c" stroke-width="1.4" fill="none" stroke-dasharray="5 3"/>
+      <path d="M342 150 C370 106 422 88 456 102 C432 132 398 156 342 150 Z" fill="#e48a3a" opacity=".9"/>
+      <path d="M342 150 C376 170 418 186 452 176 C432 150 396 138 342 150 Z" fill="#d0472c" opacity=".88"/>
+      <path d="M342 150 L446 106 M342 150 L444 172" stroke="#9a3a1e" stroke-width="1.2" opacity=".6"/>
+    </g>
+    <g id="abSep">
+      <rect x="213" y="182" width="9" height="26" rx="2" transform="rotate(-21 217 195)" fill="url(#cells)" stroke="#8b6b3a" stroke-width="1"/>
+      <rect id="abSepLoose" x="213" y="182" width="9" height="26" rx="2" transform="rotate(-21 217 195)" fill="url(#cellsLoose)" stroke="#b39a6c" stroke-width="1" stroke-dasharray="3 2" opacity="0"/>
+    </g>
+    <g id="abCork">
+      <rect x="205" y="185" width="7" height="26" rx="2" transform="rotate(-21 208 198)" fill="url(#cork)" stroke="#6b4428" stroke-width="1"/>
+      <rect id="abCorkDeep" x="203.5" y="184" width="9" height="28" rx="2" transform="rotate(-21 208 198)" fill="url(#corkDeep)" stroke="#4f3019" stroke-width="1.2" opacity="0"/>
+    </g>
+    <path d="M197 186 C188 168 192 144 208 132 C214 150 212 172 197 186 Z" fill="#7a6248" stroke="#4f3d2c" stroke-width="1.2"/>
+    <path d="M198 182 C196 166 199 150 207 138" stroke="#a88a66" stroke-width="1.2" fill="none"/>
+    ${lab('0 1 2 3', T(232, 62, 'bud, formed in summer') + L(234, 68, 208, 140))}
+    ${lab('4', T(232, 62, 'bud waits for spring') + L(234, 68, 208, 140))}
+    ${lab('0 1', T(226, 146, 'leaf stalk'))}
+    ${lab('0 1', T(292, 226, 'veins still connected') + L(290, 216, 270, 176))}
+    ${lab('2', T(292, 236, 'hanging by its veins') + L(290, 226, 273, 191))}
+    ${lab('0 1', T(166, 238, 'separation layer', 'end') + L(168, 234, 214, 197))}
+    ${lab('2', T(166, 238, 'cell walls loosen', 'end') + L(168, 234, 214, 197))}
+    ${lab('3', T(166, 238, 'breaks here', 'end') + L(168, 234, 214, 197))}
+    ${lab('0 2 3', T(166, 264, 'protective (corky) layer', 'end') + L(168, 260, 206, 204))}
+    ${lab('1', T(166, 264, 'corky layer thickens', 'end') + L(168, 260, 206, 204))}
+    ${lab('4', T(236, 194, 'leaf scar, sealed') + L(234, 190, 208, 195))}
+    ${lab('4', T(236, 220, 'vein scars') + L(234, 216, 204, 200))}`;
+  const leafG = svg.querySelector('#abLeaf'), sepG = svg.querySelector('#abSep'), sepLoose = svg.querySelector('#abSepLoose');
+  const corkG = svg.querySelector('#abCork'), corkDeep = svg.querySelector('#abCorkDeep'), scarG = svg.querySelector('#abScar');
+  const labels = [...svg.querySelectorAll('.ab-lab')].map(g => ({ g, on: g.dataset.on.split(' ').map(Number) }));
+
+  // ---- one value per moving part, eased between steps
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  let cur = { ...STEPS[0].p }, from = cur, to = cur, t0 = 0, dur = 0, u = 1, raf = 0;
+  let step = 0, playing = false, holdTimer = 0, startTimer = 0, visible = false, autoplayed = false, resumeOnShow = false;
+  function render() {
+    const f = cur.fall;
+    const dx = 72 * f + 16 * Math.sin(f * 8), dy = 440 * f * f;
+    const tumble = 150 * Math.pow(f, 1.4) + 14 * Math.sin(f * 10);
+    leafG.setAttribute('transform', `translate(${dx.toFixed(2)} ${dy.toFixed(2)}) rotate(${(12 * cur.droop).toFixed(2)} 200 200) rotate(${tumble.toFixed(2)} 380 140)`);
+    leafG.style.opacity = (1 - smooth(f, .68, .95)).toFixed(3);
+    sepG.style.opacity = (1 - smooth(f, 0, .3)).toFixed(3);
+    sepLoose.style.opacity = cur.sep.toFixed(3);
+    corkDeep.style.opacity = cur.cork.toFixed(3);
+    corkG.style.opacity = (1 - cur.scar).toFixed(3);
+    scarG.style.opacity = cur.scar.toFixed(3);
+  }
+  function frame(t) {
+    u = dur ? clamp((t - t0) / dur, 0, 1) : 1;
+    const e = ease(u);
+    for (const k in to) cur[k] = lerp(from[k], to[k], k === 'fall' ? u : e);   // the fall keeps time, so it accelerates like a real drop
+    render();
+    if (u < 1) raf = requestAnimationFrame(frame);
+    else arrived();
+  }
+  function showStep(k) {
+    const s = STEPS[k];
+    now.innerHTML = `<b>${s.name}.</b> ${s.text}`;
+    stepBtns.forEach((b, i) => { b.setAttribute('aria-current', i === k ? 'step' : 'false'); b.classList.toggle('done', i < k); });
+    labels.forEach(({ g, on }) => { g.style.opacity = on.includes(k) ? 1 : 0; });
+  }
+  function goTo(k, ms) {
+    cancelAnimationFrame(raf); clearTimeout(holdTimer);
+    step = k; from = { ...cur }; to = STEPS[k].p; dur = reduceMotion ? 0 : ms; t0 = performance.now(); u = 0;
+    showStep(k);
+    raf = requestAnimationFrame(frame);
+  }
+  function arrived() {
+    if (!playing) return;
+    if (step >= STEPS.length - 1) { setPlaying(false); return; }
+    holdTimer = setTimeout(() => goTo(step + 1, DUR[step + 1]), HOLD);
+  }
+  function setPlaying(p) {
+    playing = p;
+    playBtn.classList.toggle('is-playing', p);
+    playBtn.setAttribute('aria-label', p ? 'Pause the sequence' : (step >= STEPS.length - 1 ? 'Replay the sequence' : 'Play the sequence'));
+    playBtn.querySelector('span').textContent = p ? 'Pause' : (step >= STEPS.length - 1 ? 'Replay' : 'Play');
+    if (!p) { clearTimeout(holdTimer); cancelAnimationFrame(raf); if (u < 1) { from = { ...cur }; dur = dur * (1 - u); } }
+  }
+  function play() {
+    startTimer = 0;
+    if (step >= STEPS.length - 1) { cur = { ...STEPS[0].p }; render(); setPlaying(true); goTo(0, 0); return; }
+    setPlaying(true);
+    if (u < 1) { t0 = performance.now(); u = 0; raf = requestAnimationFrame(frame); }   // finish the move that was paused
+    else holdTimer = setTimeout(() => goTo(step + 1, DUR[step + 1]), 700);
+  }
+  const takeOver = () => { resumeOnShow = false; autoplayed = true; clearTimeout(startTimer); startTimer = 0; };
+  playBtn.addEventListener('click', () => { takeOver(); playing ? setPlaying(false) : play(); });
+  stepBtns.forEach((b, i) => b.addEventListener('click', () => {
+    takeOver(); setPlaying(false);
+    goTo(i, i === 3 && step < 3 ? 2200 : 1100);
+  }));
+  // play once on its own when the figure comes into view; scrolling away pauses it
+  new IntersectionObserver(es => {
+    visible = es[0].isIntersecting;
+    if (visible) {
+      if (!autoplayed && !reduceMotion && !leavesPaused) { autoplayed = true; startTimer = setTimeout(play, 900); }
+      else if (resumeOnShow) { resumeOnShow = false; play(); }
+    } else {
+      // scrolled past before it started: try again next time it comes into view
+      if (startTimer && !playing) { clearTimeout(startTimer); startTimer = 0; if (u >= 1 && step === 0) autoplayed = false; }
+      if (playing) { setPlaying(false); resumeOnShow = true; }
+    }
+  }, { threshold: .55 }).observe(fig);
+  render(); showStep(0); setPlaying(false);
 })();
 
 /* ------------------------------------------------------------------ map */
