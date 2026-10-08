@@ -1627,7 +1627,9 @@ function pig(t, w) {
     : 0.62 * (1 - (C - 0.07) / 0.93);
   return { C, K, A: clamp(A, 0, 1), B: clamp(B, 0, 1), N: clamp(Nr, 0, 0.62), fallen: t > w.drop + 3, o };
 }
-const Kc = [1.09, 0.27, 0.20], Kk = [0.11, 0.48, 1.9], Ka = [0.15, 1.6, 0.9], Kb = [0.5, 0.8, 1.1];
+/* absorbance per pigment in red, green, blue. Chlorophyll absorbs blue as well as red (its strongest band is in the
+   blue), so on its own it reads green; carotenoids add more blue absorption and warm the mix toward yellow. */
+const Kc = [1.09, 0.27, 0.85], Kk = [0.11, 0.48, 1.6], Ka = [0.15, 1.6, 0.9], Kb = [0.5, 0.8, 1.1];
 const lab = { ready: false };
 const leafCanvas = document.getElementById('leafCanvas');
 const lctx = leafCanvas.getContext('2d');
