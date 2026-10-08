@@ -22,10 +22,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
 <style>
 /* Layout: a naturalist's folio. A single reading column (~38rem) with a margin rail for field notes on wide
-   screens; painted plates sit on light paper sheets that run wider than the text, in both themes. */
+   screens; painted plates sit on sheets that run wider than the text. The whole page is one tan watercolor
+   paper in every color scheme, so the sheets are told apart by their shadows alone. */
 :root {
-  --paper: #f4f4ef;
-  --sheet: #fbfaf5;
+  --paper: #f2f0e9;
+  --sheet: #f2f0e9;
   --ink: #242c35;          /* Payne's grey */
   --ink-soft: #59626b;
   --ink-faint: #8a9198;
@@ -48,20 +49,6 @@
   --f-label: "Alegreya Sans SC", "Alegreya Sans", "Gill Sans", system-ui, sans-serif;
   --col: 38rem;
   --wide: 72rem;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #151918; --sheet: #f2f0e9; --ink: #e8e5dc; --ink-soft: #aeb0a8; --ink-faint: #80847e; --rule: #2e3532;
-    --chl: #8fb86b; --car: #e7b444; --ant: #ea6b7d; --tan: #c8946a; --accent: #e08a5c; --accent-ink: #f0a47a; --focus: #86b4ef;
-    --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 14px 40px -16px rgba(0, 0, 0, .7);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --paper: #151918; --sheet: #f2f0e9; --ink: #e8e5dc; --ink-soft: #aeb0a8; --ink-faint: #80847e; --rule: #2e3532;
-  --chl: #8fb86b; --car: #e7b444; --ant: #ea6b7d; --tan: #c8946a; --accent: #e08a5c; --accent-ink: #f0a47a; --focus: #86b4ef;
-  --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 14px 40px -16px rgba(0, 0, 0, .7);
-  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -329,7 +316,7 @@ em, i { font-style: italic; }
 .track .now { position: absolute; top: -.42rem; bottom: -.42rem; width: 2px; margin-left: -1px; background: #242c35; z-index: 2; border-radius: 1px; }
 .months .nowlab { position: absolute; top: -.05rem; transform: translateX(-50%); font-family: var(--f-ui); font-size: .75rem; font-weight: 700;
   letter-spacing: 0; color: #fbfaf5; background: #242c35; padding: .05rem .4rem; border-radius: 3px; line-height: 1.15rem; white-space: nowrap; z-index: 3; }
-.sp-detail { position: relative; z-index: 3; background: #f7f6f1; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 2rem; padding: 1rem .2rem 1.4rem; border-top: 1px solid var(--sheet-rule); }
+.sp-detail { position: relative; z-index: 3; background: var(--sheet) url("assets/paper.png"); background-blend-mode: multiply; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem 2rem; padding: 1rem .2rem 1.4rem; border-top: 1px solid var(--sheet-rule); }
 @media (min-width: 720px) { .sp-detail { grid-template-columns: 13rem minmax(0, 1fr); } }
 .sp-detail .big { position: relative; width: 13rem; height: 13rem; margin-inline: auto; }
 .sp-detail .big img { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -359,7 +346,7 @@ em, i { font-style: italic; }
 .disp h3 { font-size: 1.3rem; margin: .1rem 0 .35rem; }
 .disp p { font-family: var(--f-ui); font-size: .93rem; line-height: 1.45; margin: 0 0 .4rem; }
 .disp .src { font-size: .78rem; color: var(--ink-faint); }
-.trend { max-width: var(--col); margin: 2.4rem auto 0; }
+.trend { margin-top: 2.4rem; }  /* width comes from .with-notes, which widens to three columns on large screens */
 
 /* ------------------------------------------------ gallery */
 .gallery { max-width: 84rem; margin: 2.6rem auto 0; columns: 3 19rem; column-gap: 1.6rem; }
@@ -740,8 +727,8 @@ dialog.lightbox::backdrop { background: rgba(14, 16, 16, .88); }
   <div class="trend with-notes">
     <h3 style="font-size:1.6rem;font-style:italic;margin:0 0 .6rem">A later fall</h3>
     <p>Peak color in New England now arrives as much as a week later than it did in the 1950s, according to Colby College ecologist Amanda Gallinat. In Vermont, the University of Vermont&rsquo;s Alexandra Kosiba puts the shift at about a week over thirty years, with fall nights in Burlington roughly 4.5&nbsp;&deg;F warmer than in 1970.</p>
-    <p>A study of eight species at Harvard Forest found that warm Septembers delay the color, and projected later color and leaf fall for most species through 2100. In that projection the color season of sugar maple and black gum grows by about a day per decade, while white ash loses about three (Archetti et&nbsp;al. 2013).</p>
     <aside class="note"><span class="label">why later</span>Warm Septembers slow the loss of chlorophyll, and the cool snaps that speed the change arrive later in the year.</aside>
+    <p>A study of eight species at Harvard Forest found that warm Septembers delay the color, and projected later color and leaf fall for most species through 2100. In that projection the color season of sugar maple and black gum grows by about a day per decade, while white ash loses about three (Archetti et&nbsp;al. 2013).</p>
   </div>
 </section>
 
@@ -1127,12 +1114,8 @@ function setPlace(p) { S.place = p; emit(); }
 const doyNow = () => START_DOY + S.i;
 const stageNow = () => doyNow() - S.place.peak;
 
-function isDark() {
-  const t = document.documentElement.getAttribute('data-theme');
-  if (t === 'dark') return true;
-  if (t === 'light') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
+/* the page is always printed on tan paper, whatever the device's color scheme */
+function isDark() { return false; }
 
 /* ------------------------------------------------------------------ narrative */
 function stageWords(s) {
@@ -2205,9 +2188,7 @@ document.getElementById('releaseBtn').addEventListener('click', () => {
   spawn(r.width * (.25 + Math.random() * .5));
 });
 
-/* ------------------------------------------------------------------ theme changes + start */
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateAccent);
-new MutationObserver(updateAccent).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+/* ------------------------------------------------------------------ start */
 emit();
 })();
 
