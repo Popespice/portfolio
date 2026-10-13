@@ -311,6 +311,23 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
 .round[data-state="playing"] .i-play, .round[data-state="paused"] .i-pause { display: none; }
 .shotbox img { width: 100%; }
 
+/* The River Overhead: birds cross the card on hover; the drawer runs a night on the Fort Dix radar */
+.thumb.fl canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.2rem; align-items: center; padding: 1rem; background: var(--paper); }
+.rd canvas { width: 100%; aspect-ratio: 1; touch-action: auto; }
+.rd-side { display: grid; gap: .9rem; align-content: center; min-width: 0; }
+.rd-side .seg { flex-wrap: wrap; }
+.rd-read { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .25rem .9rem; margin: 0; padding: .7rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); align-items: baseline; }
+.rd-read dt { font-size: 12.5px; font-weight: 600; color: var(--faint); }
+.rd-read dd { margin: 0; font-family: var(--serif); font-size: 1.15rem; line-height: 1.2; }
+.rd-side p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--soft); min-height: 4.5em; }
+.scrub-row { display: flex; align-items: center; gap: .7rem; }
+.scrub-row input { flex: 1; min-width: 0; }
+.scrub.night .ticks { margin-left: calc(34px + .7rem); }
+.scrub.night input::-webkit-slider-runnable-track { background: linear-gradient(90deg, #d98a4f, #5b4d86 12%, #232a4a 45%, #2b3158 82%, #e2a861); }
+.scrub.night input::-moz-range-track { background: linear-gradient(90deg, #d98a4f, #5b4d86 12%, #232a4a 45%, #2b3158 82%, #e2a861); }
+@media (max-width: 520px) { .rd { grid-template-columns: minmax(0, 1fr); } .rd canvas { max-width: 330px; justify-self: center; } .rd-side p { min-height: 0; } }
+
 /* palette + toast */
 .kit-cmd { border: 1px solid var(--line-2); border-radius: 14px; padding: 0; width: min(36rem, calc(100% - 32px)); background: var(--card); color: var(--ink); margin-top: 12vh; font-family: var(--ui);
   box-shadow: 0 30px 70px -20px rgba(40, 30, 10, .4); }
@@ -361,7 +378,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
   <section class="sec" id="board" aria-labelledby="h-board">
     <div class="wrap">
       <div class="sec-head">
-        <div><h2 id="h-board">Projects</h2><p>Four things I&rsquo;ve built to test my product judgment. Open any card for details and an interactive preview.</p></div>
+        <div><h2 id="h-board">Projects</h2><p>Five things I&rsquo;ve built to test my product judgment. Open any card for details and an interactive preview.</p></div>
         <div class="seg" role="group" aria-label="View">
           <button type="button" data-view="board" aria-pressed="true"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2" width="3" height="10" rx="1"/><rect x="5.5" y="2" width="3" height="7" rx="1"/><rect x="9.5" y="2" width="3" height="8.5" rx="1"/></svg>Board</button>
           <button type="button" data-view="list" aria-pressed="false"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 3.5h10M2 7h10M2 10.5h10"/></svg>List</button>
@@ -383,13 +400,22 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
           </div>
         </div>
         <div class="col" data-col="shipped">
-          <div class="col-h"><i class="st full" aria-hidden="true"></i><span>Shipped</span><span class="n">2</span></div>
+          <div class="col-h"><i class="st full" aria-hidden="true"></i><span>Shipped</span><span class="n">3</span></div>
           <div class="cards">
-            <button class="card" type="button" data-p="painted" aria-haspopup="dialog">
+            <button class="card" type="button" data-p="flyway" aria-haspopup="dialog">
               <span class="fresh" aria-hidden="true">Just shipped</span>
+              <span class="thumb fl"><img src="assets/flyway_card.webp" alt="" width="1100" height="619"><canvas aria-hidden="true"></canvas></span>
+              <span class="c-body">
+                <span class="c-top"><span class="kind">Migration atlas</span><span class="pill green" data-status>Shipped</span></span>
+                <span class="c-title">The River Overhead</span>
+                <span class="c-desc">An illustrated atlas of bird migration through the Northeast, with a 3D globe, a radar model and watercolors painted in code.</span>
+                <span class="c-foot"><span class="tags"><span>Three.js</span><span>Python</span><span>OpenCV</span></span><span class="metric"><b>Oct</b> 2026</span></span>
+              </span>
+            </button>
+            <button class="card" type="button" data-p="painted" aria-haspopup="dialog">
               <span class="thumb pl"><img class="on" src="assets/pl_p00.webp" alt="" width="1100" height="473"><img src="assets/pl_p07.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_p14.webp" alt="" width="1100" height="473" loading="lazy"><img src="assets/pl_m24.webp" alt="" width="1100" height="473" loading="lazy"></span>
               <span class="c-body">
-                <span class="c-top"><span class="kind">Field guide</span><span class="pill green" data-status>Shipped</span></span>
+                <span class="c-top"><span class="kind">Field guide</span><span class="pill green">Shipped</span></span>
                 <span class="c-title">Painted Leaves</span>
                 <span class="c-desc">An illustrated field guide to fall color in the Northeast, with watercolors painted in code.</span>
                 <span class="c-foot"><span class="tags"><span>Python</span><span>OpenCV</span><span>WebGL</span></span><span class="metric"><b>Oct</b> 2026</span></span>
@@ -435,6 +461,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
             <h3>Independent</h3><p class="role">Designing, building and shipping solo</p>
             <p>Product judgment, tested by building. Real systems with real users, prototyped with AI in the loop and decided on data.</p>
             <ul class="changes">
+              <li><span class="tag g">Shipped</span><span>The River Overhead, an illustrated atlas of fall bird migration through the Northeast</span></li>
               <li><span class="tag g">Shipped</span><span>Painted Leaves, a field guide to fall color with watercolors painted in code</span></li>
               <li><span class="tag g">Released</span><span>Grackle v0.11.0, backed by about 1,700 tests and 28 architecture decision records</span></li>
               <li><span class="tag a">Building</span><span>A macOS sequencer that turns a track into a light show for ESP32 hardware</span></li>
@@ -487,7 +514,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
         <tbody>
           <tr><th scope="row">Product</th><td><div class="chips"><span>Roadmap strategy</span><span>Requirements and PRDs</span><span>A/B testing</span><span>Agile and Scrum</span></div></td><td class="ev">Pricing experiments and checkout flows on Elder Scrolls Online</td></tr>
           <tr><th scope="row">Analytics</th><td><div class="chips"><span>SQL</span><span>Tableau</span><span>Grafana</span><span>Splunk</span><span>ARPU, LTV and churn forecasting</span></div></td><td class="ev">Weekly performance and forecast decks and churn forecasting at Zenimax; Fortnite&rsquo;s SQL ingest and export at Epic</td></tr>
-          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; Painted Leaves, built with Claude</td></tr>
+          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; Painted Leaves and The River Overhead, built with Claude</td></tr>
           <tr><th scope="row">Tools</th><td><div class="chips"><span>Jira</span><span>Confluence</span><span>Salesforce</span><span>Statsig</span><span>GitHub Actions</span><span>Figma</span><span>Miro</span><span>Slack</span></div></td><td class="ev">Day to day</td></tr>
         </tbody>
       </table>
@@ -543,6 +570,27 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
           <div class="scrub-top"><output id="plOut" for="plRange">Peak color</output><span>Drag through the season</span></div>
           <input type="range" id="plRange" value="4" aria-label="Season, from early September to mid November">
           <div class="ticks" aria-hidden="true"><span>Early Sept</span><span>Late Sept</span><span>Early Oct</span><span>Mid Oct</span><span>Peak</span><span>Late Oct</span><span>Early Nov</span><span>Mid Nov</span></div>
+        </div>
+      </div>
+      <div data-demo="flyway" hidden>
+        <div class="rd">
+          <canvas class="cv" id="rdr" role="img" aria-label="Weather radar around Fort Dix, New Jersey, showing migrating birds as a ring of echoes that grows after sunset and fades by dawn"></canvas>
+          <div class="rd-side">
+            <div><span class="lbl">Wind tonight</span><div class="seg" role="group" aria-label="Wind tonight" id="rdWind"><button type="button" data-w="nw" aria-pressed="true">Tailwind</button><button type="button" data-w="calm" aria-pressed="false">Calm</button><button type="button" data-w="s" aria-pressed="false">Headwind</button></div></div>
+            <dl class="rd-read"><dt>Birds aloft</dt><dd id="rdLevel">Heavy</dd><dt>Heading</dt><dd id="rdHead">South</dd></dl>
+            <p id="rdSay"></p>
+          </div>
+        </div>
+        <div class="scrub night">
+          <div class="scrub-top"><output id="rdOut" for="rdRange">9:25 PM</output><span>Drag through the night</span></div>
+          <div class="scrub-row">
+            <button class="round" id="rdPlay" type="button" aria-pressed="false" aria-label="Play the night">
+              <svg class="i-pause" viewBox="0 0 10 10" aria-hidden="true"><rect x="1.5" y="1" width="2.4" height="8" fill="currentColor"/><rect x="6.1" y="1" width="2.4" height="8" fill="currentColor"/></svg>
+              <svg class="i-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 1 L9 5 L2.2 9 Z" fill="currentColor"/></svg>
+            </button>
+            <input type="range" id="rdRange" aria-label="Time after sunset, from sunset to dawn">
+          </div>
+          <div class="ticks" aria-hidden="true"><span>Sunset</span><span>+2 h</span><span>+4 h</span><span>+6 h</span><span>+8 h</span><span>+10 h</span><span>Dawn</span></div>
         </div>
       </div>
       <div data-demo="grackle" hidden>
@@ -779,6 +827,175 @@ const Kit = (() => {
     return { setPlaying, get playing() { return playing; } };
   }
 
+  /* The River Overhead card: a loose flock heads southwest across the painting while you hover */
+  function flock(cv, host) {
+    let W = 0, H = 0, ctx, raf = 0, last = 0, on = false, seeded = false;
+    const birds = [];
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    function spawn(b, anywhere) {
+      const z = Math.random() ** 1.5;
+      b.z = z; b.s = 1.6 + z * 4.2; b.v = 10 + z * 26; b.dy = rnd(.12, .28);
+      b.x = anywhere ? rnd(W * .05, W * 1.02) : W + rnd(6, 90); b.y = rnd(H * .04, H * .42);
+      b.ph = rnd(0, 6.28); b.fr = rnd(5.5, 8.5); b.glide = Math.random() < .35;
+    }
+    function size() {
+      ({ ctx, W, H } = fitCanvas(cv));
+      if (!seeded && W > 0) { seeded = true; for (let i = 0; i < 26; i++) { const b = {}; spawn(b, true); birds.push(b); } }
+    }
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H); ctx.strokeStyle = '#23263a'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      for (const b of birds) {
+        const f = b.glide ? .25 + .15 * Math.sin(t * 1.3 + b.ph) : Math.sin(t * b.fr + b.ph), wy = -f * b.s * .55;
+        ctx.globalAlpha = .35 + b.z * .55; ctx.lineWidth = Math.max(.8, b.s * .17);
+        ctx.beginPath(); ctx.moveTo(b.x - b.s, b.y + wy);
+        ctx.quadraticCurveTo(b.x - b.s * .45, b.y - b.s * .12 + wy * .4, b.x, b.y + b.s * .18);
+        ctx.quadraticCurveTo(b.x + b.s * .45, b.y - b.s * .12 + wy * .4, b.x + b.s, b.y + wy); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    function loop(now) {
+      const t = now / 1000, dt = Math.min(.05, t - last); last = t;
+      for (const b of birds) { b.x -= b.v * dt; b.y += b.v * b.dy * dt; if (b.x < -12 || b.y > H * .62) spawn(b, false); }
+      draw(t); raf = on ? requestAnimationFrame(loop) : 0;
+    }
+    function set(v) { if (reduce) return; on = v; if (on && !raf) { last = performance.now() / 1000; raf = requestAnimationFrame(loop); } }
+    size(); draw(0);
+    new ResizeObserver(() => { size(); draw(performance.now() / 1000); }).observe(cv);
+    host.addEventListener('pointerenter', () => set(true)); host.addEventListener('pointerleave', () => set(false));
+    host.addEventListener('focus', () => set(true)); host.addEventListener('blur', () => set(false));
+    // phones have no hover: let the flock fly while the card is on screen
+    if (matchMedia('(hover: none)').matches) onVisible(host, v => set(v));
+    return { set };
+  }
+
+  /* The River Overhead radar: a fall night on the Fort Dix weather radar (KDIX), from sunset to dawn.
+     Birds show as a ring that swells after dusk; the beam passes under them near the radar and over them far away. */
+  function radar({ cv, range, out, level, head, say, button, wind: windGroup, mapSrc }) {
+    const RKM = 230, G = 180, N = G * G, RAD = Math.PI / 180;
+    const bx = new Float32Array(N), by = new Float32Array(N), br = new Float32Array(N), inside = new Uint8Array(N);
+    for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+      const k = j * G + i, u = (i + .5) / G * 2 - 1, v = (j + .5) / G * 2 - 1, r = Math.hypot(u, v) * RKM;
+      if (r > RKM) continue; inside[k] = 1; bx[k] = u * RKM; by[k] = v * RKM; br[k] = r;
+    }
+    let seed = 7; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const L = 64, lat = new Float32Array(L * L); for (let i = 0; i < lat.length; i++) lat[i] = rand();
+    function nz(x, y) {
+      const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+      const i0 = xi & 63, i1 = (xi + 1) & 63, j0 = (yi & 63) * L, j1 = ((yi + 1) & 63) * L;
+      const a = lat[j0 + i0], b = lat[j0 + i1], c = lat[j1 + i0], d = lat[j1 + i1];
+      return a + (b - a) * u + (c - a + (a - b + d - c) * u) * v;
+    }
+    const RAMP = [[0, [166, 216, 240]], [.22, [120, 196, 150]], [.42, [70, 160, 80]], [.6, [38, 120, 55]], [.74, [226, 206, 74]], [.86, [238, 154, 58]], [1, [210, 66, 44]]];
+    const LUT = new Uint8Array(256 * 3);
+    for (let i = 0; i < 256; i++) { const v = i / 255; let k = 1; while (k < RAMP.length - 1 && v > RAMP[k][0]) k++; const a = RAMP[k - 1], b = RAMP[k], t = clamp((v - a[0]) / (b[0] - a[0]), 0, 1); for (let c = 0; c < 3; c++) LUT[i * 3 + c] = a[1][c] + (b[1][c] - a[1][c]) * t; }
+    const WIND = {
+      nw: { level: 1, track: 188, speed: 55, head: 'South, drifting toward the coast' },
+      calm: { level: .4, track: 205, speed: 40, head: 'South-southwest' },
+      s: { level: .12, track: 200, speed: 18, head: 'South-southwest, slowly' },
+    };
+    const env = r => { const a = clamp((r - 8) / 30, 0, 1), b = 1 - clamp((r - 95) / 75, 0, 1); return a * a * (3 - 2 * a) * b; };
+    const curve = t => t < .45 ? 0 : t < 2.5 ? Math.pow((t - .45) / 2.05, .8) : t < 5 ? 1 : t < 10 ? 1 - .45 * (t - 5) / 5 : Math.max(0, .55 * (1 - (t - 10) / 1.6));
+    const off = document.createElement('canvas'); off.width = off.height = G; const octx = off.getContext('2d'); const img = octx.createImageData(G, G);
+    const bg = document.createElement('canvas'); let bctx = bg.getContext('2d');
+    const map = new Image(); map.src = mapSrc; map.onload = () => { paintBg(); draw(); };
+    const MAP = { lon0: -80.6, lon1: -68, lat0: 36.4, lat1: 45.8, w: 1600, h: 1584 }, ST = { lon: -74.411, lat: 39.947 };
+    const pxLon = MAP.w / (MAP.lon1 - MAP.lon0), pxLat = MAP.h / (MAP.lat1 - MAP.lat0);
+    const mcx = (ST.lon - MAP.lon0) * pxLon, mcy = (MAP.lat1 - ST.lat) * pxLat;
+    const halfX = RKM / (111.32 * Math.cos(ST.lat * RAD)) * pxLon, halfY = RKM / 111.32 * pxLat;
+    let ctx, W = 0, H = 0, S = 0, t = 3, wind = 'nw', playing = false, vis = false, raf = 0, last = 0, sweep = 0, key = '';
+    function field() {
+      const k = wind + '|' + t.toFixed(2); if (k === key) return; key = k;
+      const w = WIND[wind], I = w.level * curve(t), tr = w.track * RAD, mx = Math.sin(tr) * w.speed * t, my = -Math.cos(tr) * w.speed * t, d = img.data;
+      for (let q = 0; q < N; q++) {
+        const o = q * 4; if (!inside[q]) { d[o + 3] = 0; continue; }
+        const x = bx[q] - mx, y = by[q] - my;
+        const v = I * env(br[q]) * (.72 + .42 * nz(x / 26 + 7, y / 26 + 3) + .12 * nz(x / 9, y / 9)) * .72;
+        if (v < .035) { d[o + 3] = 0; continue; }
+        const li = Math.min(255, Math.round(v * 255)) * 3;
+        d[o] = LUT[li]; d[o + 1] = LUT[li + 1]; d[o + 2] = LUT[li + 2]; d[o + 3] = Math.round(clamp(.45 + v, 0, .95) * 255);
+      }
+      octx.putImageData(img, 0, 0);
+    }
+    function paintBg() {
+      if (S < 8) return; // not laid out yet (the drawer opens after the demo is built)
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      bg.width = Math.round(W * dpr); bg.height = Math.round(H * dpr); bctx = bg.getContext('2d'); bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const c = S / 2, x0 = (W - S) / 2, y0 = (H - S) / 2;
+      bctx.save(); bctx.beginPath(); bctx.arc(x0 + c, y0 + c, c, 0, Math.PI * 2); bctx.clip();
+      bctx.fillStyle = '#e9e4d8'; bctx.fillRect(x0, y0, S, S);
+      if (map.complete && map.naturalWidth) { bctx.globalAlpha = .5; bctx.filter = 'grayscale(1) contrast(.9)'; bctx.drawImage(map, mcx - halfX, mcy - halfY, halfX * 2, halfY * 2, x0, y0, S, S); bctx.filter = 'none'; bctx.globalAlpha = 1; }
+      bctx.restore();
+    }
+    function draw() {
+      if (S < 8) return; field();
+      ctx.clearRect(0, 0, W, H); ctx.drawImage(bg, 0, 0, W, H);
+      const c = S / 2, x0 = (W - S) / 2, y0 = (H - S) / 2, cx = x0 + c, cy = y0 + c;
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, c, 0, Math.PI * 2); ctx.clip();
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(off, x0, y0, S, S);
+      if (playing && !reduce) {
+        const a = sweep - Math.PI / 2, g = ctx.createConicGradient ? ctx.createConicGradient(a - .5, cx, cy) : null;
+        if (g) { g.addColorStop(0, 'rgba(28,26,22,0)'); g.addColorStop(.08, 'rgba(28,26,22,.10)'); g.addColorStop(.0801, 'rgba(28,26,22,0)'); ctx.fillStyle = g; ctx.fillRect(x0, y0, S, S); }
+      }
+      ctx.restore();
+      // range rings, every 50 km, labelled inside the ring
+      ctx.strokeStyle = 'rgba(28,26,22,.32)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+      for (let km = 50; km < RKM; km += 50) { ctx.beginPath(); ctx.arc(cx, cy, km / RKM * c, 0, Math.PI * 2); ctx.stroke(); }
+      ctx.setLineDash([]); ctx.strokeStyle = 'rgba(28,26,22,.45)'; ctx.beginPath(); ctx.arc(cx, cy, c - .5, 0, Math.PI * 2); ctx.stroke();
+      ctx.font = '600 10.5px "Funnel Sans", system-ui, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      const tag = (txt, x, y, al = 'right') => { ctx.textAlign = al; ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(243,239,230,.9)'; ctx.strokeText(txt, x, y); ctx.fillStyle = '#4c473f'; ctx.fillText(txt, x, y); };
+      [100, 200].forEach(km => { const r = km / RKM * c * .7071; tag(km + ' km', cx + r - 3, cy - r - 4); });
+      tag('N', cx, y0 + 11, 'center');
+      ctx.fillStyle = '#1c1a16'; ctx.beginPath(); ctx.arc(cx, cy, 2.6, 0, Math.PI * 2); ctx.fill();
+      tag('KDIX, Fort Dix', cx + 7, cy + 12, 'left');
+      // which way the echoes are moving
+      const w = WIND[wind], I = w.level * curve(t);
+      if (I > .06) {
+        const a = (w.track - 90) * RAD, Ld = Math.max(9, S / 26); ctx.strokeStyle = 'rgba(28,26,22,.7)'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+        for (let k = 0; k < 6; k++) {
+          const ang = k / 6 * Math.PI * 2 + .4, px = cx + Math.cos(ang) * c * .8, py = cy + Math.sin(ang) * c * .8, dx = Math.cos(a) * Ld, dy = Math.sin(a) * Ld, hx = px + dx / 2, hy = py + dy / 2;
+          ctx.beginPath(); ctx.moveTo(px - dx / 2, py - dy / 2); ctx.lineTo(hx, hy);
+          ctx.moveTo(hx, hy); ctx.lineTo(hx - Math.cos(a - .5) * Ld * .4, hy - Math.sin(a - .5) * Ld * .4);
+          ctx.moveTo(hx, hy); ctx.lineTo(hx - Math.cos(a + .5) * Ld * .4, hy - Math.sin(a + .5) * Ld * .4); ctx.stroke();
+        }
+      }
+    }
+    const clock = t => { const m = Math.round(18 * 60 + 25 + t * 60) % 1440, h = Math.floor(m / 60), mm = String(m % 60).padStart(2, '0'); return `${(h % 12) || 12}:${mm} ${h < 12 ? 'AM' : 'PM'}`; };
+    function words() {
+      const w = WIND[wind], I = w.level * curve(t);
+      out.textContent = t < .05 ? 'Sunset' : t > 11.95 ? 'Dawn' : clock(t);
+      level.textContent = I > .75 ? 'Very heavy' : I > .5 ? 'Heavy' : I > .25 ? 'Moderate' : I > .08 ? 'Light' : 'Few to none';
+      head.textContent = I > .06 ? w.head : 'None to speak of';
+      say.textContent = wind === 's' ? 'A south wind is a headwind for fall migrants. Most stay down and keep feeding; the few that fly make slow progress.'
+        : t < .45 ? 'The sun is down but the birds are not up yet. Takeoff comes in a rush, mostly within an hour after dusk.'
+        : t < 1.6 ? 'Liftoff. Echoes appear all around the radar at once as thousands of birds climb.'
+        : t < 5 ? (wind === 'nw' ? 'Peak hours on a big night: a cold front has passed and a northwest wind is at the birds’ backs.' : 'Peak hours. With little wind, birds still go, but in smaller numbers.')
+        : t < 10 ? 'Numbers ease after midnight as birds that have flown far enough come down.'
+        : 'Dawn. Birds still over the ocean turn back toward land; the coast fills up with tired migrants.';
+      range.setAttribute('aria-valuetext', `${out.textContent}, ${level.textContent.toLowerCase()} migration`);
+    }
+    function size() { ({ ctx, W, H } = fitCanvas(cv)); S = Math.max(0, Math.min(W, H) - 2); paintBg(); draw(); }
+    function loop(now) {
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      t += dt * .9; if (t > 12) t = 0; sweep = (sweep + dt * 2.4) % (Math.PI * 2);
+      range.value = t; words(); draw();
+      raf = vis && playing ? requestAnimationFrame(loop) : 0;
+    }
+    function setPlaying(p) {
+      playing = p; // reduced motion only stops the autoplay; pressing play is the reader's choice
+      button.setAttribute('aria-pressed', String(playing)); button.setAttribute('aria-label', playing ? 'Pause the night' : 'Play the night'); button.dataset.state = playing ? 'playing' : 'paused';
+      cancelAnimationFrame(raf); raf = 0;
+      if (playing && vis) { last = performance.now(); raf = requestAnimationFrame(loop); } else draw();
+    }
+    range.min = 0; range.max = 12; range.step = .05; range.value = t;
+    range.addEventListener('input', () => { t = +range.value; if (playing) setPlaying(false); words(); draw(); });
+    windGroup.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; windGroup.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); wind = b.dataset.w; key = ''; words(); draw(); });
+    button.addEventListener('click', () => setPlaying(!playing));
+    new ResizeObserver(size).observe(cv);
+    onVisible(cv, v => { vis = v; if (v && playing && !raf) { last = performance.now(); raf = requestAnimationFrame(loop); } });
+    size(); words(); setPlaying(!reduce);
+    return { setPlaying };
+  }
+
   /* command palette */
   function palette({ actions, triggers = [], placeholder = 'Type a command or search', empty = 'No matches. Try “email” or a project name.' }) {
     const dlg = document.createElement('dialog');
@@ -819,7 +1036,7 @@ const Kit = (() => {
     return { open };
   }
 
-  return { reduce, EMAIL, shortcut, isMac, toast, copyEmail, clock, scrubber, PL_LABELS, PL_SHORT, graph, sequencer, palette, onVisible, fitCanvas };
+  return { reduce, EMAIL, shortcut, isMac, toast, copyEmail, clock, scrubber, PL_LABELS, PL_SHORT, graph, sequencer, flock, radar, palette, onVisible, fitCanvas };
 })();
 
 (() => {
@@ -830,6 +1047,11 @@ const Kit = (() => {
 
   const OUT = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M5 2.5h6.5V9M11.5 2.5 3 11"/></svg>';
   const P = {
+    flyway: { name: 'The River Overhead', kind: 'Migration atlas', demo: 'flyway', shot: ['assets/flyway.webp', 'The River Overhead, opening on a watercolor of the Delaware Water Gap at dusk with migrating birds overhead'],
+      desc: 'An illustrated atlas of fall bird migration along the Atlantic Flyway: who passes through the Northeast, what sets them moving, how they find the way, and when to look up. The landscapes are painted in code from elevation data, the 3D views run in WebGL, and it was built with Claude as a collaborator, from the research through a full adversarial review.',
+      props: [['Released', 'October 2026'], ['Type', 'Interactive atlas'], ['Stack', 'Three.js, WebGL, Canvas, Python, OpenCV']],
+      hl: ['A 3D globe follows ten species along their routes, day by day, through fall and spring', 'A model of the Fort Dix weather radar shows a night of migration bloom and fade with the wind', 'A 3D Kittatinny Ridge, built from elevation data, shows hawks riding the updraft and the thermals'],
+      links: [['Open the atlas', 'flyway/', 1]] },
     painted: { name: 'Painted Leaves', kind: 'Field guide', demo: 'painted', shot: ['assets/painted.webp', 'The Painted Leaves field guide, opening on a watercolor valley in peak color'],
       desc: 'An illustrated field guide to fall color in the Northeast: why leaves turn, when the color reaches each town, and how nineteenth-century painters chased it. Every watercolor in it is generated in code, and it was built with Claude as a collaborator, from research through the final pixel.',
       props: [['Released', 'October 2026'], ['Type', 'Field guide'], ['Stack', 'Python, OpenCV, WebGL, Canvas']],
@@ -851,7 +1073,7 @@ const Kit = (() => {
       hl: ['Clock, weather and system readouts at a glance', 'Now playing, a focus timer and quick settings in one place', 'GitHub activity and a slot for the next calendar event'],
       links: [] },
   };
-  const ORDER = ['painted', 'grackle', 'lightshow', 'dashboard'];
+  const ORDER = ['flyway', 'painted', 'grackle', 'lightshow', 'dashboard'];
 
   /* ---------- section tabs ---------- */
   const tabs = $$('.tabs a');
@@ -890,49 +1112,54 @@ const Kit = (() => {
   plCard.addEventListener('pointerenter', () => { if (Kit.reduce) return; clearInterval(plT); plT = setInterval(() => { plThumbs[plI].classList.remove('on'); plI = (plI + 1) % plThumbs.length; plThumbs[plI].classList.add('on'); }, 800); });
   plCard.addEventListener('pointerleave', () => { clearInterval(plT); });
 
-  /* ---------- the move: a colleague's cursor ships Painted Leaves ---------- */
+  /* The River Overhead card: birds head southwest across the painting while you hover */
+  const flCard = $('.card[data-p="flyway"]');
+  Kit.flock(flCard.querySelector('canvas'), flCard);
+
+  /* ---------- the move: a colleague's cursor ships the newest project ---------- */
   const ghost = $('#ghost');
+  const shipCard = flCard, SHIP_NAME = 'The River Overhead';
   let shipped = false;
-  const FRESH_UNTIL = Date.parse('2026-11-15');
+  const FRESH_UNTIL = Date.parse('2026-12-15');
   function markShipped(flash) {
-    const pill = plCard.querySelector('[data-status]');
+    const pill = shipCard.querySelector('[data-status]');
     pill.className = 'pill green' + (flash ? ' flash' : ''); pill.textContent = 'Shipped';
-    if (Date.now() < FRESH_UNTIL) plCard.classList.add('just');
+    if (Date.now() < FRESH_UNTIL) shipCard.classList.add('just');
     counts();
   }
   function stage() {
-    const pill = plCard.querySelector('[data-status]');
+    const pill = shipCard.querySelector('[data-status]');
     pill.className = 'pill amber'; pill.textContent = 'In progress';
-    $('.col[data-col="progress"] .cards').prepend(plCard); counts();
+    $('.col[data-col="progress"] .cards').prepend(shipCard); counts();
   }
   function shipNow() {
     if (shipped) return; shipped = true;
-    $('.col[data-col="shipped"] .cards').prepend(plCard); markShipped(false);
+    $('.col[data-col="shipped"] .cards').prepend(shipCard); markShipped(false);
   }
   async function shipWithCursor() {
     if (shipped) return; shipped = true;
     const K = kanban.getBoundingClientRect();
     const at = el => { const r = el.getBoundingClientRect(); return [r.left - K.left, r.top - K.top, r.width, r.height]; };
-    const [cx0, cy0, cw] = at(plCard);
+    const [cx0, cy0, cw] = at(shipCard);
     const start = [K.width * .62, K.height + 40], grab = [cx0 + cw * .55, cy0 + 70];
     const move = (from, to, ms) => ghost.animate([{ transform: `translate(${from[0]}px, ${from[1]}px)` }, { transform: `translate(${to[0]}px, ${to[1]}px)` }], { duration: ms, easing: 'cubic-bezier(.45, 0, .2, 1)', fill: 'forwards' }).finished;
     ghost.style.opacity = 1;
     await move(start, grab, 950);
-    plCard.classList.add('lifted');
+    shipCard.classList.add('lifted');
     await new Promise(r => setTimeout(r, 260));
-    const others = cards.filter(c => c !== plCard);
+    const others = cards.filter(c => c !== shipCard);
     const target = $('.col[data-col="shipped"] .cards');
-    const before = plCard.getBoundingClientRect();
+    const before = shipCard.getBoundingClientRect();
     const otherFirst = new Map(others.map(el => [el, el.getBoundingClientRect()]));
-    target.prepend(plCard); counts();
-    const after = plCard.getBoundingClientRect();
+    target.prepend(shipCard); counts();
+    const after = shipCard.getBoundingClientRect();
     const dx = before.left - after.left, dy = before.top - after.top;
     others.forEach(el => { const a = otherFirst.get(el), b = el.getBoundingClientRect(); if (Math.abs(a.top - b.top) > .5 || Math.abs(a.left - b.left) > .5) el.animate([{ transform: `translate(${a.left - b.left}px, ${a.top - b.top}px)` }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2, .8, .2, 1)' }); });
-    const cardAnim = plCard.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.45, 0, .2, 1)' });
+    const cardAnim = shipCard.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 900, easing: 'cubic-bezier(.45, 0, .2, 1)' });
     const g2 = [grab[0] - dx, grab[1] - dy];
     await Promise.all([move(grab, g2, 900), cardAnim.finished.catch(() => {})]);
-    plCard.classList.remove('lifted'); markShipped(true);
-    const kr = kanban.getBoundingClientRect(); if (kr.bottom > 80 && kr.top < innerHeight - 80) Kit.toast('Connor moved Painted Leaves to Shipped');
+    shipCard.classList.remove('lifted'); markShipped(true);
+    const kr = kanban.getBoundingClientRect(); if (kr.bottom > 80 && kr.top < innerHeight - 80) Kit.toast(`Connor moved ${SHIP_NAME} to Shipped`);
     await move(g2, [g2[0] + 70, g2[1] + 120], 700);
     ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
   }
@@ -946,7 +1173,7 @@ const Kit = (() => {
 
   /* ---------- drawer ---------- */
   const dlg = $('#drawer');
-  let cur = null, demoTab = 'demo', graphMade = false, seqMade = false;
+  let cur = null, demoTab = 'demo', graphMade = false, seqMade = false, radarMade = false;
   const plRange = $('#plRange');
   const scrub = Kit.scrubber({ imgs: $$('#plFrames img'), range: plRange, out: $('#plOut') });
   function setTab(t) {
@@ -956,6 +1183,7 @@ const Kit = (() => {
     $$('.stagebox [data-demo]').forEach(d => { d.hidden = demoTab === 'shot' ? d.dataset.demo !== 'shot' : d.dataset.demo !== p.demo; });
     if (demoTab === 'demo' && p.demo === 'grackle' && !graphMade) { graphMade = true; makeGraph(); }
     if (demoTab === 'demo' && p.demo === 'lightshow' && !seqMade) { seqMade = true; makeSeq(); }
+    if (demoTab === 'demo' && p.demo === 'flyway' && !radarMade) { radarMade = true; makeRadar(); }
   }
   $$('#dTabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
   function fill(id) {
@@ -1004,6 +1232,9 @@ const Kit = (() => {
       kinds: { file: '#6d5ae6', fn: '#c98a1b', method: '#cf4a6e', struct: '#2c7a4c', iface: '#2a8bb0' },
     });
   }
+  function makeRadar() {
+    Kit.radar({ cv: $('#rdr'), range: $('#rdRange'), out: $('#rdOut'), level: $('#rdLevel'), head: $('#rdHead'), say: $('#rdSay'), button: $('#rdPlay'), wind: $('#rdWind'), mapSrc: 'flyway/assets/map-northeast.jpg' });
+  }
   let seq = null;
   function makeSeq() {
     const fx = $$('#rig .fx'), MAP = [[0, 7], [2, 5], [3, 4], [1, 6]];
@@ -1031,6 +1262,7 @@ const Kit = (() => {
   const go = id => () => { if (dlg.open) close(); document.getElementById(id).scrollIntoView({ behavior: Kit.reduce ? 'auto' : 'smooth', block: 'start' }); };
   const open = url => () => { location.href = url; };
   Kit.palette({ triggers: $$('[data-cmd]'), placeholder: 'Search projects, sections and actions', actions: [
+    { group: 'Projects', label: 'The River Overhead', hint: 'Migration atlas', keys: 'birds flyway radar', run: () => openP('flyway') },
     { group: 'Projects', label: 'Painted Leaves', hint: 'Field guide', run: () => openP('painted') },
     { group: 'Projects', label: 'Grackle', hint: 'Code analysis', run: () => openP('grackle') },
     { group: 'Projects', label: 'Lightshow sequencer', hint: 'macOS and ESP32', run: () => openP('lightshow') },
@@ -1040,6 +1272,7 @@ const Kit = (() => {
     { group: 'Sections', label: 'Contact', hint: 'Draft an email', run: go('contact') },
     { group: 'Actions', label: 'Copy email address', hint: Kit.EMAIL, run: () => Kit.copyEmail($('[data-email]')) },
     { group: 'Actions', label: 'Switch to list view', hint: 'Projects', run: () => { go('board')(); $('.seg [data-view="list"]').click(); } },
+    { group: 'Actions', label: 'Open The River Overhead atlas', hint: 'New page', run: open('flyway/') },
     { group: 'Actions', label: 'Open the Painted Leaves field guide', hint: 'New page', run: open('painted-leaves/') },
     { group: 'Actions', label: 'Open GitHub', hint: 'Popespice', run: open('https://github.com/Popespice') },
     { group: 'Actions', label: 'Open LinkedIn', hint: 'Connor Allen', run: open('https://www.linkedin.com/in/connor-allen-a2785b79/') },
