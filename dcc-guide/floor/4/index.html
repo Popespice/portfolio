@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="robots" content="noindex" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/portfolio/dcc-guide/dungeon-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="An unofficial, fan-made interactive map of the Dungeon Crawler Carl book series — floors, landmarks, and loot, with spoiler gating by book."
+    />
+    <!-- Mirrors --dcc-bg in src/styles/theme.css; meta-tags.test.ts pins the two together. -->
+    <meta name="theme-color" content="#0f0a1a" />
+    <title>DCC Guide — Dungeon Crawler Carl Interactive Map</title>
+    <!--
+      On GitHub Pages a path with no page of its own (scripts/route-pages.mjs
+      gives the routes one) is answered by the portfolio's root 404.html
+      (hosting/portfolio-404.html), which sends it here as ?p=<path>.
+      Put the path back before the router reads it.
+    -->
+    <script>
+      (function () {
+        // Only the shim's own shape, ?p=<path> alone at the base, and never a
+        // path that climbs out of it.
+        var query = new URLSearchParams(location.search);
+        var p = query.get('p');
+        if (p === null || Array.from(query.keys()).length !== 1) return;
+        if (!/\/$/.test(location.pathname) || /(^|\/)(\.|%2e){1,2}(\/|$|[?#])/i.test(p)) return;
+        history.replaceState(null, '', location.pathname + p.replace(/^\/+/, ''));
+      })();
+    </script>
+
+    <!--
+      Open Graph / Twitter metadata for link previews. No og:url and no
+      og:image until the app has a stable domain: og:image must be an
+      absolute URL, and with og:url absent there is no base to resolve a
+      relative one against, so a path here would simply be dropped. It also
+      has to be a raster image — the major crawlers don't render SVG — so
+      the favicon can't stand in. Both land together with the deploy domain
+      and a real 1200x630 asset; a card with a correct title and description
+      and no image degrades cleanly, a broken image reference does not.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DCC Guide" />
+    <meta property="og:title" content="DCC Guide — Dungeon Crawler Carl Interactive Map" />
+    <meta
+      property="og:description"
+      content="An unofficial, fan-made interactive map of the Dungeon Crawler Carl book series — floors, landmarks, and loot, with spoiler gating by book."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="DCC Guide — Dungeon Crawler Carl Interactive Map" />
+    <meta
+      name="twitter:description"
+      content="An unofficial, fan-made interactive map of the Dungeon Crawler Carl book series — floors, landmarks, and loot, with spoiler gating by book."
+    />
+
+    <!--
+      The fonts are served from this site (@fontsource, imported in main.tsx),
+      not Google Fonts: no third-party stylesheet holding up the first paint,
+      and no request to another origin on every visit. The two Latin files
+      are what every page draws with, so they are preloaded: the browser
+      fetches them alongside the JavaScript instead of waiting for React to
+      render text that needs them. Vite rewrites these paths to the same
+      hashed files the stylesheet points at, so nothing downloads twice.
+    -->
+    <link
+      rel="preload"
+      href="/portfolio/dcc-guide/assets/press-start-2p-latin-400-normal-_wFEWmAB.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/portfolio/dcc-guide/assets/vt323-latin-400-normal-wDgJuOC9.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script type="module" crossorigin src="/portfolio/dcc-guide/assets/index-dDkGCeXA.js"></script>
+    <link rel="stylesheet" crossorigin href="/portfolio/dcc-guide/assets/index-L9L91gqF.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
