@@ -12,6 +12,23 @@
     <!-- Mirrors --dcc-bg in src/styles/theme.css; meta-tags.test.ts pins the two together. -->
     <meta name="theme-color" content="#0f0a1a" />
     <title>DCC Guide — Dungeon Crawler Carl Interactive Map</title>
+    <!--
+      On GitHub Pages a path with no page of its own (scripts/route-pages.mjs
+      gives the routes one) is answered by the portfolio's root 404.html
+      (hosting/portfolio-404.html), which sends it here as ?p=<path>.
+      Put the path back before the router reads it.
+    -->
+    <script>
+      (function () {
+        // Only the shim's own shape, ?p=<path> alone at the base, and never a
+        // path that climbs out of it.
+        var query = new URLSearchParams(location.search);
+        var p = query.get('p');
+        if (p === null || Array.from(query.keys()).length !== 1) return;
+        if (!/\/$/.test(location.pathname) || /(^|\/)(\.|%2e){1,2}(\/|$|[?#])/i.test(p)) return;
+        history.replaceState(null, '', location.pathname + p.replace(/^\/+/, ''));
+      })();
+    </script>
 
     <!--
       Open Graph / Twitter metadata for link previews. No og:url and no
@@ -60,8 +77,8 @@
       type="font/woff2"
       crossorigin
     />
-    <script type="module" crossorigin src="/portfolio/dcc-guide/assets/index-CmqomdD6.js"></script>
-    <link rel="stylesheet" crossorigin href="/portfolio/dcc-guide/assets/index-YBEEO0_y.css">
+    <script type="module" crossorigin src="/portfolio/dcc-guide/assets/index-dDkGCeXA.js"></script>
+    <link rel="stylesheet" crossorigin href="/portfolio/dcc-guide/assets/index-L9L91gqF.css">
   </head>
   <body>
     <div id="root"></div>

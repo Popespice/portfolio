@@ -1,0 +1,33 @@
+<!doctype html>
+<!--
+  Published as the portfolio's root 404.html (Popespice/portfolio/404.html).
+  GitHub Pages answers every missing path on the site with that one file and
+  ignores a 404.html inside a subfolder, so a deep link into the guide, or a
+  reload on one of its pages, lands here unless the route has its own copy
+  of index.html (scripts/route-pages.mjs). Send it to the guide's index with
+  the path in ?p=; index.html puts it back before the router reads it, and
+  the app shows its own not-found page. Anything outside the guide gets a
+  plain not-found page.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <title>Page not found</title>
+    <script>
+      (function () {
+        var base = '/portfolio/dcc-guide/';
+        var path = location.pathname;
+        // The base itself missing (mid-deploy, say) must not redirect to
+        // itself forever, nor a path that already came through here.
+        if (path.indexOf(base) !== 0 || path === base || /[?&]p=/.test(location.search)) return;
+        var rest = path.slice(base.length) + location.search + location.hash;
+        location.replace(base + '?p=' + encodeURIComponent(rest));
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Page not found</h1>
+    <p><a href="/portfolio/">Back to the portfolio</a></p>
+  </body>
+</html>
