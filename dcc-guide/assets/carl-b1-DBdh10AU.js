@@ -1,0 +1,1 @@
+import{d as i}from"./render-C_uHKc8S.js";import{carlSprite as r}from"./carl-CCx6ZpO6.js";const o=[[29,32],[30,33]],l=i({name:"Carl (B1)",legend:r.legend,frames:r.frames.map((t,m)=>t.map((e,a)=>{const[n,s]=o[m];return a>=n&&a<=s?e.replace(/[Rr]/g,"W"):e})),frameDurationMs:r.frameDurationMs});export{l as carlB1Sprite};
