@@ -1,0 +1,32 @@
+name: Keep security tags current
+
+# GitHub Pages can't send security headers, so every page carries a CSP <meta>
+# with hashes of its inline scripts (scripts/harden.py). If a page changes, or
+# the DCC guide build is copied in fresh, this re-runs the script and commits
+# the refreshed tags so the live site never serves a stale hash.
+on:
+  push:
+    branches: [main]
+    paths: ['**.html', 'scripts/harden.py']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: harden
+  cancel-in-progress: false
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/harden.py .
+      - name: Commit refreshed tags
+        run: |
+          if git diff --quiet; then echo "Security tags already current"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Refresh CSP hashes and hardening tags"
+          git push

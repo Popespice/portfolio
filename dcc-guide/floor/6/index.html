@@ -2,6 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- hardening -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-czdJkFRVMYw4Tf2Zn/Rl9Ns2y94vkneEDhE5S6ivsRs=' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' data: blob:; media-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="robots" content="noai, noimageai">
+    <!-- /hardening -->
     <link rel="icon" type="image/svg+xml" href="/portfolio/dcc-guide/dungeon-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta

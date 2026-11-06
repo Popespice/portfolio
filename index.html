@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- hardening -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Al7mSSx/7aBRkuDobGMExSFhOn4LfsTf0lOkGS6dF2Q='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noai, noimageai">
+<!-- /hardening -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Connor Allen, product manager</title>
 <meta name="description" content="I build the internal tools, data pipelines and AI workflows that teams run on. Product operations at Epic Games and Zenimax Media, now building AI tooling independently.">
@@ -516,7 +521,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
       <div class="contact-l">
         <h2 class="big" id="h-ct">Have a system that fights back?</h2>
         <p>Tell me what is breaking and who it slows down. Draft it here and it opens in your email app, or reach me directly.</p>
-        <a class="mail" href="mailto:connor.allen9@icloud.com" data-email>connor.allen9@icloud.com</a>
+        <a class="mail" href="#contact" data-email>connor.allen9 (at) icloud.com</a>
         <div class="reach">
           <button class="btn" type="button" data-copy>Copy email</button>
           <a class="btn" href="https://www.linkedin.com/in/connor-allen-a2785b79/">LinkedIn</a>
@@ -619,7 +624,8 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
 const Kit = (() => {
   'use strict';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const EMAIL = 'connor.allen9@icloud.com';
+  /* assembled at runtime so address harvesters reading the raw HTML do not find it */
+  const EMAIL = ['connor.allen9', 'icloud.com'].join('@');
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   const shortcut = isMac ? '⌘K' : 'Ctrl K';
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -1246,6 +1252,7 @@ const Kit = (() => {
     location.href = `mailto:${Kit.EMAIL}?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
     Kit.toast('Opening a draft in your email app');
   });
+  $$('[data-email]').forEach(a => { a.href = 'mailto:' + Kit.EMAIL; a.textContent = Kit.EMAIL; });
   $$('[data-copy]').forEach(b => b.addEventListener('click', () => Kit.copyEmail($('[data-email]'))));
 
   /* ---------- palette ---------- */
