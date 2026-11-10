@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- hardening -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Al7mSSx/7aBRkuDobGMExSFhOn4LfsTf0lOkGS6dF2Q='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-aiI63otTqJvjkwmLHFOtOLIGos+DqN0Tplp+eEncCqc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noai, noimageai">
 <!-- /hardening -->
@@ -333,6 +333,43 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
 .scrub.night input::-moz-range-track { background: linear-gradient(90deg, #d98a4f, #5b4d86 12%, #232a4a 45%, #2b3158 82%, #e2a861); }
 @media (max-width: 520px) { .rd { grid-template-columns: minmax(0, 1fr); } .rd canvas { max-width: 330px; justify-self: center; } .rd-side p { min-height: 0; } }
 
+/* Job search agent: the card runs a tiny version of the pipeline; the drawer scores a posting live */
+.thumb.ja { background: #f3efe6; }
+.thumb.ja canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ja-box { position: relative; aspect-ratio: 480 / 520; background: var(--paper); overflow: hidden; }
+.ja-inner { position: absolute; left: 50%; top: 50%; width: 480px; height: 520px; transform-origin: 0 0; }
+.ja-ctl { display: flex; align-items: center; gap: .7rem; padding: .7rem 1rem; border-top: 1px solid var(--line); background: var(--card); flex-wrap: wrap; }
+.ja-ctl .seg button { height: 28px; font-size: 13px; padding: 0 .7rem; }
+.ja-ctl .round svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.scorer { position: absolute; inset: 0; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.sx-post { position: absolute; left: 18px; right: 18px; top: 14px; padding: .7rem .9rem .6rem; border: 1px solid var(--line-2); border-radius: 12px; background: var(--card); box-shadow: 0 10px 26px -20px rgba(60, 50, 30, .5); }
+.sx-head b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
+.sx-head span { display: block; margin-top: .2rem; font-size: 12.5px; color: var(--soft); }
+.sx-head small { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+.sx-lines { list-style: none; margin: .55rem 0 0; padding: .45rem 0 0; border-top: 1px dashed var(--line-2); display: grid; gap: .22rem; }
+.sx-lines li { font-size: 12.4px; line-height: 1.36; color: #3a362f; transition: opacity .3s ease; }
+.sx-lines li.dim { opacity: .3; }
+.sx-lines mark { background: linear-gradient(var(--hl, #f5e8d1), var(--hl, #f5e8d1)) no-repeat 0 85% / calc(var(--h, 0) * 100%) 72%; color: inherit; padding: 0 1px; border-radius: 2px; }
+.sx-lines li[data-kind="plus"] mark { --hl: #cfe6d6; } .sx-lines li[data-kind="minus"] mark { --hl: #f8d3c8; }
+.sx-lines li[data-kind="cap"] mark, .sx-lines li[data-kind="fail"] mark { --hl: #f7dfa9; } .sx-lines li[data-kind="pass"] mark { --hl: #d9def8; } .sx-lines li[data-kind="zero"] mark { --hl: #e8e2d5; }
+.sx-calc { position: absolute; left: 18px; right: 18px; bottom: 14px; display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; align-items: end; }
+.sx-ledger { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-family: var(--mono); font-size: 11.8px; }
+.sx-ledger li { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; height: 20px; padding: 0 .5rem; border-radius: 6px; background: var(--paper-2); opacity: 0; transform: translateX(-8px); transition: opacity .3s ease, transform .3s ease; white-space: nowrap; overflow: hidden; }
+.sx-ledger li.on { opacity: 1; transform: none; }
+.sx-ledger li b { font-weight: 600; } .sx-ledger li span { overflow: hidden; text-overflow: ellipsis; color: var(--soft); }
+.sx-ledger li.plus b { color: var(--green); } .sx-ledger li.minus b { color: var(--red); } .sx-ledger li.cap b, .sx-ledger li.fail b { color: var(--amber); } .sx-ledger li.pass b { color: var(--blue); } .sx-ledger li.zero b { color: var(--faint); }
+.sx-ledger li.cap, .sx-ledger li.fail { background: var(--amber-soft); }
+.sx-gauge { position: relative; width: 150px; height: 104px; }
+.sx-gauge svg { position: absolute; inset: 0; overflow: visible; }
+.sx-gauge output { position: absolute; left: 0; right: 0; top: 40px; text-align: center; font-family: var(--serif); font-size: 44px; font-weight: 400; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+.sx-gauge output small { font-size: 16px; color: var(--faint); letter-spacing: 0; }
+.sx-gauge output.tick { animation: pop .45s cubic-bezier(.34, 1.56, .64, 1); }
+.sx-gauge .cap6 { position: absolute; left: 0; right: 0; top: 88px; text-align: center; font-size: 10.5px; font-weight: 600; color: var(--faint); }
+.sx-verdict { position: absolute; left: 18px; right: 18px; font-size: 12px; line-height: 1.4; padding: .42rem .7rem; border-radius: 9px; background: var(--paper-2); opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease; }
+.sx-verdict.on { opacity: 1; transform: none; }
+.sx-verdict b { font-weight: 700; }
+.sx-verdict.good { background: var(--green-soft); } .sx-verdict.bad { background: var(--red-soft); } .sx-verdict.cap { background: var(--amber-soft); }
+
 /* palette + toast */
 .kit-cmd { border: 1px solid var(--line-2); border-radius: 14px; padding: 0; width: min(36rem, calc(100% - 32px)); background: var(--card); color: var(--ink); margin-top: 12vh; font-family: var(--ui);
   box-shadow: 0 30px 70px -20px rgba(40, 30, 10, .4); }
@@ -383,7 +420,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
   <section class="sec" id="board" aria-labelledby="h-board">
     <div class="wrap">
       <div class="sec-head">
-        <div><h2 id="h-board">Projects</h2><p>Five things I&rsquo;ve built to test my product judgment. Open any card for details and an interactive preview.</p></div>
+        <div><h2 id="h-board">Projects</h2><p>Six things I&rsquo;ve built to test my product judgment. Open any card for details and an interactive preview.</p></div>
         <div class="seg" role="group" aria-label="View">
           <button type="button" data-view="board" aria-pressed="true"><svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="2" width="3" height="10" rx="1"/><rect x="5.5" y="2" width="3" height="7" rx="1"/><rect x="9.5" y="2" width="3" height="8.5" rx="1"/></svg>Board</button>
           <button type="button" data-view="list" aria-pressed="false"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 3.5h10M2 7h10M2 10.5h10"/></svg>List</button>
@@ -438,8 +475,17 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
           </div>
         </div>
         <div class="col" data-col="use">
-          <div class="col-h"><i class="st ring" aria-hidden="true"></i><span>In daily use</span><span class="n">1</span></div>
+          <div class="col-h"><i class="st ring" aria-hidden="true"></i><span>In daily use</span><span class="n">2</span></div>
           <div class="cards">
+            <button class="card" type="button" data-p="agent" aria-haspopup="dialog">
+              <span class="thumb ja"><canvas aria-hidden="true"></canvas></span>
+              <span class="c-body">
+                <span class="c-top"><span class="kind">AI agents</span><span class="pill blue">Weekdays</span></span>
+                <span class="c-title">Job search agent</span>
+                <span class="c-desc">Reads a few hundred postings every weekday, scores the survivors against my resume, and keeps my application tracker current on its own.</span>
+                <span class="c-foot"><span class="tags"><span>Claude</span><span>MCP</span><span>Python</span></span><span class="metric"><b>386</b> in, <b>3</b> out</span></span>
+              </span>
+            </button>
             <button class="card" type="button" data-p="dashboard" aria-haspopup="dialog">
               <span class="thumb"><img src="assets/dashboard.webp" alt="" width="1400" height="813" loading="lazy"></span>
               <span class="c-body">
@@ -466,6 +512,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
             <h3>Independent</h3><p class="role">Designing, building and shipping solo</p>
             <p>Product judgment, tested by building. Real systems with real users, prototyped with AI in the loop and decided on data.</p>
             <ul class="changes">
+              <li><span class="tag b">Running</span><span>A job search agent that reads a few hundred postings every weekday and keeps my application tracker current</span></li>
               <li><span class="tag g">Shipped</span><span>The River Overhead, an illustrated atlas of fall bird migration through the Northeast</span></li>
               <li><span class="tag g">Shipped</span><span>Painted Leaves, a field guide to fall color with watercolors painted in code</span></li>
               <li><span class="tag g">Released</span><span>Grackle v0.11.0, backed by about 1,700 tests and 28 architecture decision records</span></li>
@@ -531,7 +578,7 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
         <tbody>
           <tr><th scope="row">Product</th><td><div class="chips"><span>Roadmap strategy</span><span>Requirements and PRDs</span><span>A/B testing</span><span>Agile and Scrum</span></div></td><td class="ev">Pricing experiments and checkout flows on Elder Scrolls Online</td></tr>
           <tr><th scope="row">Analytics</th><td><div class="chips"><span>SQL</span><span>Tableau</span><span>Grafana</span><span>Splunk</span><span>ARPU, LTV and churn forecasting</span></div></td><td class="ev">Weekly performance and forecast decks and churn forecasting at Zenimax; Fortnite&rsquo;s SQL ingest and export at Epic</td></tr>
-          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; Painted Leaves and The River Overhead, built with Claude</td></tr>
+          <tr><th scope="row">AI and operations</th><td><div class="chips"><span>LLM-assisted development</span><span>Workflow automation</span><span>API troubleshooting</span><span>Incident management</span></div></td><td class="ev">Primary stakeholder for LLM-assisted tools at Epic; a daily job search agent built on Claude scheduled tasks and subagents; Painted Leaves and The River Overhead, built with Claude</td></tr>
           <tr><th scope="row">Tools</th><td><div class="chips"><span>Jira</span><span>Confluence</span><span>Salesforce</span><span>Statsig</span><span>GitHub Actions</span><span>Figma</span><span>Miro</span><span>Slack</span></div></td><td class="ev">Day to day</td></tr>
         </tbody>
       </table>
@@ -628,6 +675,13 @@ canvas.cv { display: block; width: 100%; touch-action: none; }
             <svg class="i-play" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.2 1 L9 5 L2.2 9 Z" fill="currentColor"/></svg>
           </button>
           <p>Each lane drives its own fixtures, the way the app turns a track into cues for real lights.</p>
+        </div>
+      </div>
+      <div data-demo="agent" hidden>
+        <div class="ja-box" id="jaBox"><div class="ja-inner" id="jaInner"><div class="scorer" id="jaScorer"></div></div></div>
+        <div class="ja-ctl">
+          <div class="seg" role="group" aria-label="Sample posting" id="jaSeg"><button type="button" data-k="globex" aria-pressed="true">Clean match</button><button type="button" data-k="adatum" aria-pressed="false">Capped</button><button type="button" data-k="proseware" aria-pressed="false">Knocked out</button></div>
+          <button class="round" type="button" id="jaReplay" aria-label="Replay the scoring"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7a4.5 4.5 0 1 0 1.4-3.3"/><path d="M3.5 1.5v2.6h2.6"/></svg></button>
         </div>
       </div>
       <div class="shotbox" data-demo="shot" hidden><img id="dShot" alt="" loading="lazy"></div>
@@ -1014,6 +1068,133 @@ const Kit = (() => {
     return { setPlaying };
   }
 
+  /* Job search agent card: postings pour in from the left, gates thin them out, three reach the end */
+  function jobThumb(cv, host) {
+    let W = 0, H = 0, ctx, raf = 0, last = 0, on = false, parts = [], acc = 0, seeded = false;
+    let sd = 945; const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647;
+    const GX = [.26, .55, .8], END = .9, PASS = [.15, .3, .2], COLS = ['#3b52cf', '#2c7a4c', '#a9690f', '#d2462a', '#6d5ae6'];
+    const ss = (x, a, b) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+    const halfH = x => { let h = .36; [.19, .09, .035].forEach((v, i) => { h += (v - h) * ss(x, GX[i] - .03, GX[i] + .05); }); return h * (1 - ss(x, .84, END)); };
+    function spawn(x0) { let fate = 3; for (let g = 0; g < 3; g++) if (rnd() > PASS[g]) { fate = g; break; } parts.push({ x: x0 == null ? -.01 : x0, v: rnd() * 2 - 1, sp: .09 + rnd() * .05, ph: rnd() * 6.28, fate, die: -1, c: COLS[Math.floor(rnd() * 5)] }); }
+    function step(dt) {
+      acc += dt * 34; while (acc > 1) { acc--; spawn(); }
+      for (const q of parts) { q.x += q.sp * dt * (q.x > GX[2] ? .8 : 1); if (q.die < 0 && q.fate < 3 && q.x > GX[q.fate]) q.die = 0; if (q.die >= 0) q.die += dt; }
+      parts = parts.filter(q => q.die < .8 && q.x < END + .005);
+    }
+    function draw(t) {
+      ctx.clearRect(0, 0, W, H);
+      const cy = H * .5, bh = H * .78;
+      ctx.beginPath();
+      for (let i = 0; i <= 90; i++) { const x = i / 90 * END; ctx.lineTo(x * W, cy - halfH(x) * bh); }
+      for (let i = 90; i >= 0; i--) { const x = i / 90 * END; ctx.lineTo(x * W, cy + halfH(x) * bh); }
+      ctx.closePath(); ctx.fillStyle = 'rgba(216, 207, 189, .5)'; ctx.fill();
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(145, 138, 125, .6)'; ctx.lineWidth = 1;
+      GX.forEach(g => { ctx.beginPath(); ctx.moveTo(g * W, cy - bh * .44); ctx.lineTo(g * W, cy + bh * .44); ctx.stroke(); });
+      ctx.setLineDash([]);
+      const r0 = Math.max(1.5, W / 240);
+      for (const q of parts) {
+        const hx = halfH(Math.min(q.x, END)); let y = cy + (q.v * .9 + Math.sin(t * 1.3 + q.ph) * .06) * hx * bh, x = q.x * W, a = ss(q.x, -.01, .03), r = r0;
+        let col = q.x < GX[0] ? q.c : q.x < GX[2] ? '#1c1a16' : '#2c7a4c';
+        if (q.die >= 0) { const k = q.die / .8; y += k * k * H * .32; x += k * 10; a *= 1 - k; col = '#d2462a'; r *= 1 - k * .4; }
+        if (q.x > .84 && q.die < 0) { const k = ss(q.x, .84, END); y += (cy + (Math.round(q.v + 1) - 1) * H * .06 - y) * k; }
+        ctx.globalAlpha = a * .85; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      for (let k = -1; k <= 1; k++) {
+        const px = END * W + 3, py = cy + k * H * .06, g = r0 * (2.6 + Math.sin(t * 2.2 + k) * .8);
+        ctx.fillStyle = 'rgba(44, 122, 76, .18)'; ctx.beginPath(); ctx.arc(px, py, g, 0, 7); ctx.fill();
+        ctx.fillStyle = '#2c7a4c'; ctx.beginPath(); ctx.arc(px, py, r0 * 1.5, 0, 7); ctx.fill();
+      }
+      const fs = Math.max(10, W / 30);
+      ctx.font = `400 ${fs * 1.9}px Newsreader, Georgia, serif`; ctx.fillStyle = '#1c1a16'; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+      ctx.fillText('9:45', W * .045, H * .2);
+      ctx.font = `600 ${fs}px "Funnel Sans", system-ui, sans-serif`; ctx.fillStyle = '#5f594f';
+      ctx.fillText('weekdays', W * .045 + ctx.measureText('9:45').width * 1.95 + fs * .2, H * .2);
+      ctx.textAlign = 'center'; ctx.fillStyle = '#5f594f';
+      [['386 in', .12], ['58 read', .4], ['17 checked', .675], ['3 to me', END]].forEach(([s, x], i) => { ctx.fillStyle = i === 3 ? '#2c7a4c' : '#5f594f'; ctx.fillText(s, x * W, H * .93); });
+    }
+    function size() {
+      ({ ctx, W, H } = fitCanvas(cv));
+      if (!seeded && W > 0) { seeded = true; for (let i = 0; i < 330; i++) step(1 / 30); }
+    }
+    function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); draw(now / 1000); raf = on ? requestAnimationFrame(loop) : 0; }
+    function set(v) { if (reduce) return; on = v; if (on && !raf) { last = performance.now(); raf = requestAnimationFrame(loop); } }
+    size(); draw(0);
+    new ResizeObserver(() => { size(); draw(performance.now() / 1000); }).observe(cv);
+    if (document.fonts) document.fonts.ready.then(() => draw(performance.now() / 1000));
+    host.addEventListener('pointerenter', () => set(true)); host.addEventListener('pointerleave', () => set(false));
+    host.addEventListener('focus', () => set(true)); host.addEventListener('blur', () => set(false));
+    if (matchMedia('(hover: none)').matches) onVisible(host, v => set(v));
+    return { set };
+  }
+
+  /* Job search agent drawer: the agent reads a sample posting and scores it line by line */
+  const POSTS = {
+    globex: { title: 'Product Operations Manager, AI Tooling', meta: 'Globex Health · New York, NY · Hybrid', src: 'posted 2 days ago · via Ashby API', lines: [
+      { t: '[[Hybrid, three days a week in our New York office.]]', kind: 'pass', d: 0, note: 'NJ pre-check: commutable' },
+      { t: 'Small team, [[based in Manhattan]], reporting to the COO.', kind: 'plus', d: 2, note: 'NYC hybrid' },
+      { t: 'You’ll [[build internal tools and automations with LLMs]] that our ops teams use every day.', kind: 'plus', d: 2, note: 'AI tooling named' },
+      { t: 'Comfortable in [[SQL and a BI tool]] like Tableau or Looker.', kind: 'plus', d: 2, note: 'SQL or BI' },
+      { t: '[[Write PRDs and own the roadmap]] for internal tooling.', kind: 'plus', d: 2, note: 'PRDs and roadmap' },
+      { t: '[[Partner with compliance]] on audit readiness for new tools.', kind: 'minus', d: -1, note: 'compliance-adjacent' },
+      { t: 'Bachelor’s degree [[or equivalent practical experience]].', kind: 'zero', d: 0, note: 'no cap: "or equivalent"' },
+    ], verdict: ['good', '<b>7/10.</b> In the 5 to 7 band, so a verification agent re-reads it cold and lands on 7 too. It makes the dashboard. <b>Gap:</b> no healthcare background.'] },
+    adatum: { title: 'AI Operations Specialist', meta: 'Adatum · Remote, US', src: 'posted 1 day ago · via ZipRecruiter connector', lines: [
+      { t: '[[Remote anywhere in the US.]]', kind: 'pass', d: 0, note: 'NJ pre-check: remote US' },
+      { t: 'Fully remote team, [[US-based]].', kind: 'plus', d: 1, note: 'remote US' },
+      { t: 'Design and run [[AI-assisted workflows]] across support and ops.', kind: 'plus', d: 2, note: 'AI workflows' },
+      { t: 'Track adoption in [[Looker]] and report weekly.', kind: 'plus', d: 2, note: 'SQL or BI' },
+      { t: '[[2 to 4 years]] in operations or product.', kind: 'plus', d: 1, note: 'years band fits' },
+      { t: '[[Bachelor’s degree in Computer Science required.]]', kind: 'cap', d: 0, cap: 4, note: 'CS degree, no equivalent' },
+    ], verdict: ['cap', '<b>Raw 6, capped at 4.</b> The CS degree line has no "or equivalent experience," so the card names the gap and the role stays off the dashboard.'] },
+    proseware: { title: 'Product Manager, Internal Tools', meta: 'Proseware · Austin, TX · Onsite', src: 'posted today · via Indeed connector', lines: [
+      { t: '[[Onsite five days a week in Austin. Relocation is not offered.]]', kind: 'fail', d: 0, fail: true, note: 'NJ pre-check: fail' },
+      { t: 'Own the roadmap for internal tools used by 400 people.', kind: 'zero', d: 0, skip: true },
+      { t: 'Strong SQL and comfort with dashboards.', kind: 'zero', d: 0, skip: true },
+      { t: 'Experience building with LLMs is a plus.', kind: 'zero', d: 0, skip: true },
+    ], verdict: ['bad', '<b>1/10, early exit.</b> The location check fails on the first line, so the agent stops there and spends its budget on roles still in play. The rest of the posting is never scored.'] },
+  };
+  function scorer(host, key) {
+    const P = POSTS[key], seg = (p, a, b) => clamp((p - a) / (b - a), 0, 1), lerp = (a, b, t) => a + (b - a) * t;
+    const back = t => { const c1 = 1.5, c3 = c1 + 1; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+    const lines = P.lines.map(l => `<li data-kind="${l.kind}">${l.t.replace(/\[\[(.+?)\]\]/g, '<mark>$1</mark>')}</li>`).join('');
+    const led = P.lines.filter(l => !l.skip).map(l => {
+      const w = l.kind === 'pass' ? 'pass' : l.kind === 'fail' ? 'fail' : l.kind === 'cap' ? 'cap ' + l.cap : l.d > 0 ? '+' + l.d : l.d < 0 ? '−' + (-l.d) : '0';
+      return `<li class="${l.kind}"><b>${w}</b><span>${l.note}</span></li>`;
+    }).join('');
+    host.innerHTML = `<div class="sx-post"><div class="sx-head"><b>${P.title}</b><span>${P.meta}</span><small>${P.src}</small></div><ul class="sx-lines">${lines}</ul></div><div class="sx-verdict"></div>
+      <div class="sx-calc"><ol class="sx-ledger">${led}</ol><div class="sx-gauge"><svg viewBox="0 0 150 104" aria-hidden="true"><path d="M15 88 A60 60 0 0 1 135 88" fill="none" stroke="#ece6d9" stroke-width="10" stroke-linecap="round"/><path class="g-arc" d="M15 88 A60 60 0 0 1 135 88" fill="none" stroke="#1c1a16" stroke-width="10" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/><line class="g-bar" stroke="#2c7a4c" stroke-width="2.5" stroke-linecap="round"/><line class="g-cap" stroke="#a9690f" stroke-width="3" stroke-linecap="round" opacity="0"/></svg><output>0<small>/10</small></output><span class="cap6">bar at 6</span></div></div>`;
+    const tick = (el, v, r0, r1) => { const a = Math.PI * (1 - v / 10); el.setAttribute('x1', 75 + Math.cos(a) * r0); el.setAttribute('y1', 88 - Math.sin(a) * r0); el.setAttribute('x2', 75 + Math.cos(a) * r1); el.setAttribute('y2', 88 - Math.sin(a) * r1); };
+    tick(host.querySelector('.g-bar'), 6, 48, 72);
+    const E = { lines: [...host.querySelectorAll('.sx-lines li')], led: [...host.querySelectorAll('.sx-ledger li')], arc: host.querySelector('.g-arc'), out: host.querySelector('output'), verdict: host.querySelector('.sx-verdict'), cap: host.querySelector('.g-cap'), post: host.querySelector('.sx-post') };
+    E.verdict.className = 'sx-verdict ' + P.verdict[0]; E.verdict.innerHTML = P.verdict[1];
+    const place = () => { E.verdict.style.top = (E.post.offsetTop + E.post.offsetHeight + 8) + 'px'; };
+    place(); requestAnimationFrame(place); if (document.fonts) document.fonts.ready.then(place);
+    let lastVal = -1;
+    function set(p) {
+      const live = P.lines.filter(l => !l.skip), per = .8 / live.length;
+      let val = 0, capAt = null, failed = false;
+      P.lines.forEach((l, i) => {
+        const li = E.lines[i], m = li.querySelector('mark');
+        if (l.skip) { li.classList.toggle('dim', p > per * .9); return; }
+        const j = live.indexOf(l), u = seg(p, j * per, (j + .8) * per), k = back(seg(u, .35, 1));
+        if (m) m.style.setProperty('--h', u.toFixed(3));
+        E.led[j].classList.toggle('on', u > .55);
+        if (l.fail) { failed = k > 0; val = lerp(val, 1, k); } else if (l.cap != null) { if (k > 0) capAt = { k, v: l.cap }; } else val += l.d * k;
+      });
+      if (capAt) val = lerp(val, Math.min(val, capAt.v), capAt.k);
+      val = clamp(val, 0, 10);
+      E.arc.setAttribute('stroke-dashoffset', (1 - val / 10).toFixed(4));
+      E.arc.setAttribute('stroke', val >= 6 ? '#2c7a4c' : failed ? '#d2462a' : capAt ? '#a9690f' : '#1c1a16');
+      const shown = Math.round(val);
+      if (shown !== lastVal) { const up = lastVal >= 0; lastVal = shown; E.out.innerHTML = `${shown}<small>/10</small>`; if (up && !reduce) { E.out.classList.remove('tick'); void E.out.offsetWidth; E.out.classList.add('tick'); } }
+      if (capAt) { tick(E.cap, capAt.v, 50, 70); E.cap.setAttribute('opacity', capAt.k.toFixed(2)); } else E.cap.setAttribute('opacity', 0);
+      E.verdict.classList.toggle('on', p > .9);
+    }
+    set(0);
+    return { set };
+  }
+
   /* command palette */
   function palette({ actions, triggers = [], placeholder = 'Type a command or search', empty = 'No matches. Try “email” or a project name.' }) {
     const dlg = document.createElement('dialog');
@@ -1054,7 +1235,7 @@ const Kit = (() => {
     return { open };
   }
 
-  return { reduce, EMAIL, shortcut, isMac, toast, copyEmail, clock, scrubber, PL_LABELS, PL_SHORT, graph, sequencer, flock, radar, palette, onVisible, fitCanvas };
+  return { reduce, EMAIL, shortcut, isMac, toast, copyEmail, clock, scrubber, PL_LABELS, PL_SHORT, graph, sequencer, flock, radar, jobThumb, scorer, palette, onVisible, fitCanvas };
 })();
 
 (() => {
@@ -1085,13 +1266,18 @@ const Kit = (() => {
       props: [['Status', 'Active'], ['Size', 'About 6,500 lines'], ['Stack', 'Audio DSP, ESP32, Three.js and WebGL']],
       hl: ['Splits a track into four stems and turns each into its own cue lane', 'Drives ESP32 fixtures over Wi-Fi or USB', 'A Three.js visualizer with sphere and swarm modes'],
       links: [['GitHub profile', 'https://github.com/Popespice', 0]] },
+    agent: { name: 'Job search agent', kind: 'AI agents', demo: 'agent', shot: ['assets/jobagent.webp', 'The job search agent walkthrough, with a filter funnel thinning 386 postings down to the roles worth a deep read'],
+      desc: 'Two scheduled Claude agents and one shared tracker. Every weekday at 9:45, the matcher gathers a few hundred new postings, throws out what I can\u2019t or shouldn\u2019t apply to, sends a separate subagent to read each survivor in full, and scores it against my resume with a written rubric. The two or three worth my time land on a dashboard with their math shown. A second agent checks my job inbox every hour and moves tracker rows on its own, so the next run already knows what I applied to.',
+      props: [['Schedule', 'Weekdays at 9:45 AM ET, plus an hourly inbox check from 8 AM to 6 PM'], ['Sources', 'Indeed and ZipRecruiter connectors, Built In, Wellfound, and the Greenhouse, Ashby and Lever APIs'], ['Tracker', 'A Claude doc of tables, kept current by the email monitor'], ['Stack', 'Claude scheduled tasks and subagents, MCP connectors, Python helpers']],
+      hl: ['One subagent per role, in waves of six, with an early exit on hard knockouts', 'A written rubric with caps for unmet must-haves, and a second agent for borderline scores', 'The tracker is the contract between the two agents, and hand edits are respected by both'],
+      links: [['See how it works', 'job-agent/', 1]] },
     dashboard: { name: 'Desk dashboard', kind: 'Personal tool', demo: null, shot: ['assets/dashboard.webp', 'Dot-matrix desktop dashboard with clock, system load and now playing'],
       desc: 'A dot-matrix status board for the desk: clock, system load, network, now playing, a focus timer and GitHub activity on one screen.',
       props: [['Type', 'Personal tool'], ['Platform', 'Desktop'], ['Shows', 'Clock, system load, network, now playing, focus timer, GitHub activity']],
       hl: ['Clock, weather and system readouts at a glance', 'Now playing, a focus timer and quick settings in one place', 'GitHub activity and a slot for the next calendar event'],
       links: [] },
   };
-  const ORDER = ['flyway', 'painted', 'grackle', 'lightshow', 'dashboard'];
+  const ORDER = ['flyway', 'painted', 'grackle', 'lightshow', 'agent', 'dashboard'];
 
   /* ---------- section tabs ---------- */
   const tabs = $$('.tabs a');
@@ -1133,6 +1319,10 @@ const Kit = (() => {
   /* The River Overhead card: birds head southwest across the painting while you hover */
   const flCard = $('.card[data-p="flyway"]');
   Kit.flock(flCard.querySelector('canvas'), flCard);
+
+  /* Job search agent card: the pipeline runs while you hover */
+  const jaCard = $('.card[data-p="agent"]');
+  Kit.jobThumb(jaCard.querySelector('canvas'), jaCard);
 
   /* ---------- the move: a colleague's cursor ships the newest project ---------- */
   const ghost = $('#ghost');
@@ -1191,7 +1381,7 @@ const Kit = (() => {
 
   /* ---------- drawer ---------- */
   const dlg = $('#drawer');
-  let cur = null, demoTab = 'demo', graphMade = false, seqMade = false, radarMade = false;
+  let cur = null, demoTab = 'demo', graphMade = false, seqMade = false, radarMade = false, agentMade = false;
   const plRange = $('#plRange');
   const scrub = Kit.scrubber({ imgs: $$('#plFrames img'), range: plRange, out: $('#plOut') });
   function setTab(t) {
@@ -1202,6 +1392,7 @@ const Kit = (() => {
     if (demoTab === 'demo' && p.demo === 'grackle' && !graphMade) { graphMade = true; makeGraph(); }
     if (demoTab === 'demo' && p.demo === 'lightshow' && !seqMade) { seqMade = true; makeSeq(); }
     if (demoTab === 'demo' && p.demo === 'flyway' && !radarMade) { radarMade = true; makeRadar(); }
+    if (demoTab === 'demo' && p.demo === 'agent') { if (!agentMade) { agentMade = true; makeAgent(); } else agentPlay(); }
   }
   $$('#dTabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
   function fill(id) {
@@ -1253,6 +1444,24 @@ const Kit = (() => {
   function makeRadar() {
     Kit.radar({ cv: $('#rdr'), range: $('#rdRange'), out: $('#rdOut'), level: $('#rdLevel'), head: $('#rdHead'), say: $('#rdSay'), button: $('#rdPlay'), wind: $('#rdWind'), mapSrc: 'flyway/assets/map-northeast.jpg' });
   }
+  /* Job search agent: pick a sample posting and watch the agent score it */
+  let agentKey = 'globex', agentAnim = 0;
+  function agentPlay() {
+    cancelAnimationFrame(agentAnim);
+    const sc = Kit.scorer($('#jaScorer'), agentKey);
+    if (Kit.reduce) { sc.set(1); return; }
+    const t0 = performance.now() + 250, dur = agentKey === 'proseware' ? 2600 : 5200;
+    const tick = now => { const u = Math.max(0, Math.min(1, (now - t0) / dur)); sc.set(u); if (u < 1) agentAnim = requestAnimationFrame(tick); };
+    agentAnim = requestAnimationFrame(tick);
+  }
+  function makeAgent() {
+    const box = $('#jaBox'), inner = $('#jaInner');
+    const fit = () => { const r = box.getBoundingClientRect(), s = Math.min(r.width / 480, r.height / 520); inner.style.transform = `scale(${s}) translate(-50%, -50%)`; };
+    new ResizeObserver(fit).observe(box); fit();
+    $$('#jaSeg button').forEach(b => b.addEventListener('click', () => { $$('#jaSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); agentKey = b.dataset.k; agentPlay(); }));
+    $('#jaReplay').addEventListener('click', agentPlay);
+    agentPlay();
+  }
   let seq = null;
   function makeSeq() {
     const fx = $$('#rig .fx'), MAP = [[0, 7], [2, 5], [3, 4], [1, 6]];
@@ -1285,6 +1494,7 @@ const Kit = (() => {
     { group: 'Projects', label: 'Painted Leaves', hint: 'Field guide', run: () => openP('painted') },
     { group: 'Projects', label: 'Grackle', hint: 'Code analysis', run: () => openP('grackle') },
     { group: 'Projects', label: 'Lightshow sequencer', hint: 'macOS and ESP32', run: () => openP('lightshow') },
+    { group: 'Projects', label: 'Job search agent', hint: 'AI agents', keys: 'jobs matcher tracker claude scheduled', run: () => openP('agent') },
     { group: 'Projects', label: 'Desk dashboard', hint: 'Personal tool', run: () => openP('dashboard') },
     { group: 'Sections', label: 'Changelog', hint: 'Experience', keys: 'experience jobs resume career', run: go('changelog') },
     { group: 'Sections', label: 'Capabilities', hint: 'Skills', keys: 'skills tools', run: go('capabilities') },
@@ -1293,6 +1503,7 @@ const Kit = (() => {
     { group: 'Actions', label: 'Switch to list view', hint: 'Projects', run: () => { go('board')(); $('.seg [data-view="list"]').click(); } },
     { group: 'Actions', label: 'Open The River Overhead atlas', hint: 'New page', run: open('flyway/') },
     { group: 'Actions', label: 'Open the Painted Leaves field guide', hint: 'New page', run: open('painted-leaves/') },
+    { group: 'Actions', label: 'See how the job search agent works', hint: 'New page', run: open('job-agent/') },
     { group: 'Actions', label: 'Open GitHub', hint: 'Popespice', run: open('https://github.com/Popespice') },
     { group: 'Actions', label: 'Open LinkedIn', hint: 'Connor Allen', run: open('https://www.linkedin.com/in/connor-allen-a2785b79/') },
   ] });

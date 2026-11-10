@@ -1,0 +1,1560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- hardening -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TFwCi47nN/S19a2OJyGtA9NCdsinrShdyOIJeSGoSfs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noai, noimageai">
+<!-- /hardening -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Job search agent, Connor Allen</title>
+<meta name="description" content="How my daily job search agent works, start to finish: it gathers a few hundred postings, filters them, sends a subagent to read each survivor, scores it against my resume, and keeps my application tracker current on its own.">
+<link rel="canonical" href="https://popespice.github.io/portfolio/job-agent/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#f3efe6">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Job search agent, Connor Allen">
+<meta property="og:description" content="A run, start to finish: gather, filter, investigate, score, verify, publish, and track.">
+<meta property="og:url" content="https://popespice.github.io/portfolio/job-agent/">
+<meta property="og:image" content="https://popespice.github.io/portfolio/assets/jobagent.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Connor Allen">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap">
+<style>
+/* Job search agent: one sample run told start to finish. The left column is the story; the right column is a sticky
+   stage that replays the run as you scroll. Every animation is a pure function of scroll position, eased toward it,
+   so scrubbing backward and forward always lands on the same frame. */
+:root {
+  --paper: #f3efe6; --paper-2: #ece6d9; --card: #fffdf9; --ink: #1c1a16; --soft: #5f594f; --faint: #918a7d;
+  --line: #e1dacb; --line-2: #d0c8b6;
+  --green: #2c7a4c; --green-soft: #e1eee4; --amber: #a9690f; --amber-soft: #f5e8d1;
+  --blue: #3b52cf; --blue-soft: #e4e8fa; --red: #d2462a; --red-soft: #fbe3dc; --violet: #6d5ae6; --violet-soft: #ebe7fc;
+  --yellow: #f9eeda;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --ui: "Funnel Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--ui); font-size: 16px; line-height: 1.55; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+::selection { background: #1c1a16; color: var(--paper); }
+code, .mono { font-family: var(--mono); font-size: .86em; }
+.wrap { max-width: 78rem; margin: 0 auto; padding: 0 20px; }
+.pill { display: inline-flex; align-items: center; gap: .38rem; font-size: 12.5px; font-weight: 600; padding: .14rem .55rem .14rem .45rem; border-radius: 999px; white-space: nowrap; line-height: 1.45; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.blue { color: var(--blue); background: var(--blue-soft); }
+.pill.green { color: var(--green); background: var(--green-soft); }
+.btn { display: inline-flex; align-items: center; gap: .45rem; height: 38px; padding: 0 1rem; border-radius: 9px; border: 1px solid var(--line-2); background: var(--card); font-size: 14.5px; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* crumb */
+.crumb { border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 90%, transparent); }
+.crumb .wrap { display: flex; align-items: center; gap: .55rem; height: 54px; font-size: 14px; color: var(--faint); }
+.crumb a { color: var(--ink); text-decoration: none; font-weight: 650; display: inline-flex; align-items: center; gap: .55rem; }
+.crumb a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.crumb .av { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 10.5px; font-weight: 700; }
+.crumb .sep { color: var(--line-2); }
+.crumb b { color: var(--ink); font-weight: 600; }
+
+/* hero */
+.hero { padding: clamp(2.6rem, 6vw, 5rem) 0 clamp(1.6rem, 4vw, 2.6rem); }
+.kick { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin: 0 0 1.3rem; font-size: 14.5px; color: var(--soft); }
+.hero h1 { margin: 0; max-width: 16em; font-family: var(--serif); font-weight: 380; font-size: clamp(2.4rem, 5.6vw, 4.5rem); line-height: 1.02; letter-spacing: -.022em; text-wrap: balance; }
+.lede { max-width: 40rem; margin: 1.4rem 0 0; font-family: var(--serif); font-size: clamp(1.15rem, 1.8vw, 1.35rem); line-height: 1.5; color: #2c2924; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: clamp(2rem, 4vw, 3rem); border-top: 1px solid var(--line-2); }
+.facts > div { padding: .95rem 1.2rem 0 0; }
+.facts > div + div { padding-left: 1.2rem; border-left: 1px solid var(--line); }
+.facts b { display: block; font-family: var(--serif); font-weight: 420; font-size: clamp(1.8rem, 3vw, 2.4rem); line-height: 1; letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; }
+.facts span { display: block; margin-top: .4rem; font-size: 13.5px; color: var(--soft); }
+.when { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; margin-top: 1.4rem; font-size: 13.5px; color: var(--soft); }
+.when strong { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+.when i { display: inline-block; width: 7px; height: 7px; margin-right: .45rem; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(44, 122, 76, .5); animation: beat 2.4s ease-out infinite; vertical-align: 1px; }
+@keyframes beat { 0% { box-shadow: 0 0 0 0 rgba(44, 122, 76, .45); } 70% { box-shadow: 0 0 0 9px rgba(44, 122, 76, 0); } 100% { box-shadow: 0 0 0 0 rgba(44, 122, 76, 0); } }
+.scrollhint { display: inline-flex; align-items: center; gap: .55rem; margin-top: 2.2rem; font-size: 13.5px; font-weight: 600; color: var(--soft); text-decoration: none; }
+.scrollhint span { display: inline-block; width: 18px; height: 28px; border: 1.5px solid var(--line-2); border-radius: 10px; position: relative; }
+.scrollhint span::after { content: ""; position: absolute; left: 50%; top: 6px; width: 3px; height: 6px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); animation: wheel 1.8s ease-in-out infinite; }
+@keyframes wheel { 0% { opacity: 0; transform: translateY(-2px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(9px); } }
+@media (max-width: 760px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts > div:nth-child(3) { border-left: 0; padding-left: 0; } .facts > div:nth-child(n+3) { margin-top: 1rem; border-top: 1px solid var(--line); } }
+
+/* the run: story on the left, sticky stage on the right */
+.run { border-top: 1px solid var(--line-2); }
+.run-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 0 clamp(2rem, 4vw, 3.6rem); }
+.steps { padding: 0 0 18vh; }
+.step { min-height: 112vh; padding-top: 26vh; }
+.step.long { min-height: 150vh; }
+.step:last-child { min-height: 90vh; }
+.step .txt { transition: opacity .45s ease; opacity: .32; }
+.step.on .txt { opacity: 1; }
+.step .no { display: flex; align-items: center; gap: .6rem; font-size: 12.5px; font-weight: 700; color: var(--soft); letter-spacing: .02em; }
+.step .no em { font-style: normal; display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 7px; background: var(--ink); color: var(--paper); font-size: 12px; font-variant-numeric: tabular-nums; }
+.step h2 { margin: .7rem 0 .9rem; font-family: var(--serif); font-weight: 420; font-size: clamp(1.9rem, 3.2vw, 2.6rem); line-height: 1.04; letter-spacing: -.02em; text-wrap: balance; }
+.step p { margin: 0 0 1rem; font-family: var(--serif); font-size: 1.16rem; line-height: 1.55; color: #2c2924; }
+.spec { margin: 1.2rem 0 0; padding: .75rem .9rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); font-family: var(--mono); font-size: 12.5px; line-height: 1.75; color: var(--soft); }
+.spec b { color: var(--ink); font-weight: 600; }
+.spec .k { color: var(--blue); }
+.spec .g { color: var(--green); }
+.spec .r { color: var(--red); }
+.spec .a { color: var(--amber); }
+
+.stage-col { position: sticky; top: 14px; height: calc(100svh - 28px); padding: 0; display: flex; align-items: center; }
+.stage { position: relative; width: 100%; height: 100%; max-height: 860px; display: flex; flex-direction: column; border: 1px solid var(--line-2); border-radius: 16px; background: var(--card); overflow: hidden;
+  box-shadow: 0 1px 2px rgba(60, 50, 30, .06), 0 30px 60px -40px rgba(60, 50, 30, .45); }
+.st-bar { flex: none; display: flex; align-items: center; gap: .8rem; height: 46px; padding: 0 .9rem; border-bottom: 1px solid var(--line); background: var(--paper); font-size: 13px; }
+.st-run span { display: none; }
+.st-run { display: flex; align-items: center; gap: .5rem; min-width: 0; color: var(--soft); white-space: nowrap; }
+.st-run i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; animation: beat 2.4s ease-out infinite; }
+.st-run b { color: var(--ink); font-weight: 650; overflow: hidden; text-overflow: ellipsis; }
+.st-dots { display: flex; gap: 5px; margin: 0 auto; }
+.st-dots button { width: 17px; height: 22px; padding: 0; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+.st-dots button::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); transition: background .3s ease, transform .3s ease, width .3s ease; }
+.st-dots button.done::before { background: var(--soft); }
+.st-dots button.on::before { width: 22px; border-radius: 4px; background: linear-gradient(90deg, var(--ink) var(--p, 0%), var(--line-2) var(--p, 0%)); }
+.st-clock { font-family: var(--mono); font-size: 12.5px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.st-clock small { color: var(--faint); font-size: 11.5px; margin-right: .35rem; font-family: var(--ui); font-weight: 600; }
+.st-view { position: relative; flex: 1; min-height: 0; overflow: hidden;
+  background-color: var(--card); background-image: radial-gradient(circle, #ece6d9 1px, transparent 1.2px); background-size: 18px 18px; background-position: 9px 9px; }
+.st-box { position: absolute; left: 50%; top: 50%; width: 480px; height: 500px; transform-origin: 0 0; }
+.st-box canvas { position: absolute; inset: 0; width: 480px; height: 500px; }
+.st-chap { position: absolute; left: 14px; top: 12px; z-index: 3; font-size: 12px; font-weight: 700; color: var(--soft); letter-spacing: .02em; background: color-mix(in srgb, var(--card) 85%, transparent); padding: .1rem .45rem; border-radius: 6px; }
+.st-log { flex: none; height: 78px; padding: .55rem .9rem; border-top: 1px solid var(--line); background: #1c1a16; color: #d9d3c6; font-family: var(--mono); font-size: 11.5px; line-height: 1.6; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+.st-log div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .5; transition: opacity .3s ease; }
+.st-log div:last-child { opacity: 1; }
+.st-log div:last-child::after { content: "▍"; margin-left: 2px; color: #ff8a6b; animation: blink 1s steps(1) infinite; }
+.st-log .t { color: #8f887b; margin-right: .7rem; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* scenes */
+.sc { position: absolute; inset: 0; opacity: 0; pointer-events: none; will-change: opacity; }
+.sc.live { pointer-events: auto; }
+.sc .ttl { position: absolute; left: 0; right: 0; top: 34px; text-align: center; font-family: var(--serif); font-size: 21px; font-weight: 450; letter-spacing: -.01em; }
+.sc .sub { position: absolute; left: 0; right: 0; top: 64px; text-align: center; font-size: 12.5px; color: var(--soft); }
+.lbl { position: absolute; font-size: 12px; font-weight: 600; color: var(--soft); white-space: nowrap; }
+.lbl b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* scene 0: gates */
+.s0-clock { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-family: var(--serif); font-weight: 340; font-size: 92px; line-height: 1; letter-spacing: -.04em; font-variant-numeric: lining-nums tabular-nums; }
+.s0-clock small { font-size: 26px; letter-spacing: 0; margin-left: 6px; color: var(--soft); }
+.s0-cron { position: absolute; left: 0; right: 0; top: 152px; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--soft); }
+.s0-cron b { color: var(--ink); font-weight: 600; }
+.s0-file { position: absolute; left: 70px; right: 70px; top: 186px; height: 40px; display: flex; align-items: center; gap: .6rem; padding: 0 .8rem; border: 1px solid var(--line-2); border-radius: 9px; background: var(--paper); font-family: var(--mono); font-size: 12px; overflow: hidden; }
+.s0-file svg { width: 16px; height: 16px; flex: none; }
+.s0-file .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--ink); width: 0; }
+.s0-file span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s0-file em { font-style: normal; color: var(--faint); font-size: 11px; }
+.gates { position: absolute; left: 70px; right: 70px; top: 246px; margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.gates li { display: grid; grid-template-columns: 22px 38px minmax(0, 1fr); align-items: center; gap: .55rem; height: 46px; padding: 0 .8rem; border: 1px solid var(--line); border-radius: 9px; background: var(--card); font-size: 13.5px; opacity: .35; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease, border-color .35s ease; }
+.gates li.run, .gates li.ok { opacity: 1; transform: none; }
+.gates li.ok { border-color: color-mix(in srgb, var(--green) 35%, var(--line)); }
+.gates code { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--soft); }
+.gates li > span:last-child { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.gates li small { color: var(--faint); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gates .ic { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line-2); position: relative; }
+.gates li.run .ic { border-color: var(--line-2); border-top-color: var(--ink); animation: spin .8s linear infinite; }
+.gates li.ok .ic { border-color: var(--green); background: var(--green); }
+.gates li.ok .ic::after { content: ""; position: absolute; left: 5px; top: 2px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* scene 1: state */
+.files { position: absolute; left: 22px; top: 104px; width: 196px; display: grid; gap: 10px; }
+.file { position: relative; height: 56px; padding: .45rem .7rem; border: 1px solid var(--line-2); border-radius: 9px; background: var(--card); box-shadow: 0 6px 16px -12px rgba(60, 50, 30, .4); will-change: transform; }
+.file b { display: block; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.file span { display: block; font-size: 11.5px; color: var(--soft); }
+.file i { position: absolute; right: .7rem; top: .5rem; font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.file.doc { border-color: color-mix(in srgb, var(--blue) 45%, var(--line-2)); background: var(--blue-soft); }
+.skip { position: absolute; left: 270px; top: 168px; width: 190px; height: 190px; border-radius: 50%; display: grid; place-items: center; text-align: center; }
+.skip svg { position: absolute; inset: 0; }
+.skip div { position: relative; }
+.skip b { display: block; font-family: var(--serif); font-size: 46px; font-weight: 380; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+.skip span { display: block; margin-top: .25rem; font-size: 12px; color: var(--soft); line-height: 1.3; }
+.skipnote { position: absolute; left: 262px; width: 206px; top: 378px; text-align: center; font-size: 12px; color: var(--soft); line-height: 1.4; }
+.skipnote code { color: var(--ink); }
+
+/* scene 2: sources */
+.src { position: absolute; left: 18px; width: 140px; line-height: 1.2; }
+.src b { display: flex; align-items: center; gap: .4rem; font-size: 13.5px; font-weight: 700; }
+.src b i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.src span { display: block; margin-top: .2rem; font-size: 11px; color: var(--soft); }
+.src em { display: block; margin-top: .15rem; font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pooltag { position: absolute; left: 282px; width: 156px; top: 96px; text-align: center; }
+.pooltag b { display: block; font-family: var(--serif); font-size: 40px; font-weight: 380; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+.pooltag span { font-size: 12px; color: var(--soft); }
+.poolnote { position: absolute; left: 270px; width: 180px; top: 330px; text-align: center; font-size: 11.5px; color: var(--soft); line-height: 1.4; }
+
+/* scene 3: funnel */
+.gl { position: absolute; left: 318px; width: 160px; font-size: 11.5px; line-height: 1.2; color: var(--soft); white-space: nowrap; }
+.gl b { color: var(--red); font-family: var(--mono); font-weight: 600; font-size: 12px; margin-right: .3rem; font-variant-numeric: tabular-nums; }
+.ftop { position: absolute; left: 70px; width: 200px; top: 2px; text-align: center; font-size: 12px; color: var(--soft); }
+.ftop b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.fbot { position: absolute; left: 60px; width: 220px; top: 474px; text-align: center; font-size: 12.5px; color: var(--soft); }
+.fbot b { color: var(--green); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* scene 4: agents */
+.wave { position: absolute; left: 100px; top: 70px; font-size: 12.5px; color: var(--soft); }
+.wave b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.qtag { position: absolute; left: 12px; top: 96px; width: 66px; text-align: center; font-size: 11px; font-weight: 600; color: var(--soft); }
+.qtag b { display: block; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.legend4 { position: absolute; left: 100px; top: 384px; display: flex; gap: 14px; font-size: 11.5px; color: var(--soft); }
+.legend4 i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+.ttag { position: absolute; left: 100px; top: 412px; font-size: 11.5px; color: var(--soft); }
+.ttag b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* scorer, shared by scene 5 and the rubric widget below */
+.scorer { position: absolute; inset: 0; }
+.sx-post { position: absolute; left: 18px; right: 18px; top: 14px; padding: .7rem .9rem .6rem; border: 1px solid var(--line-2); border-radius: 12px; background: var(--card); box-shadow: 0 10px 26px -20px rgba(60, 50, 30, .5); }
+.sx-head b { display: block; font-family: var(--serif); font-size: 19px; font-weight: 500; line-height: 1.15; letter-spacing: -.01em; }
+.sx-head span { display: block; margin-top: .2rem; font-size: 12.5px; color: var(--soft); }
+.sx-head small { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+.sx-lines { list-style: none; margin: .55rem 0 0; padding: .45rem 0 0; border-top: 1px dashed var(--line-2); display: grid; gap: .22rem; }
+.sx-lines li { font-size: 12.4px; line-height: 1.36; color: #3a362f; transition: opacity .3s ease; }
+.sx-lines li.dim { opacity: .3; }
+.sx-lines mark { background: linear-gradient(var(--hl, #f5e8d1), var(--hl, #f5e8d1)) no-repeat 0 85% / calc(var(--h, 0) * 100%) 72%; color: inherit; padding: 0 1px; border-radius: 2px; }
+.sx-lines li[data-kind="plus"] mark { --hl: #cfe6d6; }
+.sx-lines li[data-kind="minus"] mark { --hl: #f8d3c8; }
+.sx-lines li[data-kind="cap"] mark, .sx-lines li[data-kind="fail"] mark { --hl: #f7dfa9; }
+.sx-lines li[data-kind="pass"] mark { --hl: #d9def8; }
+.sx-lines li[data-kind="zero"] mark { --hl: #e8e2d5; }
+.sx-calc { position: absolute; left: 18px; right: 18px; bottom: 14px; display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; align-items: end; }
+.sx-ledger { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-family: var(--mono); font-size: 11.8px; }
+.sx-ledger li { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; height: 20px; padding: 0 .5rem; border-radius: 6px; background: var(--paper); opacity: 0; transform: translateX(-8px); transition: opacity .3s ease, transform .3s ease; white-space: nowrap; overflow: hidden; }
+.sx-ledger li.on { opacity: 1; transform: none; }
+.sx-ledger li b { font-weight: 600; }
+.sx-ledger li span { overflow: hidden; text-overflow: ellipsis; color: var(--soft); }
+.sx-ledger li.plus b { color: var(--green); } .sx-ledger li.minus b { color: var(--red); } .sx-ledger li.cap b, .sx-ledger li.fail b { color: var(--amber); } .sx-ledger li.pass b { color: var(--blue); } .sx-ledger li.zero b { color: var(--faint); }
+.sx-ledger li.cap, .sx-ledger li.fail { background: var(--amber-soft); }
+.sx-gauge { position: relative; width: 150px; height: 104px; }
+.sx-gauge svg { position: absolute; inset: 0; overflow: visible; }
+.sx-gauge output { position: absolute; left: 0; right: 0; top: 40px; text-align: center; font-family: var(--serif); font-size: 44px; font-weight: 400; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+.sx-gauge output small { font-size: 16px; color: var(--faint); letter-spacing: 0; }
+.sx-gauge .cap6 { position: absolute; left: 0; right: 0; top: 88px; text-align: center; font-size: 10.5px; font-weight: 600; color: var(--faint); }
+.sx-verdict { position: absolute; left: 18px; right: 18px; font-size: 12px; line-height: 1.4; padding: .42rem .7rem; border-radius: 9px; background: var(--paper-2); opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease; }
+.sx-verdict.on { opacity: 1; transform: none; }
+.sx-verdict b { font-weight: 700; }
+.sx-verdict.good { background: var(--green-soft); } .sx-verdict.bad { background: var(--red-soft); } .sx-verdict.cap { background: var(--amber-soft); }
+
+/* scene 6: verify */
+.vcards { position: absolute; left: 22px; right: 22px; top: 92px; display: grid; gap: 8px; }
+.vcard { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .6rem; height: 44px; padding: 0 .75rem; border: 1px solid var(--line); border-radius: 9px; background: var(--card); font-size: 12.5px; opacity: 0; transform: translateY(8px); transition: opacity .35s ease, transform .35s ease; }
+.vcard.on { opacity: 1; transform: none; }
+.vcard span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
+.vcard span small { display: block; font-size: 11px; color: var(--soft); }
+.vcard em { font-style: normal; font-family: var(--mono); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.vcard em .up { color: var(--green); } .vcard em .dn { color: var(--red); } .vcard em .eq { color: var(--soft); }
+.vlab { position: absolute; font-size: 11.5px; font-weight: 600; color: var(--soft); text-align: center; }
+.vlab b { color: var(--ink); }
+.vbar { position: absolute; left: 248px; top: 254px; font-size: 11.5px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.vmade { position: absolute; left: 0; right: 0; top: 448px; text-align: center; font-size: 13px; color: var(--soft); }
+.vmade b { color: var(--green); }
+
+/* scene 7: publish */
+.win { position: absolute; left: 16px; right: 16px; top: 14px; height: 372px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--paper); overflow: hidden; box-shadow: 0 16px 34px -26px rgba(60, 50, 30, .55); }
+.win-bar { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-bottom: 1px solid var(--line); background: var(--card); font-family: var(--mono); font-size: 11px; color: var(--soft); }
+.win-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
+.win-bar span { margin-left: 8px; padding: 2px 10px; border-radius: 6px; background: var(--paper); }
+.win-h { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 14px 2px; }
+.win-h b { font-family: var(--serif); font-size: 17px; font-weight: 500; }
+.win-h span { font-size: 11.5px; color: var(--soft); }
+.jc { position: absolute; left: 12px; right: 12px; height: 96px; padding: 9px 12px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--line); border-radius: 10px; background: var(--card); opacity: 0; transform: translateY(10px) scale(.985); transition: opacity .4s ease, transform .45s cubic-bezier(.2, .8, .2, 1); }
+.jc.on { opacity: 1; transform: none; }
+.jc-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.jc-top b { font-size: 13.5px; color: var(--blue); font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jc-top span { font-size: 11.5px; color: var(--soft); white-space: nowrap; }
+.jc-pills { display: flex; gap: 5px; margin-top: 4px; }
+.jc-pills span { font-size: 10.5px; padding: 0 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--soft); white-space: nowrap; }
+.jc-pills span.sc7 { background: var(--green-soft); color: var(--green); border-color: transparent; font-weight: 700; }
+.jc-pills span.sc6 { background: var(--amber-soft); color: var(--amber); border-color: transparent; font-weight: 700; }
+.jc-math { margin-top: 2px; line-height: 1.5; font-family: var(--mono); font-size: 10.2px; letter-spacing: -.15px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jc-math .p { color: var(--green); } .jc-math .m { color: var(--red); }
+.jc-gap { font-size: 11px; line-height: 1.45; color: #3a362f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jc-gap b { font-weight: 650; }
+.notif { position: absolute; left: 16px; width: 286px; top: 398px; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border-radius: 16px; background: rgba(255, 253, 249, .96); border: 1px solid var(--line-2); box-shadow: 0 20px 40px -20px rgba(40, 30, 10, .55); opacity: 0; transform: translateY(-14px) scale(.97); transition: opacity .4s ease, transform .5s cubic-bezier(.2, .8, .2, 1); }
+.notif.on { opacity: 1; transform: none; }
+.notif i { width: 34px; height: 34px; border-radius: 9px; background: var(--ink); display: grid; place-items: center; color: var(--paper); font-style: normal; font-size: 12px; font-weight: 700; }
+.notif b { display: flex; justify-content: space-between; font-size: 12.5px; }
+.notif b small { font-weight: 500; color: var(--faint); font-size: 11px; }
+.notif p { margin: 1px 0 0; font-size: 12px; line-height: 1.35; color: #3a362f; }
+.chips7 { position: absolute; left: 318px; width: 146px; top: 396px; display: grid; gap: 6px; }
+.chips7 span { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); font-size: 11.5px; font-weight: 600; opacity: 0; transform: translateX(8px); transition: opacity .35s ease, transform .35s ease; white-space: nowrap; }
+.chips7 span.on { opacity: 1; transform: none; }
+.chips7 span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+/* scene 8: tracker */
+.mails { position: absolute; left: 10px; right: 10px; top: 8px; height: 96px; }
+.mails > span { position: absolute; left: 4px; top: 0; font-size: 11.5px; font-weight: 600; color: var(--soft); }
+.mail { position: absolute; top: 22px; width: 148px; height: 70px; padding: 7px 9px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--card); box-shadow: 0 10px 22px -18px rgba(60, 50, 30, .5); opacity: 0; transform: translateY(-12px); transition: opacity .4s ease, transform .5s cubic-bezier(.2, .8, .2, 1); }
+.mail.on { opacity: 1; transform: none; }
+.mail b { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mail span { display: block; font-size: 11px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mail em { position: absolute; left: 9px; bottom: 7px; font-style: normal; font-size: 10.5px; font-weight: 700; padding: 0 7px; border-radius: 99px; opacity: 0; transform: scale(.85); transition: opacity .3s ease, transform .3s ease; }
+.mail em.on { opacity: 1; transform: none; }
+.mail .rd { position: absolute; right: 8px; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); transition: background .3s ease, transform .3s ease; }
+.mail.read .rd { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.em-c { color: var(--green); background: var(--green-soft); } .em-r { color: var(--red); background: var(--red-soft); } .em-i { color: var(--blue); background: var(--blue-soft); }
+.trk { position: absolute; left: 10px; right: 10px; top: 112px; bottom: 8px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--card); overflow: hidden; }
+.trk-h { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.trk-h b { font-size: 13px; font-weight: 700; }
+.trk-h span { font-size: 11px; padding: 2px 8px; border-radius: 6px; color: var(--soft); }
+.trk-h span.on { background: var(--card); color: var(--ink); box-shadow: 0 0 0 1px var(--line); font-weight: 600; }
+.trk-body { position: absolute; left: 0; right: 0; top: 34px; bottom: 0; }
+.th { position: absolute; left: 12px; right: 12px; height: 24px; display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; border-bottom: 1px solid var(--line); will-change: transform; }
+.th i { font-style: normal; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; }
+.tr { position: absolute; left: 12px; right: 12px; height: 26px; display: grid; grid-template-columns: 106px minmax(0, 1fr) 118px 42px; gap: 8px; align-items: center; padding: 0 6px; border-radius: 6px; font-size: 11.8px; will-change: transform, opacity; }
+.tr b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr span { color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr time { font-family: var(--mono); font-size: 10.5px; color: var(--faint); text-align: right; }
+.tr.hot { background: #fff4c8; box-shadow: 0 6px 18px -10px rgba(120, 90, 10, .45); }
+.chip { justify-self: start; font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 99px; white-space: nowrap; transition: background-color .35s ease, color .35s ease; }
+.chip[data-s="Considering"] { color: var(--blue); background: var(--blue-soft); }
+.chip[data-s="Applied"] { color: var(--soft); background: var(--paper-2); }
+.chip[data-s="Confirmed"] { color: var(--green); background: var(--green-soft); }
+.chip[data-s="Screen or Interview"] { color: #fff; background: var(--blue); }
+.chip[data-s="Rejected"] { color: var(--red); background: var(--red-soft); }
+.chip[data-s="Ghosted"] { color: var(--faint); background: var(--paper-2); }
+
+/* scene 9: loop */
+.loop svg { position: absolute; inset: 0; overflow: visible; }
+.node { position: absolute; width: 150px; padding: 9px 11px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--card); box-shadow: 0 12px 26px -20px rgba(60, 50, 30, .55); transform: translate(-50%, -50%); text-align: center; }
+.node b { display: block; font-size: 13px; }
+.node span { display: block; margin-top: 2px; font-size: 11px; color: var(--soft); line-height: 1.3; }
+.node.tk { width: 176px; border-color: color-mix(in srgb, var(--blue) 50%, var(--line-2)); background: var(--blue-soft); }
+.node.you { width: 128px; background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.node.you span { color: #c9c2b4; }
+.elab { position: absolute; font-size: 10.8px; font-weight: 600; color: var(--soft); background: color-mix(in srgb, var(--card) 88%, transparent); padding: 1px 6px; border-radius: 5px; white-space: nowrap; transform: translate(-50%, -50%); }
+
+/* below the run */
+.hood { border-top: 1px solid var(--line-2); padding: clamp(3rem, 7vw, 5.4rem) 0; }
+.hood + .hood { padding-top: 0; border-top: 0; }
+.sec-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem 2rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
+.sec-head h2 { margin: 0; font-family: var(--serif); font-weight: 420; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; letter-spacing: -.02em; }
+.sec-head p { margin: .6rem 0 0; color: var(--soft); max-width: 40rem; }
+.seg { display: inline-flex; flex-wrap: wrap; padding: 3px; border-radius: 10px; background: var(--paper-2); border: 1px solid var(--line); }
+.seg button { display: inline-flex; align-items: center; gap: .4rem; height: 32px; padding: 0 .8rem; border: 0; border-radius: 7px; background: transparent; font-size: 13.5px; font-weight: 600; color: var(--soft); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(60, 50, 30, .12), 0 0 0 1px var(--line); }
+.tryit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 2rem; align-items: start; }
+.tryit-l p { margin: 0 0 1rem; font-family: var(--serif); font-size: 1.14rem; line-height: 1.55; color: #2c2924; }
+.tryit-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: 1.2rem 0 0; }
+.round { width: 36px; height: 36px; flex: none; border-radius: 50%; border: 1px solid var(--line-2); background: var(--card); cursor: pointer; display: grid; place-items: center; }
+.round:hover { border-color: var(--ink); }
+.round svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tryit-box { position: relative; aspect-ratio: 480 / 520; border: 1px solid var(--line-2); border-radius: 14px; background: var(--paper); overflow: hidden; }
+.tryit-box .st-box { height: 520px; }
+.rub { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.rub th, .rub td { text-align: left; vertical-align: top; padding: .8rem 1.05rem; border-top: 1px solid var(--line); font-size: 14.5px; }
+.rub thead th { border-top: 0; background: var(--paper-2); font-size: 12.5px; font-weight: 650; color: var(--soft); padding-top: .55rem; padding-bottom: .55rem; }
+.rub tbody th { font-family: var(--serif); font-size: 1.2rem; font-weight: 480; width: 17%; }
+.rub td.w { font-family: var(--mono); font-size: 13px; white-space: nowrap; width: 9rem; }
+.rub td.w .p { color: var(--green); } .rub td.w .m { color: var(--red); } .rub td.w .c { color: var(--amber); } .rub td.w .b { color: var(--blue); }
+.rub td.why { color: var(--soft); }
+.note { margin: .8rem 0 0; font-size: 13px; color: var(--faint); }
+@media (max-width: 760px) {
+  .rub, .rub tbody, .rub tr, .rub th, .rub td { display: block; width: 100%; }
+  .rub thead { display: none; }
+  .rub tr { padding: .8rem 1rem; border-top: 1px solid var(--line); }
+  .rub tr:first-child { border-top: 0; }
+  .rub th, .rub td { padding: 0; border: 0; }
+  .rub tbody th { width: auto; margin-bottom: .2rem; }
+  .rub td.w { width: auto; margin: .2rem 0; }
+}
+.runspec { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card); overflow: hidden; }
+.runspec li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) minmax(0, 15rem); gap: 1.2rem; padding: .85rem 1.05rem; border-top: 1px solid var(--line); align-items: baseline; }
+.runspec li:first-child { border-top: 0; }
+.runspec code { font-weight: 600; color: var(--ink); }
+.runspec p { margin: 0; font-size: 14.5px; }
+.runspec span { font-family: var(--mono); font-size: 12px; color: var(--soft); }
+@media (max-width: 760px) { .runspec li { grid-template-columns: minmax(0, 1fr); gap: .25rem; } }
+.adr { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); gap: 12px; }
+.adr article { padding: 1.05rem 1.15rem 1.15rem; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.adr .id { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--faint); }
+.adr h3 { margin: .35rem 0 .45rem; font-family: var(--serif); font-size: 1.32rem; font-weight: 480; line-height: 1.15; letter-spacing: -.01em; }
+.adr p { margin: 0; font-size: 14.5px; color: #3a362f; }
+.guard { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: .55rem 2rem; margin: 0; padding: 0; list-style: none; }
+.guard li { display: grid; grid-template-columns: 1rem minmax(0, 1fr); gap: .55rem; font-size: 14.5px; }
+.guard li::before { content: ""; width: 7px; height: 7px; margin-top: .55rem; border-radius: 2px; background: var(--ink); rotate: 45deg; }
+.end { border-top: 1px solid var(--line-2); padding: clamp(3rem, 7vw, 5rem) 0 4rem; }
+.end h2 { margin: 0; max-width: 18em; font-family: var(--serif); font-weight: 380; font-size: clamp(2rem, 4.4vw, 3.4rem); line-height: 1.04; letter-spacing: -.025em; text-wrap: balance; }
+.end p { max-width: 38rem; color: var(--soft); }
+.end .acts { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.4rem; }
+.foot { border-top: 1px solid var(--line-2); padding: 1.4rem 0 3rem; color: var(--faint); font-size: 13px; }
+.foot .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem 1rem; }
+
+/* ---------- motion layer ---------- */
+:root { --spring: cubic-bezier(.34, 1.56, .64, 1); --glide: cubic-bezier(.2, .8, .2, 1); }
+.prog { position: fixed; left: 0; top: 0; z-index: 50; height: 2px; width: 100%; background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; }
+/* hero: words rise out of a mask, then everything else settles in */
+.hero h1 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.hero h1 .w > span { display: inline-block; transform: translateY(105%); transition: transform 1.05s var(--glide); transition-delay: calc(var(--i) * 42ms + 120ms); }
+.hero.in h1 .w > span { transform: none; }
+.hero .rise { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .9s var(--glide); transition-delay: var(--d, 0ms); }
+.hero.in .rise { opacity: 1; transform: none; }
+.ribbon { position: relative; margin-top: clamp(1.6rem, 3.5vw, 2.4rem); height: 150px; }
+.ribbon canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ribbon .rl { position: absolute; bottom: 0; font-size: 12px; font-weight: 600; color: var(--soft); transform: translateX(-50%); white-space: nowrap; }
+.ribbon .rl b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.ribbon .rl.fin b { color: var(--green); }
+@media (max-width: 560px) { .ribbon { height: 120px; } .ribbon .rl { font-size: 11px; } .ribbon .rl span { display: none; } }
+/* scroll reveals for the sections under the run */
+[data-rv] > * { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .85s var(--glide); transition-delay: calc(var(--k, 0) * 60ms); }
+[data-rv].in > * { opacity: 1; transform: none; }
+.rub tbody tr { opacity: 0; transform: translateX(-10px); transition: opacity .5s ease, transform .6s var(--glide); transition-delay: calc(var(--k, 0) * 45ms); }
+.rub.in tbody tr { opacity: 1; transform: none; }
+.adr article { transition: transform .35s var(--glide), box-shadow .35s ease, border-color .35s ease, opacity .7s ease; }
+.adr article:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -24px rgba(60, 50, 30, .5); border-color: var(--line-2); }
+.end h2 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.end h2 .w > span { display: inline-block; transform: translateY(105%); transition: transform 1s var(--glide); transition-delay: calc(var(--i) * 34ms); }
+.end.in h2 .w > span { transform: none; }
+/* step text: the active chapter's headline slides in and its chip pops */
+.step .no em { transition: transform .5s var(--spring), background-color .4s ease; }
+.step.on .no em { transform: scale(1.12); background: var(--red); }
+.step h2, .step p, .step .spec { transition: transform .8s var(--glide), opacity .5s ease; }
+.step:not(.on) h2 { transform: translateY(6px); }
+.step:not(.on) .spec { transform: translateY(8px); }
+/* chapter label in the stage bar swaps with a vertical slide */
+.st-lab { position: relative; height: 18px; min-width: 0; flex: 1; overflow: hidden; font-size: 12.5px; font-weight: 650; }
+.st-lab span { position: absolute; left: 0; right: 0; top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: transform .5s var(--glide), opacity .4s ease; }
+.st-lab span.out { transform: translateY(-110%); opacity: 0; }
+.st-lab span.pre { transform: translateY(110%); opacity: 0; transition: none; }
+.st-dots { margin: 0; }
+/* springier entrances inside the stage */
+.jc { transition: opacity .4s ease, transform .7s var(--spring); }
+.jc-pills span.sc7, .jc-pills span.sc6 { transition: transform .6s var(--spring) .15s; transform: scale(.4); display: inline-block; }
+.jc.on .jc-pills span.sc7, .jc.on .jc-pills span.sc6 { transform: none; }
+.mail { transform: translateY(-22px) rotate(-2deg); transition: opacity .4s ease, transform .75s var(--spring); }
+.mail:nth-of-type(2) { transform: translateY(-22px) rotate(1.5deg); }
+.mail.on { transform: none; }
+.notif { transition: opacity .4s ease, transform .75s var(--spring); }
+.node { animation: float 6s ease-in-out infinite; }
+.node:nth-of-type(2n) { animation-duration: 7.2s; animation-delay: -2s; }
+.node:nth-of-type(3n) { animation-duration: 6.6s; animation-delay: -4s; }
+@keyframes float { 50% { translate: 0 -3px; } }
+.sx-gauge output.tick { animation: tick .45s var(--spring); }
+@keyframes tick { 40% { transform: scale(1.12); } }
+.tr.hot { z-index: 2; background: #fff4c8; }
+.chip { font-style: normal; }
+
+
+/* narrow screens: the stage pins to the top and the story scrolls underneath it */
+@media (max-width: 900px) {
+  .run-grid { grid-template-columns: minmax(0, 1fr); }
+  .stage-col { order: -1; top: 0; z-index: 4; height: 58svh; padding: 8px 0 0; background: var(--paper); margin: 0 -20px; padding-left: 10px; padding-right: 10px; }
+  .stage { border-radius: 14px; }
+  .st-log { height: 52px; font-size: 10.5px; }
+  .st-log div:not(:last-child) { display: none; }
+  .st-clock small { display: none; }
+  .st-run span { display: none; }
+  .step, .step.long { min-height: 96svh; padding-top: 6svh; }
+  .step .txt { opacity: 1; padding: 1rem 1.1rem; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 16px 30px -24px rgba(60, 50, 30, .5); }
+  .step h2 { font-size: 1.7rem; }
+  .step p { font-size: 1.05rem; }
+  .tryit { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) { .st-dots { display: none; } .st-run { margin-right: auto; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog" aria-hidden="true"></div>
+<nav class="crumb" aria-label="Breadcrumb"><div class="wrap"><a href="../"><span class="av" aria-hidden="true">CA</span>Connor Allen</a><span class="sep">/</span><a href="../#board">Projects</a><span class="sep">/</span><b>Job search agent</b></div></nav>
+
+<main>
+  <header class="hero wrap" id="hero">
+    <p class="kick rise"><span class="pill blue">In daily use</span><span>Two scheduled Claude agents, one shared tracker</span></p>
+    <h1 id="h1">Every weekday at 9:45, an agent reads the job boards so I don&rsquo;t have to.</h1>
+    <p class="lede rise" style="--d:520ms">It pulls a few hundred new postings, throws out the ones I can&rsquo;t or shouldn&rsquo;t apply to, sends a separate subagent to read each survivor in full, scores it against my resume, and hands me the two or three roles worth my time. A second agent watches my job inbox and keeps the tracker current, so the next morning&rsquo;s run already knows what I applied to.</p>
+    <div class="ribbon rise" style="--d:700ms" aria-hidden="true"><canvas id="ribbon"></canvas>
+      <span class="rl" style="left:7%"><b>386</b> <span>gathered</span></span><span class="rl" style="left:38%"><b>58</b> <span>investigated</span></span><span class="rl" style="left:66%"><b>17</b> <span>verified</span></span><span class="rl fin" style="left:91%"><b>3</b> <span>to me</span></span>
+    </div>
+    <div class="facts rise" style="--d:860ms" aria-label="A typical run">
+      <div><b data-count="386">386</b><span>postings gathered from five kinds of source</span></div>
+      <div><b data-count="58">58</b><span>survive the filters and get their own investigator</span></div>
+      <div><b>6 / 10</b><span>the bar a role has to clear to reach me</span></div>
+      <div><b data-count="3">3</b><span>cards on the dashboard, each with its math shown</span></div>
+    </div>
+    <p class="when rise" style="--d:1000ms"><span><i aria-hidden="true"></i>Next matcher run: <strong id="nextRun">weekdays at 9:45 AM ET</strong></span><span>Next inbox check: <strong id="nextMail">hourly, 8 AM to 6 PM ET</strong></span></p>
+    <a class="scrollhint rise" style="--d:1100ms" href="#run"><span aria-hidden="true"></span>Scroll to watch one run, start to finish</a>
+  </header>
+
+  <section class="run" id="run" aria-label="One run, start to finish">
+    <div class="wrap run-grid">
+      <div class="steps" id="steps">
+
+        <article class="step" data-i="0"><div class="txt">
+          <div class="no"><em>0</em>Wake up and check itself</div>
+          <h2>9:45 AM. Before it reads a single posting, it checks itself.</h2>
+          <p>A scheduled task fires every weekday at 9:45 Eastern and hands Claude a versioned instruction file, on version 6 right now. The first thing it does is run four gates: has it already run today, can it take the lock so two runs never write over each other, is the local dashboard server up, and are the connectors it needs attached.</p>
+          <p>If any gate fails, the run stops and my phone gets a push notification naming the gate. I&rsquo;d rather get a loud failure at 9:46 than a quiet half-result at 10:30.</p>
+          <div class="spec"><b>schedule</b> <span class="k">CRON_TZ=America/New_York 45 9 * * 1-5</span><br><b>0a</b> already ran today? <span class="g">no</span> &rarr; continue<br><b>0b</b> acquire lock<br><b>0c</b> dashboard server on <span class="k">:8765</span><br><b>0d</b> connector check, fail loud</div>
+        </div></article>
+
+        <article class="step" data-i="1"><div class="txt">
+          <div class="no"><em>1</em>Load what it already knows</div>
+          <h2>It loads everything it shouldn&rsquo;t waste time on.</h2>
+          <p>The agent keeps its memory in plain files: the roles I&rsquo;ve applied to, hidden, or queued, and a ledger of every role it has ever scored. Step 1f also reads my application tracker, so a role I applied to yesterday, from any source, can never show up again as new.</p>
+          <p>All of that becomes one skip set before the first search goes out. That&rsquo;s the cheapest filter there is.</p>
+          <div class="spec"><b>state</b> applied &middot; hidden &middot; queued lists<br><b>ledger</b> <span class="k">seen.json</span>, every role ever scored<br><b>1f</b> <span class="k">tracker_sync.py</span> &rarr; tracker_roles</div>
+        </div></article>
+
+        <article class="step" data-i="2"><div class="txt">
+          <div class="no"><em>2</em>Gather</div>
+          <h2>Then it casts a wide net.</h2>
+          <p>Eighteen searches through the Indeed connector, role and location searches through ZipRecruiter&rsquo;s, Built In and Wellfound, and a second layer that reads company job boards straight from the Greenhouse, Ashby and Lever APIs: 259 boards in all.</p>
+          <p>Connectors and APIs come first because they return clean, structured data. A browser is the fallback for when a site gives it nothing else. On a normal morning that&rsquo;s a few hundred postings, and plenty of them are the same job listed three times.</p>
+          <div class="spec"><b>indeed</b> connector, 18 searches<br><b>ziprecruiter</b> connector, role &times; location<br><b>built in</b>, <b>wellfound</b><br><b>layer 2</b> greenhouse &middot; ashby &middot; lever APIs, 259 boards</div>
+        </div></article>
+
+        <article class="step" data-i="3"><div class="txt">
+          <div class="no"><em>3</em>Filter</div>
+          <h2>Most of it gets thrown out, on purpose.</h2>
+          <p>Cheap checks run before expensive ones. Duplicate listings collapse to one row, keeping the company&rsquo;s own apply link. Anything posted more than five days ago goes. Titles I can&rsquo;t credibly land go: Senior, Staff, Principal, Director, people managers, TPM. So do roles that require living somewhere other than New York or New Jersey with no relocation.</p>
+          <p>Then it drops anything in the skip set. Last, a quick screen catches outright fails, so a per-role agent never gets spent on a role that was dead on arrival.</p>
+          <div class="spec"><b>dedupe</b> company + title + location<br><b>date</b> posted &le; 5 days<br><b>hard filters</b> titles &middot; employers &middot; geography<br><b>prefilter.py</b> <span class="r">drops</span> roles already in the tracker<br><b>ledger.py filter</b> <span class="r">drops</span> roles scored before</div>
+        </div></article>
+
+        <article class="step" data-i="4"><div class="txt">
+          <div class="no"><em>4</em>Investigate</div>
+          <h2>Every survivor gets its own investigator.</h2>
+          <p>This is the part I care about most. Each remaining role gets a dedicated subagent that reads the full posting, the company&rsquo;s careers page, and whatever the listing left out. Separate agents mean one role&rsquo;s details can&rsquo;t leak into another role&rsquo;s score.</p>
+          <p>They run in waves of up to six, each in its own browser tab, and they try the API and a plain fetch before they ever open a browser. If a hard knockout shows up early, like a required clearance, the agent stops and writes down why, so the budget goes to roles that are still in contention.</p>
+          <div class="spec"><b>waves</b> &le; 6 agents &middot; 1 tab each &middot; tabId on every call<br><b>order</b> <span class="k">API</span> &rarr; <span class="g">fetch</span> &rarr; <span class="a">browser</span><br><b>budget</b> about 12 tool calls &middot; <span class="r">early exit</span> on knockouts</div>
+        </div></article>
+
+        <article class="step" data-i="5"><div class="txt">
+          <div class="no"><em>5</em>Score</div>
+          <h2>Then it scores the role against my resume, and shows the math.</h2>
+          <p>The rubric is written down, so every score is an argument I can check. A location pre-check comes first: can I get there from Washington, NJ? Then bonuses for things I&rsquo;ve actually done, penalties for things I haven&rsquo;t, and caps for unmet must-haves.</p>
+          <p>A required degree with no &ldquo;or equivalent experience&rdquo; caps the score and names the gap on the card. I see the problem before I spend an hour on a cover letter.</p>
+          <div class="spec"><span class="g">+2</span> NYC hybrid &middot; <span class="g">+2</span> AI tooling &middot; <span class="g">+2</span> SQL/BI<br><span class="g">+2</span> PRDs &middot; <span class="r">&minus;1</span> compliance-adjacent<br><b>= 7/10</b> &middot; no cap: degree says &ldquo;or equivalent&rdquo;</div>
+        </div></article>
+
+        <article class="step" data-i="6"><div class="txt">
+          <div class="no"><em>6</em>Verify</div>
+          <h2>Borderline scores get a second opinion.</h2>
+          <p>A 6 and a 5 are a different morning for me. So anything in the five-to-seven band, any 8 that isn&rsquo;t clean, and any low score that leans on a cap nobody confirmed goes to a separate verification agent. Its score is final. If the two land two or more points apart, a tie-break agent reads both cases.</p>
+          <p>Only a final 6 or better reaches the dashboard.</p>
+          <div class="spec"><b>verify if</b> 5&ndash;7 &middot; 8+ not clean &middot; 3&ndash;4 with an unconfirmed cap<br><b>tie-break</b> when the scores differ by 2 or more<br><b>bar</b> final score &ge; <span class="g">6</span></div>
+        </div></article>
+
+        <article class="step" data-i="7"><div class="txt">
+          <div class="no"><em>7</em>Publish</div>
+          <h2>It hands me two or three roles, not two hundred.</h2>
+          <p>The survivors land on a local dashboard, one card per role: a direct link, the score, the math, the biggest gap, and what to lead with. A read-only snapshot gets republished as a Claude artifact so I can check it from my phone, the day&rsquo;s results go to Google Drive, and a push notification tells me the run is done.</p>
+          <p>Every role it scored, good or bad, goes in the ledger, so tomorrow&rsquo;s run never pays for it twice.</p>
+          <div class="spec"><b>6a</b> <span class="k">ledger.py</span> record &middot; sync &middot; prune<br><b>6</b> dashboard.html &middot; snapshot artifact &middot; Drive<br><b>6b</b> mark today &middot; release lock &middot; push</div>
+        </div></article>
+
+        <article class="step" data-i="8"><div class="txt">
+          <div class="no"><em>8</em>Track</div>
+          <h2>The tracker keeps itself.</h2>
+          <p>Every match also lands in my tracker, a Claude doc of tables, with the status Considering. The applying is mine: the agent never applies, signs in, or contacts anyone.</p>
+          <p>A second scheduled agent checks my job inbox every hour from 8 to 6 on weekdays. It sorts mail into confirmations, rejections, interview requests and recruiter outreach, then moves rows on its own. Statuses only move forward, except that a rejection always wins. Thirty days of silence marks a row Ghosted, and anything it can&rsquo;t match cleanly turns yellow for me to review.</p>
+          <p>Every change writes a line to a change log. Before it marks a single email as read, it reconciles: every job email in the window has to point at a row.</p>
+          <div class="spec"><b>schedule</b> <span class="k">0 8-18 * * 1-5</span>, 3-hour overlapping window<br><b>classify</b> confirmation &middot; rejection &middot; interview &middot; outreach<br><b>dedupe</b> by evidence, requisition id, company + role<br><b>gmail</b> the only write is removing UNREAD</div>
+        </div></article>
+
+        <article class="step" data-i="9"><div class="txt">
+          <div class="no"><em>9</em>Close the loop</div>
+          <h2>Next morning, the loop closes.</h2>
+          <p>At 9:45 the next day, step 1f reads that tracker. Anything I applied to, got rejected from, or decided against is in the skip set before the first search goes out.</p>
+          <p>The two agents never talk to each other directly. The tracker is the contract between them, which means I can open it, fix a row by hand, and both agents respect the edit.</p>
+        </div></article>
+
+      </div>
+
+      <div class="stage-col">
+        <div class="stage" id="stage" role="img" aria-label="Animated replay of one run of the job search agent. It follows along with the story as you scroll.">
+          <div class="st-bar">
+            <div class="st-run"><i aria-hidden="true"></i><span>Sample run</span><b id="stDay">Tuesday</b></div>
+            <div class="st-lab" id="stLab"><span>Step 0 &middot; Gates</span></div>
+            <div class="st-dots" id="stDots"></div>
+            <div class="st-clock"><small id="stWho">Matcher</small><span id="stClock">9:45:00 AM</span></div>
+          </div>
+          <div class="st-view" id="view">
+            <div class="st-box" id="box">
+              <canvas id="cv" aria-hidden="true"></canvas>
+
+              <div class="sc" data-s="0">
+                <div class="s0-clock" id="s0Clock">9:45<small>AM</small></div>
+                <div class="s0-cron">weekdays &middot; <b>America/New_York</b></div>
+                <div class="s0-file"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 1.5h5.5L13 5v9.5H4z"/><path d="M9.5 1.5V5H13M6 8h5M6 10.5h5M6 13h3"/></svg><span>daily-job-matcher-prompt-2026-11-05-v6.md</span><em id="s0Read">reading</em><i class="bar" id="s0Bar"></i></div>
+                <ol class="gates" id="gates">
+                  <li><i class="ic"></i><code>0a</code><span>Already ran today?<small>No record for today, keep going</small></span></li>
+                  <li><i class="ic"></i><code>0b</code><span>Acquire the lock<small>Two runs can never overlap</small></span></li>
+                  <li><i class="ic"></i><code>0c</code><span>Dashboard server<small>localhost:8765 is up</small></span></li>
+                  <li><i class="ic"></i><code>0d</code><span>Connectors<small>Indeed, ZipRecruiter, Claude Docs, Drive</small></span></li>
+                </ol>
+              </div>
+
+              <div class="sc" data-s="1">
+                <div class="files" id="files">
+                  <div class="file"><b>applied</b><span>roles I applied to</span><i data-n="24">0</i></div>
+                  <div class="file"><b>hidden</b><span>roles I said no to</span><i data-n="37">0</i></div>
+                  <div class="file"><b>queued</b><span>roles I&rsquo;m still deciding on</span><i data-n="2">0</i></div>
+                  <div class="file"><b>seen.json</b><span>every role ever scored</span><i data-n="812">0</i></div>
+                  <div class="file doc"><b>Tracker</b><span>step 1f, tracker_sync.py</span><i data-n="46">0</i></div>
+                </div>
+                <div class="skip">
+                  <svg viewBox="0 0 190 190" aria-hidden="true"><circle cx="95" cy="95" r="88" fill="none" stroke="#e1dacb" stroke-width="2"/><circle id="skipArc" cx="95" cy="95" r="88" fill="none" stroke="#1c1a16" stroke-width="3" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 95 95)"/></svg>
+                  <div><b id="skipN">0</b><span>roles in the<br>skip set</span></div>
+                </div>
+                <div class="skipnote">Overlaps collapse: a role can be in the ledger <em>and</em> the tracker but only counts once.</div>
+              </div>
+
+              <div class="sc" data-s="2">
+                <div id="srcs"></div>
+                <div class="pooltag"><b id="poolN">0</b><span>postings collected</span></div>
+                <div class="poolnote" id="poolNote">Same job on three boards? It counts three times here. Not for long.</div>
+              </div>
+
+              <div class="sc" data-s="3">
+                <div class="ftop"><b id="fTop">386</b> postings in</div>
+                <div id="gls"></div>
+                <div class="fbot"><b id="fBot">0</b> left for a deep read</div>
+              </div>
+
+              <div class="sc" data-s="4">
+                <div class="ttl" style="top:22px">One subagent per role</div>
+                <div class="wave" id="wave">Wave <b>1</b> of 10 &middot; up to 6 agents at once</div>
+                <div class="qtag">queue<b id="qN">58</b></div>
+                <div class="legend4"><span><i style="background:#3b52cf"></i>ATS API</span><span><i style="background:#2c7a4c"></i>Fetch</span><span><i style="background:#a9690f"></i>Browser</span><span><i style="background:#d2462a"></i>Knockout, early exit</span></div>
+                <div class="ttag"><b id="scoredN">0</b> scored &middot; <b id="callsN">0</b> tool calls &middot; <b id="exitN">0</b> early exits</div>
+              </div>
+
+              <div class="sc" data-s="5"><div class="scorer" id="sc5"></div></div>
+
+              <div class="sc" data-s="6">
+                <div class="ttl" style="top:22px">A second opinion on the borderline</div>
+                <div class="sub" style="top:52px" id="vSub">First-pass scores for all 58 roles</div>
+                <div class="vcards">
+                  <div class="vcard"><span>Product Operations Manager, AI Tooling<small>Globex Health &middot; verifier read it cold</small></span><em><span class="eq">7 &rarr; 7</span></em></div>
+                  <div class="vcard"><span>AI Operations Specialist<small>Initech &middot; remote role confirmed open to NJ</small></span><em><span class="up">5 &rarr; 6</span></em></div>
+                  <div class="vcard"><span>Product Analyst, Platform<small>Litware &middot; degree required, no equivalent: cap confirmed</small></span><em><span class="dn">6 &rarr; 5</span></em></div>
+                </div>
+                <div class="vbar" id="vBar">bar: 6</div>
+                <div class="vlab" style="left:0;right:0;top:428px">score</div>
+                <div class="vmade" id="vMade"><b>3</b> roles at 6 or better make the dashboard</div>
+              </div>
+
+              <div class="sc" data-s="7">
+                <div class="win">
+                  <div class="win-bar"><i></i><i></i><i></i><span>localhost:8765/dashboard.html</span></div>
+                  <div class="win-h"><b>New today</b><span>Tuesday &middot; 3 new roles</span></div>
+                  <div class="jc" style="top:64px"><div class="jc-top"><b>Product Operations Manager, AI Tooling</b><span>Globex Health</span></div><div class="jc-pills"><span>Ashby</span><span class="sc7">7/10</span><span>New York, NY</span><span>Hybrid</span></div><div class="jc-math"><span class="p">+2</span> NYC &middot; <span class="p">+2</span> AI tooling &middot; <span class="p">+2</span> SQL/BI &middot; <span class="p">+2</span> PRDs &middot; <span class="m">&minus;1</span> compliance = 7</div><div class="jc-gap"><b>Gap:</b> no healthcare background &middot; <b>Lead with:</b> Epic LLM tooling</div></div>
+                  <div class="jc" style="top:164px"><div class="jc-top"><b>AI Operations Specialist</b><span>Initech</span></div><div class="jc-pills"><span>ZipRecruiter</span><span class="sc6">6/10</span><span>Remote, US</span><span>Open to NJ</span></div><div class="jc-math"><span class="p">+1</span> remote US &middot; <span class="p">+2</span> AI workflows &middot; <span class="p">+2</span> SQL/BI &middot; <span class="p">+1</span> 2&ndash;4 yrs = 6</div><div class="jc-gap"><b>Gap:</b> support-ops domain &middot; <b>Lead with:</b> adoption tracking at Epic</div></div>
+                  <div class="jc" style="top:264px"><div class="jc-top"><b>Product Manager, Internal Tools</b><span>Northwind Traders</span></div><div class="jc-pills"><span>Indeed</span><span class="sc6">6/10</span><span>Jersey City, NJ</span><span>Hybrid</span></div><div class="jc-math"><span class="p">+2</span> NJ hybrid &middot; <span class="p">+2</span> PRDs &middot; <span class="p">+2</span> SQL/BI &middot; <span class="m">&minus;1</span> eng background = 6</div><div class="jc-gap"><b>Gap:</b> asks for some engineering &middot; <b>Lead with:</b> SQL self-serve rebuild</div></div>
+                </div>
+                <div class="notif" id="notif"><i>JM</i><div><b>Daily job matcher <small>now</small></b><p>3 new roles. Top: Product Operations Manager, AI Tooling at Globex Health, 7/10.</p></div></div>
+                <div class="chips7" id="chips7"><span>Snapshot artifact</span><span>Saved to Drive</span><span>Ledger +58</span></div>
+              </div>
+
+              <div class="sc" data-s="8">
+                <div class="mails" id="mails">
+                  <span>Job inbox &middot; checked hourly</span>
+                  <div class="mail" style="left:0"><i class="rd"></i><b>Acme Logistics</b><span>Thanks for applying</span><em class="em-c">Confirmation</em></div>
+                  <div class="mail" style="left:154px"><i class="rd"></i><b>Contoso</b><span>An update on your application</span><em class="em-r">Rejection</em></div>
+                  <div class="mail" style="left:308px"><i class="rd"></i><b>Fabrikam</b><span>Let&rsquo;s find a time to talk</span><em class="em-i">Interview</em></div>
+                </div>
+                <div class="trk">
+                  <div class="trk-h"><b>Job Application Tracker</b><span class="on">Tracker</span><span>Change log</span></div>
+                  <div class="trk-body" id="trk"></div>
+                </div>
+              </div>
+
+              <div class="sc loop" data-s="9">
+                <svg viewBox="0 0 480 500" aria-hidden="true" id="loopSvg">
+                  <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5f594f"/></marker></defs>
+                </svg>
+                <div class="node you" style="left:240px;top:58px"><b>Me</b><span>apply, edit rows, decide</span></div>
+                <div class="node" style="left:98px;top:206px"><b>Daily job matcher</b><span>weekdays 9:45 AM</span></div>
+                <div class="node" style="left:382px;top:206px"><b>Job email monitor</b><span>hourly, 8 AM to 6 PM</span></div>
+                <div class="node tk" style="left:240px;top:350px"><b>Job Application Tracker</b><span>Matches &middot; Applied &middot; Rejected &middot; Declined &middot; Change log</span></div>
+                <div class="node" style="left:98px;top:452px;width:132px"><b>Job boards</b><span>connectors and ATS APIs</span></div>
+                <div class="node" style="left:382px;top:452px;width:132px"><b>Job inbox</b><span>Gmail connector</span></div>
+                <div id="elabs"></div>
+              </div>
+            </div>
+          </div>
+          <div class="st-log" id="log" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hood" id="try" aria-labelledby="h-try">
+    <div class="wrap">
+      <div class="sec-head" data-rv><div><h2 id="h-try">Try the rubric</h2><p>Three sample postings, three different outcomes. Pick one and watch the agent read it.</p></div></div>
+      <div class="tryit" data-rv>
+        <div class="tryit-l">
+          <p>The same scorer runs on every role that survives the filters. A pass on the location pre-check, then bonuses and penalties, then caps. The interesting cases are the edges: a good role with one disqualifying line, and a role that fails before the agent reads past the first paragraph.</p>
+          <div class="seg" role="group" aria-label="Sample posting" id="trySeg">
+            <button type="button" data-k="globex" aria-pressed="true">Clean match</button><button type="button" data-k="adatum" aria-pressed="false">Capped</button><button type="button" data-k="proseware" aria-pressed="false">Knocked out</button>
+          </div>
+          <div class="tryit-ctl"><button class="round" type="button" id="tryReplay" aria-label="Replay the scoring"><svg viewBox="0 0 14 14"><path d="M2.5 7a4.5 4.5 0 1 0 1.4-3.3"/><path d="M3.5 1.5v2.6h2.6"/></svg></button><span class="note" id="tryNote" style="margin:0">Weights here are simplified. The real rubric lives in the instruction file.</span></div>
+        </div>
+        <div class="tryit-box" id="tryBox"><div class="st-box" id="tryInner"><div class="scorer" id="tryScorer"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hood" aria-labelledby="h-rub">
+    <div class="wrap">
+      <div class="sec-head" data-rv><div><h2 id="h-rub">The rubric, in short</h2><p>Each line maps to something on my resume or something I&rsquo;ve learned the hard way. When a score is wrong, I can trace it back to one of these and fix the rule.</p></div></div>
+      <table class="rub">
+        <thead><tr><th scope="col">Kind</th><th scope="col">Weight</th><th scope="col">Rule</th><th scope="col">Why it&rsquo;s there</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Pre-check</th><td class="w"><span class="b">pass / fail</span></td><td>Commutable to NYC or NJ, or US remote that allows NJ. Locked to another metro with no relocation is an automatic fail.</td><td class="why">The cheapest way to waste a morning is a great role I can&rsquo;t get to.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>NYC or NJ onsite or hybrid</td><td class="why">Bigger metros are where the roles and the pay are.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+1</span></td><td>US remote that allows working from NJ</td><td class="why">Good, but every applicant in the country is competing for it.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>AI tooling, LLM workflows or automation named in the work</td><td class="why">LLM-assisted tooling at Epic, and the projects on this site.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>SQL or a BI tool named</td><td class="why">SQL pipelines at Epic, Tableau and Grafana, weekly exec decks at Zenimax.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>PRDs, requirements or roadmap ownership</td><td class="why">Requirements and acceptance criteria for internal tools.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+1</span></td><td>Experience band that fits, such as 2 to 4 years of PM</td><td class="why">My PM title history is shorter than my product experience.</td></tr>
+          <tr><th scope="row">Filtered</th><td class="w"><span class="m">dropped</span></td><td>Senior, Staff, Principal, Director, people managers, TPM</td><td class="why">I haven&rsquo;t held those titles, and employers screen on them instantly.</td></tr>
+          <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;1 to &minus;3</span></td><td>Engineering background required, compliance, governance, trust and safety, legal</td><td class="why">Adjacent to my work, not the center of it.</td></tr>
+          <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;2</span></td><td>Game studios, game hosting, betting</td><td class="why">I&rsquo;m steering out of games on purpose.</td></tr>
+          <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;2</span></td><td>Take-home, case study or recorded video steps</td><td class="why">If a team wants to talk, a call works.</td></tr>
+          <tr><th scope="row">Cap</th><td class="w"><span class="c">capped, gap named</span></td><td>Degree with no &ldquo;or equivalent experience,&rdquo; a license or clearance, or years far beyond mine</td><td class="why">Surfaces the dealbreaker before I write a cover letter.</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Weights are simplified for this page. The full rubric, with its edge cases, lives in the versioned instruction file.</p>
+    </div>
+  </section>
+
+  <section class="hood" aria-labelledby="h-spec">
+    <div class="wrap">
+      <div class="sec-head" data-rv><div><h2 id="h-spec">The run, as a spec</h2><p>Each step reads and writes something specific, which is what makes a run safe to repeat and easy to debug.</p></div></div>
+      <ol class="runspec" data-rv>
+        <li><code>STEP 0</code><p>Gates: already ran today, lock, dashboard server, connectors. Any failure stops the run with a push notification.</p><span>lock file &middot; :8765</span></li>
+        <li><code>STEP 1</code><p>Load the applied, hidden and queued lists, sync the ledger, and pull every tracker row into the skip set.</p><span>seen.json &middot; tracker_sync.py</span></li>
+        <li><code>STEP 2</code><p>Five-day date filter on everything that comes back.</p><span>posted &le; 5 days</span></li>
+        <li><code>STEP 3</code><p>Sources: Indeed and ZipRecruiter connectors, Built In, Wellfound, then the Greenhouse, Ashby and Lever APIs.</p><span>18 searches &middot; 259 boards</span></li>
+        <li><code>STEP 4</code><p>Hard filters, then drop anything already in the tracker, then drop anything the ledger has scored.</p><span>prefilter.py &middot; ledger.py</span></li>
+        <li><code>STEP 5</code><p>Resume text loaded once. One investigation agent per role in waves of six, then verification on the borderline.</p><span>1 tab per agent</span></li>
+        <li><code>STEP 6</code><p>Record every score, build the dashboard, republish the snapshot, save the day to Drive, add matches to the tracker, mark the day, release the lock, notify.</p><span>ledger.py &middot; sheet_rows.py</span></li>
+        <li><code>MONITOR</code><p>Hourly, 8 AM to 6 PM: read the job inbox, classify, update and move tracker rows, log every change, reconcile, mark processed mail as read.</p><span>Gmail &middot; Claude Docs</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="hood" aria-labelledby="h-adr">
+    <div class="wrap">
+      <div class="sec-head" data-rv><div><h2 id="h-adr">Decisions I made, and why</h2><p>Written like the decision records I keep for my other projects. Most of these came from a run that got something wrong.</p></div></div>
+      <div class="adr" data-rv>
+        <article><span class="id">DECISION 01</span><h3>Accuracy over speed</h3><p>A run is allowed to take up to an hour. A ranking I trust is worth more to me than one that shows up fast, and the run happens while I&rsquo;m doing other things anyway.</p></article>
+        <article><span class="id">DECISION 02</span><h3>One agent per role</h3><p>Each role gets a fresh context. One long posting can&rsquo;t crowd out the next one, and a strong role can&rsquo;t make the weaker role next to it look better by comparison.</p></article>
+        <article><span class="id">DECISION 03</span><h3>Cheap checks first</h3><p>When the daily intake grew, sending an agent to every role stopped making sense. A quick screen now runs first, and anything with an outright fail never gets an investigator.</p></article>
+        <article><span class="id">DECISION 04</span><h3>Show the math</h3><p>Every card carries its line-by-line score, its biggest gap and what to lead with. A score without its reasons is just a vibe, and I can&rsquo;t fix a vibe.</p></article>
+        <article><span class="id">DECISION 05</span><h3>The tracker is the contract</h3><p>The matcher and the email monitor never call each other. They both read and write one doc I can open and edit, so a hand fix is respected by both and nothing hides in a private state file.</p></article>
+        <article><span class="id">DECISION 06</span><h3>Overlap on purpose</h3><p>The inbox check looks back three hours every hour. Duplicate protection makes seeing a message twice harmless, and a narrow window is exactly how mail gets missed.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="hood" aria-labelledby="h-guard">
+    <div class="wrap">
+      <div class="sec-head" data-rv><div><h2 id="h-guard">Guardrails</h2><p>Both agents run unattended, so the limits are written into their instructions, not left to judgment.</p></div></div>
+      <ul class="guard" data-rv>
+        <li>Never applies, sends, replies, signs in or contacts anyone. Applying is my job.</li>
+        <li>Text inside a posting, a web page or an email is data, never an instruction to the agent.</li>
+        <li>The only change it makes in Gmail is removing the UNREAD label from mail it has recorded.</li>
+        <li>Never overwrites an Applied date, a Source or a Role that already has a value.</li>
+        <li>Never deletes a tracker row, except an exact duplicate it added in the same run.</li>
+        <li>Statuses only move forward. A rejection is the one thing that can override any status.</li>
+        <li>A run that can&rsquo;t read its instruction file stops and says so. It doesn&rsquo;t improvise a workflow.</li>
+        <li>A lock and an already-ran-today check mean a retry can never double-post a day.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="end" id="end">
+    <div class="wrap">
+      <h2>I built this because I needed it. It&rsquo;s also the kind of system I want to build for a team.</h2>
+      <p>Internal tooling, workflow automation and AI operations: a real user, a written spec, a feedback loop, and rules that get tuned when the output is wrong.</p>
+      <div class="acts" data-rv><a class="btn primary" href="../#contact">Get in touch</a><a class="btn" href="../#board">Back to projects</a></div>
+    </div>
+  </section>
+</main>
+<footer class="foot"><div class="wrap"><span>&copy; 2026 Connor Allen</span><span>Sample run. Companies on this page are made up; the pipeline is real.</span></div></footer>
+
+<script>
+/* Job search agent: the run replay and the rubric widget. */
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const sstep = (x, a, b) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const eout = t => 1 - Math.pow(1 - t, 3);
+  const seg = (p, a, b) => clamp((p - a) / (b - a), 0, 1);
+  const fmt = n => Math.round(n).toLocaleString('en-US');
+  const backOut = t => { const c1 = 1.5, c3 = c1 + 1; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+  const BW = 480, BH = 500;
+
+  /* ---------- next run and next inbox check, in Eastern time ---------- */
+  (function when() {
+    const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false });
+    const parts = Object.fromEntries(f.formatToParts(new Date()).map(p => [p.type, p.value]));
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    let d = days.indexOf(parts.weekday); const mins = (+parts.hour % 24) * 60 + +parts.minute;
+    const weekday = x => x >= 1 && x <= 5;
+    const label = (off, dd) => off === 0 ? 'today' : off === 1 ? 'tomorrow' : names[dd];
+    let off = 0, dd = d;
+    if (!(weekday(dd) && mins < 585)) { do { off++; dd = (d + off) % 7; } while (!weekday(dd)); }
+    $('#nextRun').textContent = `${label(off, dd)} at 9:45 AM ET`;
+    let mo = 0, md = d, mh;
+    if (weekday(d) && mins < 18 * 60) { mh = Math.max(8, Math.floor(mins / 60) + 1); }
+    else { do { mo++; md = (d + mo) % 7; } while (!weekday(md)); mh = 8; }
+    const h12 = h => `${(h % 12) || 12}:00 ${h < 12 ? 'AM' : 'PM'}`;
+    $('#nextMail').textContent = `${label(mo, md)} at ${h12(mh)} ET`;
+  })();
+
+  /* ---------- the sample run, deterministic ---------- */
+  let seed = 20261110;
+  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  const SOURCES = [
+    { name: 'Indeed', sub: 'connector, 18 searches', n: 164, c: '#3b52cf' },
+    { name: 'ZipRecruiter', sub: 'connector, role × location', n: 58, c: '#2c7a4c' },
+    { name: 'Built In', sub: 'NYC and remote', n: 41, c: '#a9690f' },
+    { name: 'Wellfound', sub: 'startup roles', n: 27, c: '#d2462a' },
+    { name: 'Company boards', sub: 'Greenhouse, Ashby, Lever APIs', n: 96, c: '#6d5ae6' },
+  ];
+  const GATES = [['Duplicate listings', 47], ['Older than 5 days', 108], ['Title, employer, location', 97], ['Applied or in tracker', 11], ['Scored on an earlier day', 49], ['Quick screen fail', 16]];
+  const N = SOURCES.reduce((a, s) => a + s.n, 0); // 386
+  const NS = N - GATES.reduce((a, g) => a + g[1], 0); // 58
+
+  const dots = [];
+  SOURCES.forEach((s, si) => { for (let k = 0; k < s.n; k++) dots.push({ src: si }); });
+  // departure order interleaves the sources so every node is busy at once
+  const order2 = shuffle(dots.map((_, i) => i)); order2.forEach((di, r) => { dots[di].r2 = r; });
+  const fate = []; GATES.forEach(([, n], g) => { for (let k = 0; k < n; k++) fate.push(g); }); for (let k = 0; k < NS; k++) fate.push(-1);
+  shuffle(fate); dots.forEach((d, i) => { d.gate = fate[i]; });
+  const order3 = shuffle(dots.map((_, i) => i)); order3.forEach((di, r) => { dots[di].r3 = r; });
+  // piles and survivors, slotted in the order they arrive
+  const pileCount = GATES.map(() => 0); let surv = [];
+  order3.forEach(di => { const d = dots[di]; if (d.gate >= 0) d.pk = pileCount[d.gate]++; else surv.push(d); });
+  surv.forEach((d, k) => { d.k = k; });
+
+  // final scores for the 58, then the few that verification moved
+  const FINAL = [[1, 7], [2, 10], [3, 13], [4, 12], [5, 13], [6, 2], [7, 1]];
+  const s2 = []; FINAL.forEach(([s, n]) => { for (let k = 0; k < n; k++) s2.push(s); });
+  shuffle(s2);
+  const place = (k, s) => { const j = s2.findIndex((v, i) => v === s && !placed.has(i)); [s2[k], s2[j]] = [s2[j], s2[k]]; placed.add(k); };
+  const placed = new Set();
+  place(14, 7); place(27, 6); place(40, 6); place(33, 5); place(50, 3);
+  const TITLES = ['Product Operations Analyst', 'AI Operations Specialist', 'Product Manager, Internal Tools', 'Business Systems Analyst', 'Associate Product Manager', 'Product Ops Manager', 'Data Product Analyst', 'AI Solutions Specialist', 'Operations Manager, AI', 'Product Analyst', 'Automation Lead', 'Revenue Operations Analyst'];
+  const COS = ['Acme Logistics', 'Contoso', 'Fabrikam', 'Tailspin', 'Wingtip Toys', 'Adatum', 'Proseware', 'Lucerne Publishing', 'Fourth Coffee', 'Coho Winery', 'Woodgrove Bank', 'Alpine Ski House', 'Trey Research', 'Wide World Importers', 'Margie’s Travel', 'Humongous Insurance', 'Graphic Design Institute', 'Relecloud'];
+  const KO = ['Active clearance required', '8+ years required', 'Onsite in Austin, no relocation', 'Take-home case study', 'Recorded video interview', 'Must live near Chicago'];
+  const early = new Set(shuffle(surv.map((d, k) => k).filter(k => s2[k] <= 2 && k !== 50)).slice(0, 11));
+  surv.forEach((d, k) => {
+    d.s2 = s2[k]; d.s1 = d.s2;
+    d.title = TITLES[Math.floor(rnd() * TITLES.length)]; d.co = COS[Math.floor(rnd() * COS.length)];
+    d.early = early.has(k); d.ko = d.early ? KO[Math.floor(rnd() * KO.length)] : '';
+    const n = d.early ? 3 + Math.floor(rnd() * 3) : 6 + Math.floor(rnd() * 7);
+    d.ticks = Array.from({ length: n }, (_, i) => { const r = rnd(); return i === 0 ? (r < .5 ? 0 : 1) : r < .32 ? 0 : r < .8 ? 1 : 2; });
+  });
+  Object.assign(surv[14], { title: 'Product Operations Manager, AI Tooling', co: 'Globex Health', star: true });
+  Object.assign(surv[27], { title: 'AI Operations Specialist', co: 'Initech', s1: 5, star: true });
+  Object.assign(surv[40], { title: 'Product Manager, Internal Tools', co: 'Northwind Traders', star: true });
+  Object.assign(surv[33], { title: 'Product Analyst, Platform', co: 'Litware', s1: 6 });
+  Object.assign(surv[50], { s1: 4, capNote: true });
+  const verified = surv.filter(d => (d.s1 >= 5 && d.s1 <= 7) || d.capNote);
+  const TOTAL_CALLS = surv.reduce((a, d) => a + d.ticks.length, 0);
+  const TICKC = ['#3b52cf', '#2c7a4c', '#a9690f'];
+  const scoreColor = s => s >= 6 ? '#2c7a4c' : s >= 4 ? '#a9690f' : '#9a9284';
+
+  /* ---------- layout, in stage units (480 by 500) ---------- */
+  const SRC_Y = s => 92 + s * 82, NODE_X = 168;
+  const POOL = i => ({ x: 296 + (i % 20) * 6.6, y: 168 + Math.floor(i / 20) * 6.6 });
+  const FUN = { cx: 168, top: 104, bot: 448, hwTop: 112, hwBot: 34 };
+  const GATE_Y = g => 140 + g * 52;
+  const hw = y => lerp(FUN.hwTop, FUN.hwBot, (y - FUN.top) / (FUN.bot - FUN.top));
+  const TOP = i => ({ x: 168 - 31 * 3.2 + (i % 32) * 6.4, y: 26 + Math.floor(i / 32) * 6.1 });
+  const PILE = (g, k) => ({ x: 322 + (k % 24) * 6, y: GATE_Y(g) + 12 + Math.floor(k / 24) * 6 });
+  const BOT = k => ({ x: 168 - 7 * 7.4 + (k % 15) * 7.4, y: 456 + Math.floor(k / 15) * 7 });
+  const QUEUE = k => ({ x: 22 + (k % 4) * 13, y: 132 + Math.floor(k / 4) * 15.5 });
+  const LANE_Y = l => 100 + l * 46, LX0 = 100, LX1 = 466;
+  const TRAY = k => ({ x: 106 + (k % 29) * 12.4, y: 440 + Math.floor(k / 29) * 12 });
+  const COLX = c => 62 + (c - 1) * 40;
+  const HB = 408;
+  const STACK = (c, j) => ({ x: COLX(c) + (j % 2 ? 5.5 : -5.5), y: HB - 7 - Math.floor(j / 2) * 11 });
+  const WAVE0 = .05, WAVEW = .09;
+
+  // stack slots by column, sorted by investigation order, for first pass and final
+  function stacks(key) { const by = {}; surv.forEach(d => { (by[d[key]] = by[d[key]] || []).push(d); }); Object.values(by).forEach(a => a.forEach((d, j) => { d[key + 'j'] = j; })); }
+  stacks('s1'); stacks('s2');
+
+  /* ---------- dot positions as a pure function of the story position G ---------- */
+  function bez(p0, p1, p2, p3, t) { const u = 1 - t; return { x: u * u * u * p0.x + 3 * u * u * t * p1.x + 3 * u * t * t * p2.x + t * t * t * p3.x, y: u * u * u * p0.y + 3 * u * u * t * p1.y + 3 * u * t * t * p2.y + t * t * t * p3.y }; }
+  function s2pos(d, p) { // gather
+    const t0 = .04 + .66 * d.r2 / N, u = seg(p, t0, t0 + .2);
+    if (u <= 0) return null;
+    const a = { x: NODE_X, y: SRC_Y(d.src) }, b = POOL(d.r2), e = eout(u);
+    return { ...bez(a, { x: NODE_X + 70, y: a.y }, { x: b.x - 60, y: b.y }, b, e), r: 2.5 };
+  }
+  function s3pos(d, p) { // filter
+    const a = POOL(d.r2), b = TOP(d.r2), u0 = ease(seg(p, 0, .1));
+    let pos = { x: lerp(a.x, b.x, u0), y: lerp(a.y, b.y, u0) };
+    const t0 = .1 + .64 * d.r3 / N, u = seg(p, t0, t0 + .17);
+    if (u > 0) {
+      const jit = ((d.r3 * 7919) % 100) / 100 - .5;
+      if (d.gate >= 0) {
+        const gy = GATE_Y(d.gate), xf = FUN.cx + jit * hw(gy) * 1.3, dest = PILE(d.gate, d.pk);
+        pos = bez(b, { x: lerp(b.x, xf, .6), y: lerp(b.y, gy, .55) }, { x: xf + 8, y: gy + 2 }, dest, ease(u));
+      } else {
+        const dest = BOT(d.k), xf = FUN.cx + jit * 40;
+        pos = bez(b, { x: lerp(b.x, xf, .7), y: 220 }, { x: xf, y: 410 }, dest, ease(u));
+      }
+    }
+    return { ...pos, r: 2.5 };
+  }
+  function lanePhase(d, p) { // which wave, and how far through it
+    const w = Math.floor(d.k / 6), l = d.k % 6, t0 = WAVE0 + w * WAVEW;
+    return { w, l, u: seg(p, t0, t0 + WAVEW) };
+  }
+  function s4pos(d, p) { // investigate
+    const { l, u } = lanePhase(d, p), q = QUEUE(d.k), tr = TRAY(d.k);
+    const b = BOT(d.k), u0 = ease(seg(p, 0, .045));
+    if (u <= 0) return { x: lerp(b.x, q.x, u0), y: lerp(b.y, q.y, u0), r: lerp(2.5, 3.4, u0) };
+    const ly = LANE_Y(l) + 27, frac = d.early ? .42 : 1;
+    if (u < .14) { const e = ease(u / .14); return { ...bez(q, { x: q.x + 40, y: q.y }, { x: LX0 - 10, y: ly }, { x: LX0 + 8, y: ly }, e), r: 4 }; }
+    if (u < .84) { const e = (u - .14) / .7; return { x: LX0 + 8 + (LX1 - LX0 - 22) * frac * Math.min(1, e / (d.early ? .5 : 1)), y: ly, r: 4 }; }
+    const e = ease((u - .84) / .16), from = { x: LX0 + 8 + (LX1 - LX0 - 22) * frac, y: ly };
+    return { ...bez(from, { x: from.x, y: from.y + 30 }, { x: tr.x, y: tr.y - 40 }, tr, e), r: 4 };
+  }
+  function s6pos(d, p) { // verify
+    const tr = TRAY(d.k), a = STACK(d.s1, d.s1j), b = STACK(d.s2, d.s2j);
+    const t0 = .02 + .26 * d.k / NS, u = ease(seg(p, t0, t0 + .14));
+    if (u < 1) return { ...bez(tr, { x: tr.x, y: tr.y - 70 }, { x: a.x, y: a.y - 70 }, a, u), r: 4 };
+    const h = ease(seg(p, .52, .76));
+    if (d.s1 === d.s2) return { x: lerp(a.x, b.x, h), y: lerp(a.y, b.y, h), r: 4 };
+    return { x: lerp(a.x, b.x, h), y: lerp(a.y, b.y, h) - Math.sin(Math.PI * h) * 46, r: 4 + Math.sin(Math.PI * h) * 1.5 };
+  }
+  const CARD_PT = { 14: { x: 352, y: 112 }, 27: { x: 316, y: 212 }, 40: { x: 316, y: 312 } };
+  function s7pos(d, p) { // publish
+    const a = STACK(d.s2, d.s2j), u = ease(seg(p, .02 + .2 * d.k / NS, .28 + .2 * d.k / NS));
+    const dest = d.s2 >= 6 ? CARD_PT[d.k] : { x: 436 + (d.k % 5) * 4, y: 432 + Math.floor(d.k / 5) * 2 };
+    return { ...bez(a, { x: a.x, y: a.y - 60 }, { x: dest.x, y: dest.y + 80 }, dest, u), r: lerp(4, d.s2 >= 6 ? 5 : 2, u) };
+  }
+
+  /* ---------- stage plumbing ---------- */
+  const steps = $$('.step'), NCH = steps.length;
+  const view = $('#view'), box = $('#box'), cv = $('#cv'), ctx = cv.getContext('2d');
+  const scenes = $$('#box > .sc');
+  let S = 1, dpr = 1;
+  function fit() {
+    const r = view.getBoundingClientRect();
+    S = Math.min(r.width / BW, r.height / BH) * .98; S = Math.min(S, 1.45);
+    box.style.transform = `scale(${S}) translate(-50%, -50%)`;
+    box.style.transformOrigin = '0 0';
+    box.style.left = '50%'; box.style.top = '50%';
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    const pw = Math.round(BW * S * dpr), ph = Math.round(BH * S * dpr);
+    if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+    ctx.setTransform(S * dpr, 0, 0, S * dpr, 0, 0);
+    dirty = true;
+  }
+  // scale about the center: translate(-50%,-50%) applies before scale with origin 0 0
+  box.style.transform = 'translate(-50%, -50%)';
+
+  /* chapter dots */
+  const CH = ['Step 0 · Gates', 'Step 1 · State', 'Step 3 · Sources', 'Steps 2 to 4 · Filters', 'Step 5 · Deep read', 'Step 5 · Scoring', 'Step 5 · Verification', 'Step 6 · Publish', 'Email monitor · Tracker', 'Next morning'];
+  const dotsWrap = $('#stDots');
+  CH.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', `Jump to: ${c}`); b.addEventListener('click', () => jump(i)); dotsWrap.appendChild(b); });
+  const dotBtns = $$('#stDots button');
+  function jump(i) {
+    if (i === actCh) { G = i; dirty = true; return; }
+    const el = steps[i], y = el.getBoundingClientRect().top + scrollY - refLine() + (i ? 30 : 4);
+    scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+  }
+
+  /* run clock and day */
+  const K = .88, AT = g => Math.floor(g) + (g - Math.floor(g)) * K;
+  const CLOCK = [[0, 35100], [1, 35140], [2, 35170], [3, 35908], [4, 36065], [5, 37900], [6, 37980], [7, 38480], [8, 38580], [8.06, 39600], [9, 39730], [9.35, 39730], [9.5, 35100], [10, 35100]].map(([g, t]) => [AT(g), t]);
+  function clockAt(G) {
+    let k = 0; while (k < CLOCK.length - 2 && G > CLOCK[k + 1][0]) k++;
+    const [g0, t0] = CLOCK[k], [g1, t1] = CLOCK[k + 1];
+    const s = Math.round(lerp(t0, t1, clamp((G - g0) / (g1 - g0 || 1), 0, 1)));
+    const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60;
+    return `${(h % 12) || 12}:${String(m).padStart(2, '0')}:${String(ss).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+  }
+
+  /* log */
+  const LOG = [
+    [0, '09:45:00', 'scheduled task fired, prompt v6'], [.22, '09:45:02', '0a  no run recorded today, continue'], [.42, '09:45:03', '0b  lock acquired'],
+    [.62, '09:45:05', '0c  dashboard server up on :8765'], [.8, '09:45:09', '0d  connectors ok: indeed, ziprecruiter, claude docs, drive'],
+    [1.12, '09:45:12', '1   loaded applied, hidden and queued lists'], [1.4, '09:45:20', '1   seen.json ledger synced, 812 roles'], [1.68, '09:45:38', '1f  tracker_sync.py, 46 tracker rows'],
+    [1.9, '09:45:40', '1   skip set ready, 861 roles'],
+    [2.08, '09:46:10', '3   indeed: 18 searches'], [2.32, '09:49:52', '3   ziprecruiter: role × location pairs'], [2.52, '09:53:15', '3   built in, wellfound'],
+    [2.72, '09:57:40', '3   ats layer: greenhouse, ashby, lever, 259 boards'], [2.92, '09:58:28', '3   386 postings collected'],
+    [3.12, '09:58:40', '2   dedupe on company, title and location'], [3.28, '09:58:41', '2   date filter: posted in the last 5 days'], [3.44, '09:58:42', '4   hard filters: titles, employers, geography'],
+    [3.58, '09:58:44', '4   prefilter.py: skip anything already in the tracker'], [3.7, '09:58:46', '4   ledger.py filter: skip anything scored before'], [3.8, '09:59:30', '4   quick screen for outright fails'], [3.93, '10:00:58', '4   done: 328 dropped, 58 to investigate'],
+    [4.06, '10:01:05', '5   wave 1 of 10, 6 agents, 1 tab each'], [4.3, '10:08:12', '5   early exit: active clearance required'], [4.52, '10:16:40', '5   wave 5 of 10, api and fetch before browser'],
+    [4.76, '10:25:19', '5   wave 8 of 10'], [4.96, '10:31:40', '5   58 roles scored'],
+    [5.08, '10:31:41', '5   globex health: nj pre-check pass, nyc hybrid'], [5.5, '10:31:41', '5   +2 +2 +2 +2 −1 = 7/10, no cap'], [5.88, '10:31:42', '5   7 is in the 5–7 band, queue for verification'],
+    [6.18, '10:32:10', `5   ${verified.length} roles sent to verification`], [6.5, '10:37:02', '5   litware 6 → 5, degree cap confirmed'], [6.62, '10:38:14', '5   initech 5 → 6, remote role open to nj'],
+    [6.86, '10:41:00', '5   3 roles at 6 or better'],
+    [7.08, '10:41:20', '6a  ledger.py record: 58 rows'], [7.32, '10:41:31', '6   dashboard.html: 3 cards'], [7.56, '10:41:48', '6   snapshot artifact republished, saved to drive'],
+    [7.74, '10:42:02', '6   3 matches added to tracker as Considering'], [7.9, '10:42:05', '6b  marked today, lock released, push sent'],
+    [8.08, '11:00:00', 'monitor  hourly check, window 08:00 to 11:00'], [8.26, '11:00:21', 'monitor  3 job emails: confirmation, rejection, interview'],
+    [8.46, '11:00:40', 'monitor  acme logistics: Matches → Applied, Confirmed'], [8.63, '11:00:52', 'monitor  contoso: Applied → Rejected'],
+    [8.78, '11:01:03', 'monitor  fabrikam: Screen or Interview, note added'], [8.9, '11:01:20', 'monitor  reconciled 3 of 3, marked 3 read, push sent'],
+    [9.08, '09:45:00', 'next day: 1f reads the tracker, 3 new keys in the skip set'],
+  ];
+  const logEl = $('#log'); let logK = -1;
+  function renderLog(G) {
+    let k = -1; for (let i = 0; i < LOG.length; i++) if (AT(LOG[i][0]) <= G + .001) k = i;
+    if (k === logK) return; logK = k;
+    const lines = LOG.slice(Math.max(0, k - 2), k + 1);
+    logEl.innerHTML = lines.map(([, t, s]) => `<div><span class="t">${t}</span>${s.replace(/</g, '&lt;')}</div>`).join('');
+  }
+
+  /* ---------- scene builders ---------- */
+  // scene 2 labels
+  $('#srcs').innerHTML = SOURCES.map((s, i) => `<div class="src" style="top:${SRC_Y(i) - 22}px"><b><i style="background:${s.c}"></i>${s.name}</b><span>${s.sub}</span><em data-i="${i}">0</em></div>`).join('');
+  const srcNs = $$('#srcs em');
+  // scene 3 gate labels
+  $('#gls').innerHTML = GATES.map(([n], g) => `<div class="gl" style="top:${GATE_Y(g) - 9}px"><b data-g="${g}">−0</b>${n}</div>`).join('');
+  const glNs = $$('#gls b');
+
+  // scorer component
+  const POSTS = {
+    globex: { title: 'Product Operations Manager, AI Tooling', meta: 'Globex Health · New York, NY · Hybrid', src: 'posted 2 days ago · via Ashby API', lines: [
+      { t: '[[Hybrid, three days a week in our New York office.]]', kind: 'pass', d: 0, note: 'NJ pre-check: commutable', tag: 'pass' },
+      { t: 'Small team, [[based in Manhattan]], reporting to the COO.', kind: 'plus', d: 2, note: 'NYC hybrid' },
+      { t: 'You’ll [[build internal tools and automations with LLMs]] that our ops teams use every day.', kind: 'plus', d: 2, note: 'AI tooling named' },
+      { t: 'Comfortable in [[SQL and a BI tool]] like Tableau or Looker.', kind: 'plus', d: 2, note: 'SQL or BI' },
+      { t: '[[Write PRDs and own the roadmap]] for internal tooling.', kind: 'plus', d: 2, note: 'PRDs and roadmap' },
+      { t: '[[Partner with compliance]] on audit readiness for new tools.', kind: 'minus', d: -1, note: 'compliance-adjacent' },
+      { t: 'Bachelor’s degree [[or equivalent practical experience]].', kind: 'zero', d: 0, note: 'no cap: "or equivalent"' },
+    ], verdict: ['good', '<b>7/10.</b> In the 5 to 7 band, so a verification agent re-reads it cold and lands on 7 too. It makes the dashboard. <b>Gap:</b> no healthcare background.'] },
+    adatum: { title: 'AI Operations Specialist', meta: 'Adatum · Remote, US', src: 'posted 1 day ago · via ZipRecruiter connector', lines: [
+      { t: '[[Remote anywhere in the US.]]', kind: 'pass', d: 0, note: 'NJ pre-check: remote US', tag: 'pass' },
+      { t: 'Fully remote team, [[US-based]].', kind: 'plus', d: 1, note: 'remote US' },
+      { t: 'Design and run [[AI-assisted workflows]] across support and ops.', kind: 'plus', d: 2, note: 'AI workflows' },
+      { t: 'Track adoption in [[Looker]] and report weekly.', kind: 'plus', d: 2, note: 'SQL or BI' },
+      { t: '[[2 to 4 years]] in operations or product.', kind: 'plus', d: 1, note: 'years band fits' },
+      { t: '[[Bachelor’s degree in Computer Science required.]]', kind: 'cap', d: 0, cap: 4, note: 'CS degree, no equivalent' },
+    ], verdict: ['cap', '<b>Raw 6, capped at 4.</b> The CS degree line has no "or equivalent experience," so the card names the gap and the role stays off the dashboard.'] },
+    proseware: { title: 'Product Manager, Internal Tools', meta: 'Proseware · Austin, TX · Onsite', src: 'posted today · via Indeed connector', lines: [
+      { t: '[[Onsite five days a week in Austin. Relocation is not offered.]]', kind: 'fail', d: 0, fail: true, note: 'NJ pre-check: fail', tag: 'fail' },
+      { t: 'Own the roadmap for internal tools used by 400 people.', kind: 'zero', d: 0, skip: true },
+      { t: 'Strong SQL and comfort with dashboards.', kind: 'zero', d: 0, skip: true },
+      { t: 'Experience building with LLMs is a plus.', kind: 'zero', d: 0, skip: true },
+    ], verdict: ['bad', '<b>1/10, early exit.</b> The location check fails on the first line, so the agent stops there and spends its budget on roles still in play. The rest of the posting is never scored.'] },
+  };
+  function scorer(host, key) {
+    const P = POSTS[key];
+    const lines = P.lines.map(l => `<li data-kind="${l.kind}">${l.t.replace(/\[\[(.+?)\]\]/g, '<mark>$1</mark>')}</li>`).join('');
+    const led = P.lines.filter(l => !l.skip).map(l => {
+      const w = l.kind === 'pass' ? 'pass' : l.kind === 'fail' ? 'fail' : l.kind === 'cap' ? 'cap 4' : l.d > 0 ? '+' + l.d : l.d < 0 ? '−' + (-l.d) : '0';
+      return `<li class="${l.kind}"><b>${w}</b><span>${l.note}</span></li>`;
+    }).join('');
+    host.innerHTML = `<div class="sx-post"><div class="sx-head"><b>${P.title}</b><span>${P.meta}</span><small>${P.src}</small></div><ul class="sx-lines">${lines}</ul></div>
+      <div class="sx-verdict"></div>
+      <div class="sx-calc"><ol class="sx-ledger">${led}</ol><div class="sx-gauge"><svg viewBox="0 0 150 104"><path d="M15 88 A60 60 0 0 1 135 88" fill="none" stroke="#ece6d9" stroke-width="10" stroke-linecap="round"/><path class="g-arc" d="M15 88 A60 60 0 0 1 135 88" fill="none" stroke="#1c1a16" stroke-width="10" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/><line x1="0" y1="0" x2="0" y2="0" class="g-bar" stroke="#2c7a4c" stroke-width="2.5" stroke-linecap="round"/><line class="g-cap" x1="0" y1="0" x2="0" y2="0" stroke="#a9690f" stroke-width="3" stroke-linecap="round" opacity="0"/></svg><output>0<small>/10</small></output><span class="cap6">bar at 6</span></div></div>`;
+    // the bar tick at 6
+    const a6 = Math.PI * (1 - .6), bar = host.querySelector('.g-bar');
+    bar.setAttribute('x1', 75 + Math.cos(a6) * 48); bar.setAttribute('y1', 88 - Math.sin(a6) * 48); bar.setAttribute('x2', 75 + Math.cos(a6) * 72); bar.setAttribute('y2', 88 - Math.sin(a6) * 72);
+    const els = { lines: [...host.querySelectorAll('.sx-lines li')], led: [...host.querySelectorAll('.sx-ledger li')], arc: host.querySelector('.g-arc'), out: host.querySelector('output'), verdict: host.querySelector('.sx-verdict'), cap: host.querySelector('.g-cap'), post: host.querySelector('.sx-post'), calc: host.querySelector('.sx-calc') };
+    // place the verdict between the posting and the ledger
+    requestAnimationFrame(() => { const pb = els.post.offsetTop + els.post.offsetHeight; els.verdict.style.top = (pb + 8) + 'px'; });
+    els.verdict.className = 'sx-verdict ' + P.verdict[0]; els.verdict.innerHTML = P.verdict[1];
+    let lastVal = -1;
+    function set(p) {
+      const live = P.lines.filter(l => !l.skip), n = live.length, per = .8 / n;
+      let val = 0, capAt = null, failed = false;
+      P.lines.forEach((l, i) => {
+        const li = els.lines[i];
+        if (l.skip) { li.classList.toggle('dim', p > per * .9); li.querySelector('mark') && li.querySelector('mark').style.setProperty('--h', 0); return; }
+        const j = live.indexOf(l), u = seg(p, j * per, (j + .8) * per);
+        const m = li.querySelector('mark'); if (m) m.style.setProperty('--h', u.toFixed(3));
+        els.led[j].classList.toggle('on', u > .55);
+        const k = backOut(seg(u, .35, 1));
+        if (l.fail) { failed = k > 0; val = lerp(val, 1, k); }
+        else if (l.cap != null) { if (k > 0) capAt = { k, v: l.cap }; }
+        else val += l.d * k;
+      });
+      if (capAt) val = lerp(val, Math.min(val, capAt.v), capAt.k);
+      val = clamp(val, 0, 10);
+      els.arc.setAttribute('stroke-dashoffset', (1 - val / 10).toFixed(4));
+      els.arc.setAttribute('stroke', val >= 6 ? '#2c7a4c' : failed ? '#d2462a' : capAt ? '#a9690f' : '#1c1a16');
+      const shown = Math.round(val);
+      if (shown !== lastVal) { const up = lastVal >= 0; lastVal = shown; els.out.innerHTML = `${shown}<small>/10</small>`; if (up && !reduce) { els.out.classList.remove('tick'); void els.out.offsetWidth; els.out.classList.add('tick'); } }
+      if (capAt) {
+        const ac = Math.PI * (1 - capAt.v / 10);
+        els.cap.setAttribute('x1', 75 + Math.cos(ac) * 50); els.cap.setAttribute('y1', 88 - Math.sin(ac) * 50); els.cap.setAttribute('x2', 75 + Math.cos(ac) * 70); els.cap.setAttribute('y2', 88 - Math.sin(ac) * 70);
+        els.cap.setAttribute('opacity', capAt.k.toFixed(2));
+      } else els.cap.setAttribute('opacity', 0);
+      els.verdict.classList.toggle('on', p > .9);
+    }
+    set(0);
+    return { set };
+  }
+  const sc5 = scorer($('#sc5'), 'globex');
+
+  // scene 8: tracker rows and their layouts over time
+  const ROWS = {
+    acme: ['Acme Logistics', 'Business Operations Analyst', '11-06'], contoso: ['Contoso', 'Product Operations Analyst', '11-03'], fabrikam: ['Fabrikam', 'AI Solutions Specialist', '11-05'],
+    wingtip: ['Wingtip Toys', 'Associate Product Manager', '10-29'], tailspin: ['Tailspin', 'Product Analyst', '10-27'],
+    globex: ['Globex Health', 'Product Operations Manager, AI Tooling', '11-10'], initech: ['Initech', 'AI Operations Specialist', '11-10'], northwind: ['Northwind Traders', 'Product Manager, Internal Tools', '11-10'],
+  };
+  const TAB = { M: 'Matches', A: 'Applied', R: 'Rejected' };
+  // snapshots: tables, statuses, updated dates. Segments between them are animated.
+  const SNAP = [
+    { at: 0, t: { M: ['acme'], A: ['contoso', 'fabrikam', 'wingtip'], R: ['tailspin'] }, s: { acme: 'Considering', contoso: 'Confirmed', fabrikam: 'Confirmed', wingtip: 'Applied', tailspin: 'Rejected' } },
+    { at: .2, t: { M: ['acme', 'globex', 'initech', 'northwind'], A: ['contoso', 'fabrikam', 'wingtip'], R: ['tailspin'] }, s: { globex: 'Considering', initech: 'Considering', northwind: 'Considering' }, hot: ['globex', 'initech', 'northwind'] },
+    { at: .36, t: null },
+    { at: .52, t: { M: ['globex', 'initech', 'northwind'], A: ['contoso', 'fabrikam', 'wingtip', 'acme'], R: ['tailspin'] }, s: { acme: 'Confirmed' }, hot: ['acme'], up: { acme: '11-10' } },
+    { at: .68, t: { M: ['globex', 'initech', 'northwind'], A: ['fabrikam', 'wingtip', 'acme'], R: ['tailspin', 'contoso'] }, s: { contoso: 'Rejected' }, hot: ['contoso'], up: { contoso: '11-10' } },
+    { at: .82, t: null, s: { fabrikam: 'Screen or Interview' }, hot: ['fabrikam'], up: { fabrikam: '11-10' } },
+    { at: 1, t: null },
+  ];
+  // fill forward
+  for (let i = 1; i < SNAP.length; i++) { const p = SNAP[i - 1], c = SNAP[i]; c.t = c.t || p.t; c.s = Object.assign({}, p.s, c.s || {}); c.up = Object.assign({}, p.up || {}, c.up || {}); c.hot = c.hot || []; }
+  SNAP[0].up = {}; SNAP[0].hot = [];
+  function layout(t) {
+    const y = {}, hy = {}; let cur = 6;
+    ['M', 'A', 'R'].forEach(k => { hy[k] = cur; cur += 28; t[k].forEach(id => { y[id] = cur; cur += 28; }); cur += 10; });
+    return { y, hy };
+  }
+  SNAP.forEach(s => { s.L = layout(s.t); });
+  const trk = $('#trk');
+  trk.innerHTML = ['M', 'A', 'R'].map(k => `<div class="th" data-t="${k}">${TAB[k]} <i></i></div>`).join('') +
+    Object.entries(ROWS).map(([id, [co, role, up]]) => `<div class="tr" data-id="${id}"><b>${co}</b><span>${role}</span><i class="chip" data-s=""></i><time>${up}</time></div>`).join('');
+  const TH = Object.fromEntries($$('.th', trk).map(e => [e.dataset.t, e])), TR = Object.fromEntries($$('.tr', trk).map(e => [e.dataset.id, e]));
+  const trCache = {};
+  function renderTracker(p) {
+    let k = 0; while (k < SNAP.length - 2 && p > SNAP[k + 1].at) k++;
+    const A = SNAP[k], B = SNAP[k + 1], u = ease(seg(p, A.at, B.at));
+    ['M', 'A', 'R'].forEach(t => {
+      TH[t].style.transform = `translateY(${lerp(A.L.hy[t], B.L.hy[t], u).toFixed(2)}px)`;
+      const n = Math.round(lerp(A.t[t].length, B.t[t].length, u)); TH[t].querySelector('i').textContent = n;
+    });
+    for (const id in TR) {
+      const el = TR[id], ya = A.L.y[id], yb = B.L.y[id];
+      let y, o = 1;
+      if (ya == null && yb == null) { o = 0; y = 0; }
+      else if (ya == null) { y = yb; o = u; }
+      else if (yb == null) { y = ya; o = 1 - u; }
+      else y = lerp(ya, yb, u);
+      const st = (u > .5 ? B : A).s[id] || '', upd = (u > .5 ? B : A).up[id] || ROWS[id][2];
+      const hot = B.hot.includes(id) && u > 0 && u < 1;
+      const key = `${y.toFixed(1)}|${o.toFixed(2)}|${st}|${hot}|${upd}|${u.toFixed(3)}`;
+      if (trCache[id] === key) continue; trCache[id] = key;
+      const moving = ya != null && yb != null && Math.abs(ya - yb) > 1 && u > 0 && u < 1, arc = moving ? Math.sin(Math.PI * u) : 0;
+      el.style.transform = `translateY(${y.toFixed(2)}px) translateX(${((1 - o) * -10 + arc * 26).toFixed(1)}px) rotate(${(arc * -1.2).toFixed(2)}deg) scale(${(1 + arc * .025).toFixed(3)})`;
+      el.style.opacity = o.toFixed(3);
+      const chip = el.firstElementChild.nextElementSibling.nextElementSibling;
+      if (chip.dataset.s !== st) { chip.dataset.s = st; chip.textContent = st; }
+      el.classList.toggle('hot', hot);
+      el.lastElementChild.textContent = upd;
+    }
+  }
+
+  // scene 9: the loop
+  const LOOP_EDGES = [
+    // [path, label, lx, ly, start]
+    ['M98 432 C 98 330, 98 300, 98 236', 'postings', 64, 330, .02],
+    ['M140 230 C 170 300, 190 320, 200 326', 'adds matches as Considering', 128, 300, .14],
+    ['M382 432 C 382 330, 382 300, 382 236', 'job mail', 416, 330, .26],
+    ['M340 230 C 310 300, 290 320, 280 326', 'moves rows, logs every change', 352, 300, .38],
+    ['M226 324 C 160 250, 150 250, 120 232', 'next morning: the skip set', 166, 258, .55],
+    ['M240 86 L 240 318', 'applies, edits by hand', 240, 150, .7],
+    ['M104 178 C 112 132, 140 94, 174 70', 'dashboard and push', 118, 112, .82],
+  ];
+  const svgNS = 'http://www.w3.org/2000/svg', loopSvg = $('#loopSvg');
+  const loopPaths = LOOP_EDGES.map(([d]) => {
+    const g = document.createElementNS(svgNS, 'g');
+    const base = document.createElementNS(svgNS, 'path'); base.setAttribute('d', d); base.setAttribute('fill', 'none'); base.setAttribute('stroke', '#b9b09d'); base.setAttribute('stroke-width', '1.6'); base.setAttribute('pathLength', '1'); base.setAttribute('stroke-dasharray', '1'); base.setAttribute('stroke-dashoffset', '1'); base.setAttribute('marker-end', 'url(#ah)');
+    const flow = document.createElementNS(svgNS, 'circle'); flow.setAttribute('r', '3.6'); flow.setAttribute('fill', '#d2462a'); flow.setAttribute('opacity', '0');
+    g.append(base, flow); loopSvg.appendChild(g);
+    return { base, flow, len: 0 };
+  });
+  $('#elabs').innerHTML = LOOP_EDGES.map(([, l, x, y]) => `<span class="elab" style="left:${x}px;top:${y}px">${l}</span>`).join('');
+  const elabs = $$('#elabs .elab');
+  requestAnimationFrame(() => loopPaths.forEach(p => { try { p.len = p.base.getTotalLength(); } catch (e) { p.len = 0; } }));
+
+  /* ---------- canvas drawing ---------- */
+  function txt(s, x, y, o = {}) { ctx.font = o.font || '600 11px "Funnel Sans", system-ui, sans-serif'; ctx.fillStyle = o.color || '#5f594f'; ctx.textAlign = o.align || 'left'; ctx.textBaseline = o.base || 'middle'; ctx.fillText(s, x, y); }
+  function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+
+  function draw(G, now) {
+    ctx.clearRect(0, 0, BW, BH);
+    const op = i => i <= 0 ? 1 - sstep(G, .9, 1) : sstep(G, i - .02, i + .08) * (i >= NCH - 1 ? 1 : 1 - sstep(G, i + .9, i + 1));
+    const p = i => clamp((G - i) / K, 0, 1);
+    // gather: source nodes and their links
+    const a2 = op(2);
+    if (a2 > .01) {
+      ctx.globalAlpha = a2;
+      SOURCES.forEach((s, i) => {
+        const y = SRC_Y(i);
+        ctx.strokeStyle = s.c; ctx.globalAlpha = a2 * .18; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(NODE_X, y); ctx.bezierCurveTo(NODE_X + 70, y, 236, 236, 290, 236); ctx.stroke();
+        ctx.globalAlpha = a2; ctx.fillStyle = '#fffdf9'; ctx.strokeStyle = s.c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(NODE_X, y, 7, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = s.c; ctx.beginPath(); ctx.arc(NODE_X, y, 3, 0, 7); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+    // filter: the funnel and its gates
+    const a3 = op(3);
+    if (a3 > .01) {
+      ctx.globalAlpha = a3;
+      ctx.fillStyle = 'rgba(236, 230, 217, .55)';
+      ctx.beginPath(); ctx.moveTo(FUN.cx - FUN.hwTop, FUN.top); ctx.lineTo(FUN.cx + FUN.hwTop, FUN.top); ctx.lineTo(FUN.cx + FUN.hwBot, FUN.bot); ctx.lineTo(FUN.cx - FUN.hwBot, FUN.bot); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#c9c0ad'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(FUN.cx - FUN.hwTop, FUN.top); ctx.lineTo(FUN.cx - FUN.hwBot, FUN.bot); ctx.moveTo(FUN.cx + FUN.hwTop, FUN.top); ctx.lineTo(FUN.cx + FUN.hwBot, FUN.bot); ctx.stroke();
+      GATES.forEach((_, g) => {
+        const y = GATE_Y(g), h = hw(y);
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = '#b9b09d'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(FUN.cx - h, y); ctx.lineTo(FUN.cx + h, y); ctx.stroke(); ctx.setLineDash([]);
+        ctx.strokeStyle = 'rgba(210, 70, 42, .35)'; ctx.beginPath(); ctx.moveTo(FUN.cx + h + 4, y); ctx.lineTo(314, y); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+    // investigate: six lanes
+    const a4 = op(4), p4 = p(4);
+    if (a4 > .01) {
+      ctx.globalAlpha = a4;
+      const w = clamp(Math.floor((p4 - WAVE0) / WAVEW), 0, 9);
+      for (let l = 0; l < 6; l++) {
+        const y = LANE_Y(l);
+        rr(LX0, y, LX1 - LX0, 38, 8); ctx.fillStyle = '#f3efe6'; ctx.fill(); ctx.strokeStyle = '#e1dacb'; ctx.lineWidth = 1; ctx.stroke();
+        txt(`Agent ${l + 1}`, LX0 + 8, y + 10, { font: '700 10.5px "Funnel Sans", system-ui, sans-serif', color: '#918a7d' });
+        const k = w * 6 + l; const d = surv[k];
+        if (!d) continue;
+        const { u } = lanePhase(d, p4);
+        if (u <= 0 || u >= 1) continue;
+        const fa = Math.min(1, u / .12, (1 - u) / .1);
+        ctx.globalAlpha = a4 * fa;
+        const label = `${d.title} · ${d.co}`;
+        txt(label.length > 50 ? label.slice(0, 49) + '…' : label, LX0 + 56, y + 10, { font: '600 10.5px "Funnel Sans", system-ui, sans-serif', color: '#1c1a16' });
+        // tool calls appear as the agent works
+        const work = clamp((u - .14) / (d.early ? .35 : .7), 0, 1), shown = Math.floor(work * d.ticks.length + .001);
+        for (let t = 0; t < shown; t++) { ctx.fillStyle = TICKC[d.ticks[t]]; rr(LX0 + 8 + t * 9, y + 28, 6, 5, 1.5); ctx.fill(); }
+        if (d.early && work >= 1) { txt('✕ ' + d.ko, LX0 + 14 + d.ticks.length * 9, y + 30.5, { font: '700 10px "Funnel Sans", system-ui, sans-serif', color: '#d2462a' }); }
+        else if (!d.early && work >= 1) { txt(`scored ${d.s1}/10`, LX1 - 10, y + 10, { align: 'right', font: '700 10.5px "JetBrains Mono", monospace', color: scoreColor(d.s1) }); }
+        ctx.globalAlpha = a4;
+      }
+      ctx.globalAlpha = 1;
+    }
+    // verify: the histogram
+    const a6 = op(6), p6 = p(6);
+    if (a6 > .01) {
+      ctx.globalAlpha = a6;
+      const band = sstep(p6, .3, .42) * (1 - sstep(p6, .8, .9) * .6);
+      if (band > 0) { ctx.globalAlpha = a6 * band; rr(COLX(5) - 17, HB - 96, COLX(7) - COLX(5) + 34, 104, 10); ctx.fillStyle = 'rgba(59, 82, 207, .08)'; ctx.fill(); ctx.strokeStyle = 'rgba(59, 82, 207, .35)'; ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]);
+        txt('verification band', (COLX(5) + COLX(7)) / 2, HB - 104, { align: 'center', font: '700 10.5px "Funnel Sans", system-ui, sans-serif', color: '#3b52cf' }); }
+      ctx.globalAlpha = a6;
+      ctx.strokeStyle = '#d0c8b6'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(40, HB + 2); ctx.lineTo(440, HB + 2); ctx.stroke();
+      for (let c = 1; c <= 10; c++) txt(String(c), COLX(c), HB + 14, { align: 'center', font: '600 11px "JetBrains Mono", monospace', color: c >= 6 ? '#2c7a4c' : '#918a7d' });
+      const th = sstep(p6, .78, .9);
+      ctx.globalAlpha = a6 * (.35 + th * .65);
+      const bx = (COLX(5) + COLX(6)) / 2; ctx.strokeStyle = '#2c7a4c'; ctx.lineWidth = 1.6; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(bx, 272); ctx.lineTo(bx, HB + 6); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+    // the postings themselves
+    if (G > 1.95 && G < 7.6) {
+      const a7 = G < 7 ? 1 : 1 - sstep(p(7), .42, .56), dim5 = 1 - (sstep(G, 4.92, 5.04) * (1 - sstep(G, 5.9, 6.02)));
+      const glow = G >= 7 ? 1 : G >= 6 ? sstep(p(6), .8, .92) : 0;
+      for (const d of dots) {
+        let s = null, col, a = 1;
+        if (G < 3) { s = s2pos(d, p(2)); col = SOURCES[d.src].c; }
+        else if (G < 4) { s = s3pos(d, p(3)); col = SOURCES[d.src].c; }
+        else if (d.gate >= 0) { // dropped postings fade out of their piles at the start of the deep read
+          a = 1 - sstep(G, 3.9, 4.0); if (a <= 0) continue; s = { ...PILE(d.gate, d.pk), r: 2.5 }; col = SOURCES[d.src].c;
+        } else if (G < 5) {
+          s = s4pos(d, p(4)); const { u } = lanePhase(d, p(4)); col = u > .84 ? scoreColor(d.s1) : SOURCES[d.src].c;
+        } else if (G < 6) { s = { ...TRAY(d.k), r: 4 }; col = scoreColor(d.s1); }
+        else if (G < 7) {
+          s = s6pos(d, p(6)); const h = seg(p(6), .52, .76); col = scoreColor(h > .5 ? d.s2 : d.s1);
+          if (glow > 0 && d.s2 < 6) a = 1 - glow * .55;
+        } else { s = s7pos(d, p(7)); col = scoreColor(d.s2); }
+        if (!s) continue;
+        ctx.globalAlpha = a * a7 * dim5;
+        if (d.gate < 0 && G >= 6 && d.s2 >= 6 && glow > 0) { ctx.fillStyle = 'rgba(44, 122, 76, .18)'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 2.4, 0, 7); ctx.fill(); }
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
+        // verification rings
+        if (G >= 6 && G < 7 && verified.includes(d)) {
+          const ring = sstep(p(6), .34, .44) * (1 - sstep(p(6), .78, .86));
+          if (ring > 0) { ctx.globalAlpha = ring * a7; ctx.strokeStyle = '#3b52cf'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.arc(s.x, s.y, s.r + 2.6, 0, 7); ctx.stroke(); }
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* ---------- per-frame DOM updates ---------- */
+  const gateLis = $$('#gates li'), fileEls = $$('#files .file'), skipArc = $('#skipArc'), skipN = $('#skipN');
+  const mails = $$('#mails .mail'), notif = $('#notif'), chips7 = $$('#chips7 span'), jcs = $$('#box .jc'), vcards = $$('.vcard');
+  const lastText = new Map();
+  const setText = (el, s) => { if (lastText.get(el) !== s) { lastText.set(el, s); el.textContent = s; } };
+  function renderDom(G) {
+    const op = i => i <= 0 ? 1 - sstep(G, .9, 1) : sstep(G, i - .02, i + .08) * (i >= NCH - 1 ? 1 : 1 - sstep(G, i + .9, i + 1));
+    const p = i => clamp((G - i) / K, 0, 1);
+    scenes.forEach((s, i) => {
+      const o = op(i), k = `${o.toFixed(3)}`;
+      if (s._k === k) return; s._k = k;
+      // entering scenes rise and sharpen; leaving scenes drift up and soften
+      const entering = G < i + .5, d = 1 - o, ty = (entering ? 12 : -12) * d;
+      s.style.opacity = o.toFixed(3); s.style.visibility = o < .005 ? 'hidden' : 'visible';
+      s.style.transform = o > .995 ? 'none' : `translateY(${ty.toFixed(2)}px) scale(${(entering ? 1 + .025 * d : 1 - .02 * d).toFixed(4)})`;
+      s.style.filter = o > .995 || reduce ? 'none' : `blur(${(d * 5).toFixed(2)}px)`;
+      s.classList.toggle('live', o > .6);
+    });
+    const ci = actCh, pf = clamp((G - ci) / K, 0, 1);
+    chapLabel(CH[clamp(Math.floor(G + .02), 0, NCH - 1)]);
+    dotBtns.forEach((b, i) => { b.classList.toggle('on', i === ci); b.classList.toggle('done', i < ci); if (i === ci) b.style.setProperty('--p', (pf * 100).toFixed(1) + '%'); });
+    setText($('#stClock'), clockAt(G));
+    setText($('#stDay'), G > AT(9.45) ? 'Wednesday' : 'Tuesday');
+    setText($('#stWho'), G >= AT(8.06) && G < AT(9.45) ? 'Monitor' : 'Matcher');
+    renderLog(G);
+
+    // 0: gates
+    if (G < 1.2) {
+      const p0 = p(0);
+      $('#s0Bar').style.width = (seg(p0, 0, .16) * 100).toFixed(1) + '%';
+      setText($('#s0Read'), p0 > .16 ? 'read in full' : 'reading');
+      gateLis.forEach((li, i) => { const a = .18 + i * .19; li.classList.toggle('run', p0 > a && p0 <= a + .12); li.classList.toggle('ok', p0 > a + .12); });
+    }
+    // 1: state
+    if (G > .8 && G < 2.2) {
+      const p1 = p(1);
+      let tot = 0;
+      fileEls.forEach((f, i) => {
+        const u = ease(seg(p1, .08 + i * .1, .4 + i * .1));
+        const n = +f.querySelector('i').dataset.n; setText(f.querySelector('i'), fmt(n * eout(seg(p1, .05 + i * .1, .3 + i * .1))));
+        f.style.transform = `translate(${(u * 34).toFixed(1)}px, 0) scale(${(1 - u * .03).toFixed(3)})`;
+        f.style.opacity = (1 - u * .35).toFixed(3);
+        tot += u;
+      });
+      const fill = ease(seg(p1, .12, .78));
+      skipArc.setAttribute('stroke-dashoffset', (1 - fill).toFixed(4));
+      setText(skipN, fmt(861 * fill));
+    }
+    // 2: sources
+    if (G > 1.8 && G < 3.2) {
+      const p2 = p(2), cnt = SOURCES.map(() => 0); let tot = 0;
+      for (const d of dots) { const t0 = .04 + .66 * d.r2 / N; if (p2 >= t0 + .2) { cnt[d.src]++; tot++; } }
+      srcNs.forEach((e, i) => setText(e, `${cnt[i]} postings`));
+      setText($('#poolN'), fmt(tot));
+      $('#poolNote').style.opacity = sstep(p2, .82, .92).toFixed(2);
+    }
+    // 3: filter
+    if (G > 2.8 && G < 4.2) {
+      const p3 = p(3), drop = GATES.map(() => 0); let bot = 0, left = N;
+      for (const d of dots) { const t0 = .1 + .64 * d.r3 / N; if (p3 >= t0 + .15) { if (d.gate >= 0) drop[d.gate]++; else bot++; } }
+      glNs.forEach((e, g) => setText(e, `−${drop[g]}`));
+      $$('#gls .gl').forEach((e, g) => { e.style.opacity = (.35 + .65 * sstep(drop[g], 0, 1)).toFixed(2); });
+      setText($('#fBot'), String(bot));
+      left -= drop.reduce((a, b) => a + b, 0);
+      setText($('#fTop'), String(N));
+    }
+    // 4: agents
+    if (G > 3.8 && G < 5.2) {
+      const p4 = p(4), w = clamp(Math.floor((p4 - WAVE0) / WAVEW), 0, 9);
+      let scored = 0, calls = 0, exits = 0, queued = 0;
+      for (const d of surv) { const { u } = lanePhase(d, p4); if (u <= 0) queued++; if (u > .84) { scored++; if (d.early) exits++; } calls += Math.floor(clamp((u - .14) / (d.early ? .35 : .7), 0, 1) * d.ticks.length + .001); }
+      $('#wave').innerHTML = `Wave <b>${w + 1}</b> of 10 &middot; up to 6 agents at once`;
+      setText($('#qN'), String(queued)); setText($('#scoredN'), String(scored)); setText($('#callsN'), String(calls)); setText($('#exitN'), String(exits));
+    }
+    // 5: score
+    if (G > 4.8 && G < 6.2) sc5.set(seg(p(5), .04, .92));
+    // 6: verify
+    if (G > 5.8 && G < 7.2) {
+      const p6 = p(6);
+      vcards.forEach((c, i) => c.classList.toggle('on', p6 > .46 + i * .06));
+      setText($('#vSub'), p6 < .32 ? 'First-pass scores for all 58 roles' : p6 < .52 ? `${verified.length} roles in the band go to a fresh verification agent` : 'The verifier’s score is final');
+      $('#vMade').style.opacity = sstep(p6, .84, .94).toFixed(2);
+      $('#vBar').style.opacity = (.4 + .6 * sstep(p6, .78, .9)).toFixed(2);
+    }
+    // 7: publish
+    if (G > 6.8 && G < 8.2) {
+      const p7 = p(7);
+      jcs.forEach((c, i) => c.classList.toggle('on', p7 > .3 + i * .07));
+      notif.classList.toggle('on', p7 > .62);
+      chips7.forEach((c, i) => c.classList.toggle('on', p7 > .72 + i * .07));
+    }
+    // 8: track
+    if (G > 7.8 && G < 9.2) {
+      const p8 = p(8);
+      renderTracker(seg(p8, .02, .96));
+      mails.forEach((m, i) => { m.classList.toggle('on', p8 > .22 + i * .035); m.querySelector('em').classList.toggle('on', p8 > .3 + i * .03); m.classList.toggle('read', p8 > .9); });
+    }
+    // 9: loop
+    if (G > 8.8) {
+      const p9 = p(9), t = performance.now() / 1000;
+      loopPaths.forEach((lp, i) => {
+        const st = LOOP_EDGES[i][4], u = ease(seg(p9, st, st + .14));
+        lp.base.setAttribute('stroke-dashoffset', (1 - u).toFixed(4));
+        elabs[i].style.opacity = sstep(u, .5, 1).toFixed(2);
+        if (u >= 1 && lp.len) {
+          const k = ((t * .45 + i * .17) % 1), pt = lp.base.getPointAtLength(k * lp.len);
+          lp.flow.setAttribute('cx', pt.x.toFixed(1)); lp.flow.setAttribute('cy', pt.y.toFixed(1)); lp.flow.setAttribute('opacity', (Math.sin(k * Math.PI) * .9).toFixed(2));
+        } else lp.flow.setAttribute('opacity', 0);
+      });
+    }
+  }
+
+  /* ---------- the playhead: scrolling picks the chapter, the chapter plays on its own clock ---------- */
+  const narrow = matchMedia('(max-width: 900px)');
+  const refLine = () => narrow.matches ? innerHeight * .74 : innerHeight * .5;
+  // seconds each chapter takes to play through, once you arrive at it
+  const DUR = [4.6, 4.4, 6.5, 7.5, 13, 6.8, 7.5, 5.6, 10, 7];
+  function chapter() {
+    // nothing plays until the stage is pinned and fully in view
+    if ($('#run').getBoundingClientRect().top > (narrow.matches ? 2 : 16)) return -1;
+    const ref = refLine();
+    for (let i = NCH - 1; i >= 0; i--) if (steps[i].getBoundingClientRect().top <= ref) return i;
+    return -1; // the run hasn't started yet
+  }
+  let G = 0, actCh = 0, last = performance.now(), dirty = true, onStep = -1;
+  function frame(now) {
+    const dt = Math.min(.1, (now - last) / 1000); last = now;
+    const c = chapter(), A = Math.max(0, c);
+    actCh = A;
+    const prev = G;
+    if (c < 0) G = 0;
+    else if (reduce) G = A + K;
+    else if (G > A + K) G = Math.max(A + K, G - dt * 3.2);           // scrolled back: rewind to that chapter's finished frame
+    else if (G < A) {                                                 // scrolled ahead: finish what's playing, then hand off
+      const f = G - Math.floor(G), hand = f > K - .002 || f < .08;
+      G = Math.min(A, G + dt * (hand ? .6 : 2.4));
+    } else G = Math.min(A + K, G + dt * K / DUR[A]);                  // play this chapter through and hold on its last frame
+    const loopLive = G > 8.95; // the loop scene animates on its own
+    if (dirty || G !== prev || loopLive) { draw(G, now); renderDom(G); dirty = false; }
+    if (A !== onStep) { onStep = A; steps.forEach((s, i) => s.classList.toggle('on', i === A)); }
+    raf = visible ? requestAnimationFrame(frame) : 0;
+  }
+  let raf = 0, visible = true;
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }, { rootMargin: '200px' }).observe($('#run'));
+  new ResizeObserver(fit).observe(view);
+  addEventListener('resize', () => { dirty = true; });
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty = true; });
+  G = Math.max(0, chapter()); // arriving mid-page starts that chapter fresh
+  raf = requestAnimationFrame(frame);
+
+  /* ---------- chapter label: the old name slides up and out as the new one rises in ---------- */
+  function chapLabel(t) {
+    const host = $('#stLab'), cur = host.lastElementChild;
+    if (cur && cur.textContent === t) return;
+    const n = document.createElement('span'); n.className = 'pre'; n.textContent = t; host.appendChild(n);
+    void n.offsetWidth; n.classList.remove('pre');
+    $$('span', host).forEach(o => { if (o !== n) { o.classList.add('out'); setTimeout(() => o.remove(), 560); } });
+  }
+
+  /* ---------- hero: words rise out of a mask, numbers count up ---------- */
+  const h1 = $('#h1'), hero = $('#hero');
+  h1.setAttribute('aria-label', h1.textContent);
+  let wi = 0; h1.innerHTML = h1.textContent.split(/(\s+)/).map(w => /^\s+$/.test(w) || !w ? w : `<span class="w" aria-hidden="true"><span style="--i:${wi++}">${w}</span></span>`).join('');
+  requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('in')));
+  if (!reduce) setTimeout(() => {
+    $$('[data-count]').forEach(el => {
+      const n = +el.dataset.count, t0 = performance.now();
+      const tick = now => { const u = clamp((now - t0) / 1300, 0, 1); el.textContent = fmt(n * eout(u)); if (u < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    });
+  }, 820);
+
+  /* ---------- the hero ribbon: hundreds of postings in, three out ---------- */
+  (function ribbon() {
+    const cv = $('#ribbon'), host = cv.parentElement, c2 = cv.getContext('2d');
+    const GX = [.22, .52, .8], END = .91, PASS = [58 / 386, 17 / 58, 3 / 17];
+    let W = 0, H = 0, parts = [], raf = 0, vis = false, last = 0, acc = 0;
+    const halfH = x => { let h = .4; const steps = [.21, .1, .04]; GX.forEach((g, i) => { h = lerp(h, steps[i], sstep(x, g - .03, g + .05)); }); return h * (1 - sstep(x, .84, END)); };
+    function size() {
+      const r = host.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height - 22;
+      cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); c2.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function spawn(x0) {
+      let fate = 3; for (let g = 0; g < 3; g++) if (rnd() > PASS[g]) { fate = g; break; }
+      parts.push({ x: x0 != null ? x0 : -.01, v: rnd() * 2 - 1, sp: .085 + rnd() * .05, ph: rnd() * 6.28, fate, die: -1, c: SOURCES[Math.floor(rnd() * 5)].c });
+    }
+    function step(dt) {
+      acc += dt * 46; while (acc > 1) { acc--; spawn(); }
+      for (const q of parts) {
+        q.x += q.sp * dt * (q.x > GX[2] ? .8 : 1);
+        if (q.die < 0 && q.fate < 3 && q.x > GX[q.fate]) q.die = 0;
+        if (q.die >= 0) q.die += dt;
+      }
+      parts = parts.filter(q => q.die < .9 && q.x < END + .005);
+    }
+    function draw(t) {
+      c2.clearRect(0, 0, W, H + 22);
+      const cy = H * .5;
+      // the band narrows at every gate
+      c2.beginPath();
+      for (let i = 0; i <= 120; i++) { const x = i / 120 * END; c2.lineTo(x * W, cy - halfH(x) * H); }
+      for (let i = 120; i >= 0; i--) { const x = i / 120 * END; c2.lineTo(x * W, cy + halfH(x) * H); }
+      c2.closePath(); c2.fillStyle = 'rgba(224, 216, 199, .45)'; c2.fill();
+      c2.setLineDash([3, 4]); c2.strokeStyle = 'rgba(145, 138, 125, .55)'; c2.lineWidth = 1;
+      GX.forEach(g => { c2.beginPath(); c2.moveTo(g * W, cy - H * .46); c2.lineTo(g * W, cy + H * .46); c2.stroke(); });
+      c2.setLineDash([]);
+      for (const q of parts) {
+        const hx = halfH(Math.min(q.x, END)), wob = Math.sin(t * 1.3 + q.ph) * .06;
+        let y = cy + (q.v * .92 + wob) * hx * H, x = q.x * W, a = sstep(q.x, -.01, .03), col = q.x < GX[0] ? q.c : q.x < GX[2] ? '#1c1a16' : '#2c7a4c', r = 1.9;
+        if (q.die >= 0) { const k = q.die / .9; y += k * k * H * .5 * (q.v >= 0 ? 1 : .7); x += k * 14; a *= 1 - k; col = '#d2462a'; r = 1.9 * (1 - k * .5); }
+        if (q.x > .84 && q.die < 0) { const k = sstep(q.x, .84, END), slot = Math.round((q.v + 1)) - 1; y = lerp(y, cy + slot * 9, k); }
+        c2.globalAlpha = a * (q.x < GX[0] ? .75 : .9); c2.fillStyle = col; c2.beginPath(); c2.arc(x, y, r, 0, 7); c2.fill();
+      }
+      c2.globalAlpha = 1;
+      // the three that make it, breathing
+      for (let k = -1; k <= 1; k++) {
+        const px = END * W + 2, py = cy + k * 9, pulse = .5 + .5 * Math.sin(t * 2.2 + k), g = 6 + pulse * 3;
+        c2.fillStyle = 'rgba(44, 122, 76, .16)'; c2.beginPath(); c2.arc(px, py, g, 0, 7); c2.fill();
+        c2.fillStyle = '#2c7a4c'; c2.beginPath(); c2.arc(px, py, 3.4, 0, 7); c2.fill();
+      }
+    }
+    function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); draw(now / 1000); raf = vis ? requestAnimationFrame(loop) : 0; }
+    size();
+    for (let i = 0; i < 520; i++) step(1 / 30); // start mid-flow, not empty
+    draw(0);
+    new ResizeObserver(() => { size(); draw(performance.now() / 1000); }).observe(host);
+    if (!reduce) new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && !raf) { last = performance.now(); raf = requestAnimationFrame(loop); } }).observe(host);
+  })();
+
+  /* ---------- reveals under the run ---------- */
+  const rvIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rvIO.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+  $$('[data-rv]').forEach(el => { [...el.children].forEach((c, i) => c.style.setProperty('--k', i)); rvIO.observe(el); });
+  const rub = $('.rub'); $$('tbody tr', rub).forEach((r, i) => r.style.setProperty('--k', i)); rvIO.observe(rub);
+  const endH = $('#end h2'); endH.setAttribute('aria-label', endH.textContent);
+  let ei = 0; endH.innerHTML = endH.textContent.split(/(\s+)/).map(w => /^\s+$/.test(w) || !w ? w : `<span class="w" aria-hidden="true"><span style="--i:${ei++}">${w}</span></span>`).join('');
+  rvIO.observe($('#end'));
+  if (reduce) $$('[data-rv], .rub, #end').forEach(el => el.classList.add('in'));
+
+  /* ---------- reading progress ---------- */
+  const prog = $('#prog'); let progQ = false;
+  addEventListener('scroll', () => { if (progQ) return; progQ = true; requestAnimationFrame(() => { progQ = false; const m = document.documentElement.scrollHeight - innerHeight; prog.style.transform = `scaleX(${m > 0 ? clamp(scrollY / m, 0, 1) : 0})`; }); }, { passive: true });
+
+  /* ---------- try the rubric ---------- */
+  const tryBox = $('#tryBox'), tryInner = $('#tryInner');
+  let tryS = null, tryKey = 'globex', tryAnim = 0;
+  function fitTry() { const r = tryBox.getBoundingClientRect(), s = Math.min(r.width / 480, r.height / 520); tryInner.style.transform = `scale(${s}) translate(-50%, -50%)`; tryInner.style.transformOrigin = '0 0'; }
+  tryInner.style.height = '520px';
+  new ResizeObserver(fitTry).observe(tryBox); fitTry();
+  function playTry() {
+    cancelAnimationFrame(tryAnim);
+    tryS = scorer($('#tryScorer'), tryKey);
+    if (reduce) { tryS.set(1); return; }
+    const t0 = performance.now(), dur = tryKey === 'proseware' ? 2600 : 5200;
+    const tick = now => { const u = clamp((now - t0) / dur, 0, 1); tryS.set(u); if (u < 1) tryAnim = requestAnimationFrame(tick); };
+    tryAnim = requestAnimationFrame(tick);
+  }
+  $$('#trySeg button').forEach(b => b.addEventListener('click', () => { $$('#trySeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); tryKey = b.dataset.k; playTry(); }));
+  $('#tryReplay').addEventListener('click', playTry);
+  let tried = false;
+  new IntersectionObserver(es => { if (es[0].isIntersecting && !tried) { tried = true; playTry(); } }, { threshold: .45 }).observe(tryBox);
+  tryS = scorer($('#tryScorer'), tryKey); tryS.set(0);
+})();
+</script>
+</body>
+</html>
