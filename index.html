@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- hardening -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-aiI63otTqJvjkwmLHFOtOLIGos+DqN0Tplp+eEncCqc='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-P8+40tXkKkxj0YJRRkTU9GiWPlCrSwj8SIJlYQSxIMs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noai, noimageai">
 <!-- /hardening -->
@@ -1269,7 +1269,7 @@ const Kit = (() => {
     agent: { name: 'Job search agent', kind: 'AI agents', demo: 'agent', shot: ['assets/jobagent.webp', 'The job search agent walkthrough, with a filter funnel thinning 386 postings down to the roles worth a deep read'],
       desc: 'Two scheduled Claude agents and one shared tracker. Every weekday at 9:45, the matcher gathers a few hundred new postings, throws out what I can\u2019t or shouldn\u2019t apply to, sends a separate subagent to read each survivor in full, and scores it against my resume with a written rubric. The two or three worth my time land on a dashboard with their math shown. A second agent checks my job inbox every hour and moves tracker rows on its own, so the next run already knows what I applied to.',
       props: [['Schedule', 'Weekdays at 9:45 AM ET, plus an hourly inbox check from 8 AM to 6 PM'], ['Sources', 'Indeed and ZipRecruiter connectors, Built In, Wellfound, and the Greenhouse, Ashby and Lever APIs'], ['Tracker', 'A Claude doc of tables, kept current by the email monitor'], ['Stack', 'Claude scheduled tasks and subagents, MCP connectors, Python helpers']],
-      hl: ['One subagent per role, in waves of six, with an early exit on hard knockouts', 'A written rubric with caps for unmet must-haves, and a second agent for borderline scores', 'The tracker is the contract between the two agents, and hand edits are respected by both'],
+      hl: ['One subagent per role, in waves of six, with an early exit on hard knockouts', 'A written rubric with caps for unmet must-haves, and a second agent for borderline scores', 'The tracker is the contract between the two agents, and hand edits are respected by both', 'Audited against LinkedIn\u2019s top-applicant picks: 32 of 75 had a dealbreaker LinkedIn ignored, and the rules that were too strict got fixed'],
       links: [['See how it works', 'job-agent/', 1]] },
     dashboard: { name: 'Desk dashboard', kind: 'Personal tool', demo: null, shot: ['assets/dashboard.webp', 'Dot-matrix desktop dashboard with clock, system load and now playing'],
       desc: 'A dot-matrix status board for the desk: clock, system load, network, now playing, a focus timer and GitHub activity on one screen.',

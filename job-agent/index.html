@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- hardening -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qsSkKwNVAAKc+ZTv9n5GYM5qIDay1sfHgYCRC1P1MVs='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-p61X/lt40rGKwIpD+xfwGOiPrtmVFdP1MOrEIud2Iws='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noai, noimageai">
 <!-- /hardening -->
@@ -385,6 +385,55 @@ code, .mono { font-family: var(--mono); font-size: .86em; }
 .foot { border-top: 1px solid var(--line-2); padding: 1.4rem 0 3rem; color: var(--faint); font-size: 13px; }
 .foot .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem 1rem; }
 
+/* ---------- the LinkedIn audit ---------- */
+.audit-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 2.4rem; align-items: start; }
+.audit-l .eyebrow { display: inline-flex; align-items: center; gap: .5rem; font-size: 13px; font-weight: 650; color: var(--soft); margin-bottom: .9rem; }
+.audit-l .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+.audit-l h2 { margin: 0 0 1rem; font-family: var(--serif); font-weight: 420; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.02; letter-spacing: -.02em; text-wrap: balance; }
+.audit-l p { margin: 0 0 1rem; font-family: var(--serif); font-size: 1.14rem; line-height: 1.55; color: #2c2924; }
+.audit-l p b { font-weight: 600; color: var(--ink); }
+.audit-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 1.4rem 0 1.1rem; border-top: 1px solid var(--line-2); }
+.audit-stats > div { padding: .8rem .9rem 0 0; }
+.audit-stats > div + div { padding-left: .9rem; border-left: 1px solid var(--line); }
+.audit-stats b { display: block; font-family: var(--serif); font-weight: 420; font-size: 2rem; line-height: 1; letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; }
+.audit-stats span { display: block; margin-top: .35rem; font-size: 12.5px; color: var(--soft); line-height: 1.35; }
+.audit-stage { position: sticky; top: 16px; }
+.audit-stage .stage { height: auto; max-height: none; }
+.audit-stage .st-view { flex: none; aspect-ratio: 480 / 500; }
+.audit-stage .st-log { height: 64px; }
+.audit-ctl { display: flex; align-items: center; gap: .6rem; margin-left: auto; }
+.audit-ctl .round { width: 28px; height: 28px; }
+.audit-ctl .round svg { width: 12px; height: 12px; }
+.ab-head { position: absolute; left: 22px; right: 22px; top: 16px; display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: var(--soft); }
+.ab-head b { color: var(--ink); font-weight: 700; }
+.ab-head .li { display: inline-flex; align-items: center; gap: .45rem; }
+.ab-head .li i { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+.ab-head em { font-style: normal; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.ab-seen { position: absolute; left: 0; right: 0; top: 166px; text-align: center; font-size: 12px; color: var(--soft); opacity: 0; transform: translateY(6px); transition: opacity .4s ease, transform .5s var(--glide); }
+.ab-seen.on { opacity: 1; transform: none; }
+.ab-seen b { color: var(--green); }
+.ab-col { position: absolute; top: 432px; width: 112px; transform: translateX(-50%); text-align: center; line-height: 1.15; }
+.ab-col b { display: block; font-family: var(--serif); font-size: 24px; font-weight: 420; letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; }
+.ab-col span { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; color: var(--soft); }
+.ab-col.g b { color: var(--green); } .ab-col.r b { color: var(--red); } .ab-col.a b { color: var(--amber); } .ab-col.o b { color: var(--faint); }
+.ab-chips { position: absolute; top: 176px; width: 212px; display: grid; gap: 4px; }
+.ab-chips > span { display: flex; align-items: center; gap: 7px; height: 24px; padding: 0 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); font-size: 11.5px; font-weight: 600; white-space: nowrap; opacity: 0; transform: translateY(8px) scale(.96); transition: opacity .35s ease, transform .6s var(--spring); }
+.ab-chips > span.on { opacity: 1; transform: none; }
+.ab-chips > span i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.ab-chips > span em { margin-left: auto; font-style: normal; font-family: var(--mono); font-size: 11.5px; color: var(--soft); }
+.ab-chips h4 { margin: 0 0 2px; font-size: 11px; font-weight: 700; color: var(--soft); opacity: 0; transition: opacity .35s ease; }
+.ab-chips h4.on { opacity: 1; }
+.ab-chips.fix > span { border-color: color-mix(in srgb, var(--amber) 35%, var(--line)); }
+.ab-chips.fix > span::before { content: "✓"; color: var(--green); font-weight: 800; }
+.ab-proof { position: absolute; left: 58px; right: 22px; top: 50px; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--red) 30%, var(--line)); border-radius: 12px; background: var(--card); box-shadow: 0 16px 34px -24px rgba(60, 50, 30, .55); opacity: 0; transform: translateY(-10px) scale(.98); transition: opacity .4s ease, transform .7s var(--spring); }
+.ab-proof.on { opacity: 1; transform: none; }
+.ab-proof > i { width: 30px; height: 30px; border-radius: 8px; background: var(--red-soft); color: var(--red); display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 13px; }
+.ab-proof b { display: block; font-size: 13px; }
+.ab-proof p { margin: 2px 0 0; font-size: 12px; line-height: 1.4; color: #3a362f; }
+.audit-note { margin: .4rem 0 0; font-size: 13px; color: var(--faint); }
+@media (max-width: 900px) { .audit-grid { grid-template-columns: minmax(0, 1fr); } .audit-stage { position: relative; top: 0; } }
+@media (max-width: 560px) { .audit-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .audit-stats > div:nth-child(3) { border-left: 0; padding-left: 0; } .audit-stats > div:nth-child(n+3) { margin-top: .8rem; border-top: 1px solid var(--line); } }
+
 /* ---------- motion layer ---------- */
 :root { --spring: cubic-bezier(.34, 1.56, .64, 1); --glide: cubic-bezier(.2, .8, .2, 1); }
 .prog { position: fixed; left: 0; top: 0; z-index: 50; height: 2px; width: 100%; background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; }
@@ -513,7 +562,7 @@ code, .mono { font-family: var(--mono); font-size: .86em; }
         <article class="step" data-i="3"><div class="txt">
           <div class="no"><em>3</em>Filter</div>
           <h2>Most of it gets thrown out, on purpose.</h2>
-          <p>Cheap checks run before expensive ones. Duplicate listings collapse to one row, keeping the company&rsquo;s own apply link. Anything posted more than 14 days ago goes. Titles I can&rsquo;t credibly land go: Senior, Staff, Principal, Director, people managers, TPM. So do roles that require living somewhere other than New York or New Jersey with no relocation.</p>
+          <p>Cheap checks run before expensive ones. Duplicate listings collapse to one row, keeping the company&rsquo;s own apply link. Anything posted more than 14 days ago goes. Titles I can&rsquo;t credibly land go: Senior, Staff, Principal, Director, people managers, TPM. Senior Associate and Senior Analyst get judged on the posting instead. So do roles that require living somewhere other than New York or New Jersey with no relocation.</p>
           <p>Then it drops anything in the skip set. Last, a quick screen catches outright fails, so a per-role agent never gets spent on a role that was dead on arrival.</p>
           <div class="spec"><b>dedupe</b> company + title + location<br><b>date</b> posted &le; 14 days<br><b>hard filters</b> titles &middot; employers &middot; geography<br><b>prefilter.py</b> <span class="r">drops</span> roles already in the tracker<br><b>ledger.py filter</b> <span class="r">drops</span> roles scored before</div>
         </div></article>
@@ -687,6 +736,49 @@ code, .mono { font-family: var(--mono); font-size: .86em; }
     </div>
   </section>
 
+  <section class="hood" id="audit" aria-labelledby="h-audit">
+    <div class="wrap audit-grid">
+      <div class="audit-l" data-rv>
+        <span class="eyebrow"><i aria-hidden="true"></i>Checking my own work</span>
+        <h2 id="h-audit">Then I graded it against LinkedIn.</h2>
+        <p>I&rsquo;m always looking for ways to make this more accurate, and the best test is an outside one. LinkedIn tags roles where it thinks you&rsquo;re a &ldquo;top applicant,&rdquo; so I took all 75 it showed me, ran each one through the matcher&rsquo;s real title and company filters, and scored it against the same rubric.</p>
+        <p><b>LinkedIn was too generous on 32 of the 75.</b> Its tag leans on location, work style and pay matching my settings, and it skips the requirements: a degree with no &ldquo;or equivalent,&rdquo; managing people, five or more years as a PM, domain experience I don&rsquo;t have. Those rules stay strict.</p>
+        <p><b>The matcher was too strict on 9, so I fixed the rules behind them.</b> It learned four title families it was missing, the posting window went from 5 days to 14, Senior Associate and Senior Analyst stopped reading as senior, the technical cap now ignores hedged wording, and QA and UAT work finally earns points. Before any of it shipped, I replayed all 552 roles the matcher had already scored to make sure nothing that used to pass started failing.</p>
+        <p><b>The best evidence came later.</b> Two of LinkedIn&rsquo;s top-applicant roles I applied to anyway have since rejected me. The matcher had scored both under 6.</p>
+        <div class="audit-stats" aria-label="The comparison in numbers">
+          <div><b>75</b><span>LinkedIn top-applicant roles compared</span></div>
+          <div><b>32</b><span>had a dealbreaker LinkedIn ignored</span></div>
+          <div><b>9</b><span>exposed a rule that was too strict, now fixed</span></div>
+          <div><b>0</b><span>regressions across 552 replayed roles</span></div>
+        </div>
+        <p>The comparison also showed the matcher had only seen 3 of the 75, so sourcing is the next fix: adding the job boards of companies it never queries.</p>
+        <p class="audit-note">Each LinkedIn role was scored by one careful read with the rubric as written, so treat any single score as plus or minus one.</p>
+      </div>
+      <div class="audit-stage">
+        <div class="stage" id="aStage" role="img" aria-label="Animation: 75 LinkedIn top-applicant roles are re-scored by the matcher's rubric and sorted into agree, LinkedIn too lenient, matcher too strict, and other.">
+          <div class="st-bar">
+            <div class="st-run"><i aria-hidden="true" style="background:var(--blue)"></i><b>Audit</b></div>
+            <div class="st-lab" id="aLab"><span>LinkedIn vs the matcher</span></div>
+            <div class="st-dots" id="aDots" aria-hidden="true"></div>
+            <div class="audit-ctl"><button class="round" type="button" id="aReplay" aria-label="Replay the comparison"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7a4.5 4.5 0 1 0 1.4-3.3"/><path d="M3.5 1.5v2.6h2.6"/></svg></button></div>
+          </div>
+          <div class="st-view" id="aView">
+            <div class="st-box" id="aBox">
+              <canvas id="aCv" aria-hidden="true"></canvas>
+              <div class="ab-head"><span class="li"><i></i><b>LinkedIn</b>&nbsp;&ldquo;Top applicant&rdquo; list</span><em id="aCount">0 roles</em></div>
+              <div class="ab-seen" id="aSeen">The matcher had already seen <b>3</b> of them</div>
+              <div class="ab-proof" id="aProof"><i>&times;</i><div><b>Two of these rejected me after I applied anyway</b><p>One wanted 3+ years managing people, the other 5+ years as a PM. LinkedIn called me a top applicant for both. The matcher had both under 6.</p></div></div>
+              <div class="ab-chips" id="aWhy" style="left:20px"><h4>Where LinkedIn was too lenient</h4></div>
+              <div class="ab-chips fix" id="aFix" style="left:248px"><h4>Where the matcher was too strict: fixed</h4></div>
+              <div id="aCols"></div>
+            </div>
+          </div>
+          <div class="st-log" id="aLog" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="hood" id="try" aria-labelledby="h-try">
     <div class="wrap">
       <div class="sec-head" data-rv><div><h2 id="h-try">Try the rubric</h2><p>Three sample postings, three different outcomes. Pick one and watch the agent read it.</p></div></div>
@@ -716,10 +808,12 @@ code, .mono { font-family: var(--mono); font-size: .86em; }
           <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>SQL or a BI tool named</td><td class="why">SQL pipelines at Epic, Tableau and Grafana, weekly exec decks at Zenimax.</td></tr>
           <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>PRDs, requirements or roadmap ownership</td><td class="why">Requirements and acceptance criteria for internal tools.</td></tr>
           <tr><th scope="row">Bonus</th><td class="w"><span class="p">+1</span></td><td>Experience band that fits, such as 2 to 4 years of PM</td><td class="why">My PM title history is shorter than my product experience.</td></tr>
-          <tr><th scope="row">Filtered</th><td class="w"><span class="m">dropped</span></td><td>Senior, Staff, Principal, Director, people managers, TPM</td><td class="why">I haven&rsquo;t held those titles, and employers screen on them instantly.</td></tr>
-          <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;1 to &minus;3</span></td><td>Engineering background required, compliance, governance, trust and safety, legal</td><td class="why">Adjacent to my work, not the center of it.</td></tr>
+          <tr><th scope="row">Bonus</th><td class="w"><span class="p">+2</span></td><td>QA, UAT, test plans, release management or acceptance criteria named</td><td class="why">Years of QA, test plans and change review. Added after the LinkedIn audit showed it earned nothing.</td></tr>
+          <tr><th scope="row">Filtered</th><td class="w"><span class="m">dropped</span></td><td>Senior, Staff, Principal, Director, people managers, TPM. Senior Associate and Senior Analyst are judged on the posting instead.</td><td class="why">I haven&rsquo;t held those titles, and employers screen on them instantly.</td></tr>
+          <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;1 to &minus;3</span></td><td>Compliance, governance, trust and safety, legal</td><td class="why">Adjacent to my work, not the center of it.</td></tr>
           <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;2</span></td><td>Game studios, game hosting, betting</td><td class="why">I&rsquo;m steering out of games on purpose.</td></tr>
           <tr><th scope="row">Penalty</th><td class="w"><span class="m">&minus;2</span></td><td>Take-home, case study or recorded video steps</td><td class="why">If a team wants to talk, a call works.</td></tr>
+          <tr><th scope="row">Cap</th><td class="w"><span class="c">capped at 5</span></td><td>Technical PM: the title says Technical or TPM, or the posting requires an engineering background. Hedged lines like &ldquo;engineering degree or equivalent&rdquo; don&rsquo;t count.</td><td class="why">I work alongside engineers; I&rsquo;m not one.</td></tr>
           <tr><th scope="row">Cap</th><td class="w"><span class="c">capped, gap named</span></td><td>Degree with no &ldquo;or equivalent experience,&rdquo; a license or clearance, or years far beyond mine</td><td class="why">Surfaces the dealbreaker before I write a cover letter.</td></tr>
         </tbody>
       </table>
@@ -1534,6 +1628,98 @@ code, .mono { font-family: var(--mono); font-size: .86em; }
   /* ---------- reading progress ---------- */
   const prog = $('#prog'); let progQ = false;
   addEventListener('scroll', () => { if (progQ) return; progQ = true; requestAnimationFrame(() => { progQ = false; const m = document.documentElement.scrollHeight - innerHeight; prog.style.transform = `scaleX(${m > 0 ? clamp(scrollY / m, 0, 1) : 0})`; }); }, { passive: true });
+
+  /* ---------- the LinkedIn audit: plays once when it scrolls into view, replayable ---------- */
+  (function audit() {
+    const box = $('#aBox'), view = $('#aView'), cv = $('#aCv'), c2 = cv.getContext('2d');
+    let sd = 1110; const r2 = () => (sd = sd * 16807 % 2147483647) / 2147483647;
+    const sh = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r2() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    // the comparison sheet, 2026-11-10: 75 roles by verdict, and why LinkedIn was too lenient on 32
+    const COLS = [{ k: 'g', n: 21, label: 'We agree: good fit', c: '#2c7a4c', x: 72 }, { k: 'r', n: 32, label: 'LinkedIn too lenient', c: '#d2462a', x: 186 },
+      { k: 'a', n: 9, label: 'Matcher too strict', c: '#a9690f', x: 300 }, { k: 'o', n: 13, label: 'Excluded, applied, other', c: '#9a9284', x: 414 }];
+    const WHY = [['Degree, no "or equivalent"', 7, '#b8321a'], ['Managing people', 4, '#d2462a'], ['Domain must-haves', 7, '#e0674d'], ['5+ years as a PM', 2, '#ec9a85'], ['Thin or stale match', 12, '#f2c3b6']];
+    const FIX = ['Four new title families', 'Window: 5 days to 14', 'Senior Associate / Analyst', 'Technical cap reads hedges', '+2 for QA and UAT work'];
+    const D = []; COLS.forEach((col, ci) => { for (let k = 0; k < col.n; k++) D.push({ col: ci }); });
+    sh(D);
+    D.forEach((d, i) => { d.i = i; d.gx = 82 + (i % 15) * 22.6; d.gy = 66 + Math.floor(i / 15) * 21; });
+    const by = COLS.map(() => []); D.forEach(d => by[d.col].push(d));
+    // lenient dots grouped by reason so each reason fills its own band of the stack
+    let ri = 0; WHY.forEach(([, n], w) => { for (let k = 0; k < n; k++) by[1][ri++].why = w; });
+    by[1].sort((a, b) => a.why - b.why);
+    by.forEach((arr, ci) => arr.forEach((d, j) => { d.sx = COLS[ci].x - 32.5 + (j % 6) * 13; d.sy = 418 - Math.floor(j / 6) * 13; }));
+    const seen = [D[9], D[31], D[58]];
+    const rej = [by[1].find(d => d.why === 1), by[1].find(d => d.why === 3)];
+    const order = sh(D.map((_, i) => i)); order.forEach((di, r) => { D[di].r = r; });
+    // beats, in seconds
+    const BEATS = [[0, 'The list'], [2.6, 'Already seen'], [4.4, 'Re-scored'], [8.8, 'Too lenient'], [11.8, 'Too strict'], [15.2, 'Proof']];
+    const END = 18.5;
+    const LOG = [[.2, 'read all 3 pages of the top-applicant list: 75 roles'], [2.7, 'ledger lookup: the matcher had seen 3 of them'], [4.5, 'each role through the real title and company filters, then the v6 rubric'],
+      [8.0, 'agree 21 · LinkedIn too lenient 32 · matcher too strict 9 · other 13'], [9.0, 'lenient: degree 7, people management 4, domain 7, 5+ yrs PM 2'],
+      [12.0, 'fixed: title patterns, 14-day window, Senior exemption, technical cap, QA bonus'], [14.2, 'rejudge.py: replayed 552 saved roles, 0 regressions'], [15.4, 'tracker: 2 of these rejected me; the matcher had both under 6']];
+    $('#aCols').innerHTML = COLS.map(col => `<div class="ab-col ${col.k}" style="left:${col.x}px"><b>0</b><span>${col.label}</span></div>`).join('');
+    const colNs = $$('#aCols b');
+    $('#aWhy').insertAdjacentHTML('beforeend', WHY.map(([t, n, c]) => `<span><i style="background:${c}"></i>${t}<em>${n === 12 ? 'rest' : n}</em></span>`).join(''));
+    $('#aFix').insertAdjacentHTML('beforeend', FIX.map(t => `<span>${t}</span>`).join(''));
+    const whyEls = $$('#aWhy > span'), fixEls = $$('#aFix > span'), whyH = $('#aWhy h4'), fixH = $('#aFix h4');
+    const dotsHost = $('#aDots'); BEATS.forEach(() => dotsHost.appendChild(document.createElement('button')));
+    const beatEls = $$('#aDots button'); beatEls.forEach(b => { b.type = 'button'; b.tabIndex = -1; });
+    let S = 1, dpr = 1;
+    function fit() {
+      const r = view.getBoundingClientRect(); S = Math.min(r.width / 480, r.height / 500);
+      box.style.transform = `scale(${S}) translate(-50%, -50%)`; box.style.transformOrigin = '0 0';
+      dpr = Math.min(2, devicePixelRatio || 1); const pw = Math.round(480 * S * dpr), ph = Math.round(500 * S * dpr);
+      if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+      c2.setTransform(S * dpr, 0, 0, S * dpr, 0, 0); render(T);
+    }
+    let lastLog = -2, lastBeat = -1;
+    function render(t) {
+      c2.clearRect(0, 0, 480, 500);
+      // the list fades in row by row
+      const counted = D.filter(d => t > .15 + d.i * .022 + .25).length;
+      $('#aCount').textContent = `${counted} roles`;
+      $('#aSeen').classList.toggle('on', t > 2.7 && t < 4.6);
+      // stacks' baselines
+      c2.strokeStyle = '#d0c8b6'; c2.lineWidth = 1; c2.globalAlpha = sstep(t, 4.2, 4.8);
+      COLS.forEach(col => { c2.beginPath(); c2.moveTo(col.x - 42, 426); c2.lineTo(col.x + 42, 426); c2.stroke(); });
+      c2.globalAlpha = 1;
+      const arrived = COLS.map(() => 0);
+      for (const d of D) {
+        const t0 = .15 + d.i * .022, appear = eout(seg(t, t0, t0 + .45));
+        if (appear <= 0) continue;
+        const m0 = 4.5 + 3.1 * d.r / D.length, u = ease(seg(t, m0, m0 + .85));
+        if (u >= 1) arrived[d.col]++;
+        let x = lerp(d.gx, d.sx, u), y = lerp(d.gy, d.sy, u) - Math.sin(Math.PI * u) * 40, r = lerp(6.2, 5, u) * appear;
+        let col = u > .5 ? COLS[d.col].c : '#3b52cf', a = appear;
+        if (d.col === 1 && d.why != null) { const k = sstep(t, 9.1 + d.why * .5, 9.5 + d.why * .5); col = k > .5 ? WHY[d.why][2] : col; }
+        // proof: the two rejections lift out of the stack toward the card
+        if (rej.includes(d)) { const k = ease(seg(t, 15.3, 16.2)); const tx = 36, ty = rej[0] === d ? 70 : 96; x = lerp(x, tx, k); y = lerp(y, ty, k); r = lerp(r, 6.5, k); }
+        // the three the matcher had already seen
+        if (seen.includes(d)) { const k = sstep(t, 2.7, 3.1) * (1 - sstep(t, 4.4, 4.8)); if (k > 0) { c2.globalAlpha = k; c2.strokeStyle = '#2c7a4c'; c2.lineWidth = 2; c2.beginPath(); c2.arc(x, y, r + 4 + Math.sin(t * 6) * .8, 0, 7); c2.stroke(); } }
+        // fixed rules: amber dots get a green check ring
+        if (d.col === 2) { const k = sstep(t, 12.2 + (d.r % 9) * .12, 12.6 + (d.r % 9) * .12); if (k > 0) { c2.globalAlpha = k; c2.strokeStyle = '#2c7a4c'; c2.lineWidth = 1.4; c2.beginPath(); c2.arc(x, y, r + 1.4, 0, 7); c2.stroke(); } }
+        // dim the rest while the proof is up
+        if (t > 15.2 && !rej.includes(d)) a *= 1 - .55 * sstep(t, 15.2, 15.8);
+        c2.globalAlpha = a; c2.fillStyle = col; c2.beginPath(); c2.arc(x, y, r, 0, 7); c2.fill();
+      }
+      c2.globalAlpha = 1;
+      colNs.forEach((e, i) => { e.textContent = arrived[i]; });
+      whyH.classList.toggle('on', t > 8.9); whyEls.forEach((e, i) => e.classList.toggle('on', t > 9.1 + i * .5));
+      fixH.classList.toggle('on', t > 11.9); fixEls.forEach((e, i) => e.classList.toggle('on', t > 12.1 + i * .38));
+      $('#aProof').classList.toggle('on', t > 15.6);
+      // bar and log
+      let b = 0; BEATS.forEach(([bt], i) => { if (t >= bt) b = i; });
+      if (b !== lastBeat) { lastBeat = b; const host = $('#aLab'), n = document.createElement('span'); n.className = 'pre'; n.textContent = BEATS[b][1]; host.appendChild(n); void n.offsetWidth; n.classList.remove('pre'); $$('span', host).forEach(o => { if (o !== n) { o.classList.add('out'); setTimeout(() => o.remove(), 560); } }); }
+      beatEls.forEach((e, i) => { e.classList.toggle('on', i === b); e.classList.toggle('done', i < b); if (i === b) { const nb = BEATS[i + 1] ? BEATS[i + 1][0] : END; e.style.setProperty('--p', (clamp((t - BEATS[i][0]) / (nb - BEATS[i][0]), 0, 1) * 100).toFixed(1) + '%'); } });
+      let k = -1; LOG.forEach(([lt], i) => { if (t >= lt) k = i; });
+      if (k !== lastLog) { lastLog = k; $('#aLog').innerHTML = LOG.slice(Math.max(0, k - 2), k + 1).map(([, s]) => `<div>${s}</div>`).join(''); }
+    }
+    let T = 0, raf = 0, t0 = 0, played = false;
+    function play() { cancelAnimationFrame(raf); if (reduce) { T = END; render(T); return; } t0 = performance.now(); const step = now => { T = Math.min(END, (now - t0) / 1000); render(T); if (T < END) raf = requestAnimationFrame(step); }; raf = requestAnimationFrame(step); }
+    $('#aReplay').addEventListener('click', play);
+    new ResizeObserver(fit).observe(view); fit();
+    new IntersectionObserver(es => { if (es[0].intersectionRatio > .55 && !played) { played = true; play(); } }, { threshold: [0, .55, .8] }).observe($('#aStage'));
+    render(0);
+  })();
 
   /* ---------- try the rubric ---------- */
   const tryBox = $('#tryBox'), tryInner = $('#tryInner');
